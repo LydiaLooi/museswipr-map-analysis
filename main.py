@@ -95,13 +95,20 @@ def calculate_difficulty(notes):
         difficulty_buff = 1
 
     # Penalize chains of notes in one lane occurring quickly
-    chain_penalty = 0
+    chain_penalty = 1
     for t, group in itertools.groupby(time_diff):
         count = len(list(group))
         if count > 3 and t <= 0.05:
-            chain_penalty += count * 0.1
+            chain_penalty *= 0.95
 
-    # Buff zig zag patterns
+    # # Penalize chains of notes in one lane occurring quickly
+    # chain_penalty = 0
+    # for t, group in itertools.groupby(time_diff):
+    #     count = len(list(group))
+    #     if count > 3 and t <= 0.05:
+    #         chain_penalty += count * 0.1
+
+    # Modify buff for zig-zag patterns with exponential scaling for 13 to 20 notes per second
     zig_zag_buff = 0
     zig_zag_count = 0
     for i in range(len(notes) - 2):
@@ -111,11 +118,28 @@ def calculate_difficulty(notes):
             zig_zag_count = 0
 
         if zig_zag_count >= 3 and time_diff[i] <= 1 / 13:
-            zig_zag_buff += 0.1
+            note_rate = 1 / time_diff[i]
+            zig_zag_scale = max(min((note_rate - 13) / (20 - 13), 1), 0)
+            zig_zag_buff += 0.1 * (1 + zig_zag_scale) ** 2
 
+            
     # Calculate difficulty
     base_difficulty = sum(time_diff) / len(time_diff)
-    difficulty = (base_difficulty * difficulty_penalty - chain_penalty) * difficulty_buff + zig_zag_buff
+    difficulty = (base_difficulty * difficulty_penalty * chain_penalty) * difficulty_buff + zig_zag_buff
+
+    interest = ["everything will free", "world's end val", "big black", "grin", ]
+
+    for i in interest:
+        if i in filename.lower():
+            print(filename)
+            print(f"chain_penalty: {chain_penalty}")
+            print(f"zig_zag_buff: {zig_zag_buff}")
+            print(f"base_difficulty: {base_difficulty}")
+            print(f"difficulty_penalty: {difficulty_penalty}")
+            print(f"difficulty_buff: {difficulty_buff}")
+            print(f"difficluty: {difficulty}")
+            # print(f"v1 value: {actual_notes(notes)}")
+            print()
 
     return difficulty
 
