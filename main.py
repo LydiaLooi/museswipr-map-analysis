@@ -19,7 +19,7 @@ class MuseSwiprMap:
     def __init__(self, koreograph_asset_filename):
 
         data = None
-        with open(f"{koreograph_asset_filename}", "r") as f:
+        with open(f"{koreograph_asset_filename}", "r", encoding="utf-8") as f:
             data = json.load(f)
 
         self.title = list(data.keys())[0]
@@ -74,20 +74,54 @@ def calculate_difficulty(notes):
     # First, let's sort the notes by time
     notes = sorted(notes, key=lambda note: note.time)
 
+    # Calculate the total time of the map in seconds
+    total_time = notes[-1].time / 44100
+
     # We'll keep track of the total difficulty
     total_difficulty = 0
 
-    # Now we can calculate the difficulty of each note by looking at the time
-    # difference between it and the previous note, as well as the distance between
-    # the two notes on the playfield
-    for i in range(1, len(notes)):
-        time_diff = notes[i].time - notes[i-1].time
-        lane_diff = abs(notes[i].lane - notes[i-1].lane)
-        difficulty = time_diff + lane_diff
-        total_difficulty += difficulty
+    # Initialize variables for penalty/buff amounts
+    short_map_penalty = 0.25
+    long_map_buff = 0.05
+    chain_penalty = 1.5
+    zigzag_buff = 1.25
 
-    # Finally, we'll return the average difficulty per note
-    return 100000 *(1 / (total_difficulty / (len(notes) - 1)))
+    # Iterate over the notes to calculate difficulty
+    for i in range(1, len(notes)):
+        time_diff = (notes[i].time - notes[i-1].time) / 44100
+        lane_diff = abs(notes[i].lane - notes[i-1].lane)
+
+        # Penalize chains of notes in one lane that occur very quickly
+        if lane_diff == 0 and time_diff < 0.05:
+            total_difficulty += chain_penalty * (time_diff + lane_diff)
+        else:
+            total_difficulty += time_diff + lane_diff
+
+    # Buff difficulty for maps longer than 3 minutes (with increasing buff for longer maps)
+    if total_time > 180:
+        time_factor = min((total_time - 180) / 60, 2.0)
+        total_difficulty *= (1 + long_map_buff * time_factor)
+
+    # Penalize difficulty for maps shorter than 30 seconds
+    if total_time < 30:
+        total_difficulty *= (1 - short_map_penalty)
+
+    # Buff difficulty for sustained "zig zag" patterns that occur at a rate of at least 13 notes per second
+    zigzag_count = 0
+    zigzag_time = 0
+    for i in range(1, len(notes)):
+        time_diff = (notes[i].time - notes[i-1].time) / 44100
+        lane_diff = abs(notes[i].lane - notes[i-1].lane)
+        if lane_diff == 1 and time_diff < 0.08:
+            zigzag_count += 1
+            zigzag_time += time_diff
+        else:
+            if zigzag_count >= 13 and zigzag_time >= zigzag_count * 0.08:
+                total_difficulty *= (1 + zigzag_buff)
+            zigzag_count = 0
+            zigzag_time = 0
+
+    return 10 *(1 / (total_difficulty / (len(notes) - 1)))
 
 if __name__ == "__main__":
     # get a list of all files in the directory
@@ -104,7 +138,7 @@ if __name__ == "__main__":
             # append the file path to the list
             file_list.append(file_path)
     
-    with open("difficulties.txt", "w") as f:
+    with open("difficulties.txt", "w", encoding="utf-8") as f:
 
         for filename in file_list:
             try:

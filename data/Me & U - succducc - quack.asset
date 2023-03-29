@@ -1,0 +1,1450 @@
+{
+	"Me & U - succducc - quack" : {
+		"__type" : "SonicBloom.Koreo.Koreography,SonicBloom.Koreo",
+		"value" : {
+			"_ES3Ref" : "2711720852948477150",
+			"_ES3Ref" : "2711720852948477150",
+			"mSourceClip" : null,
+			"mAudioFilePath" : "",
+			"mSampleRate" : 48000,
+			"mIgnoreLatencyOffset" : false,
+			"mTempoSections" : [
+				{
+					"sectionName" : "baseTempoSection",
+					"startSample" : 0,
+					"samplesPerBeat" : 18000,
+					"beatsPerMeasure" : 4,
+					"bStartNewMeasure" : true
+				},{
+					"sectionName" : "newTempoSection",
+					"startSample" : 0,
+					"samplesPerBeat" : 18000,
+					"beatsPerMeasure" : 1,
+					"bStartNewMeasure" : true
+				}
+			],
+			"mTracks" : [
+				{
+					"__type" : "SonicBloom.Koreo.KoreographyTrack,SonicBloom.Koreo",
+					"_ES3Ref" : "6138069313853261345",
+					"_ES3Ref" : "6138069313853261345",
+					"_AssetPayloads" : null,
+					"_AssetPayloadIdxs" : null,
+					"_ColorPayloads" : null,
+					"_ColorPayloadIdxs" : null,
+					"_CurvePayloads" : null,
+					"_CurvePayloadIdxs" : null,
+					"_FloatPayloads" : null,
+					"_FloatPayloadIdxs" : null,
+					"_GradientPayloads" : null,
+					"_GradientPayloadIdxs" : null,
+					"_IntPayloads" : null,
+					"_IntPayloadIdxs" : null,
+					"_SpectrumPayloads" : null,
+					"_SpectrumPayloadIdxs" : null,
+					"_TextPayloads" : null,
+					"_TextPayloadIdxs" : null,
+					"mEventID" : "0",
+					"mEventList" : [
+						{
+							"mStartSample" : 0,
+							"mEndSample" : 0
+						},{
+							"mStartSample" : 31500,
+							"mEndSample" : 31500
+						},{
+							"mStartSample" : 40500,
+							"mEndSample" : 40500
+						},{
+							"mStartSample" : 49500,
+							"mEndSample" : 49500
+						},{
+							"mStartSample" : 76500,
+							"mEndSample" : 76500
+						},{
+							"mStartSample" : 94500,
+							"mEndSample" : 94500
+						},{
+							"mStartSample" : 99000,
+							"mEndSample" : 99000
+						},{
+							"mStartSample" : 130500,
+							"mEndSample" : 130500
+						},{
+							"mStartSample" : 139500,
+							"mEndSample" : 139500
+						},{
+							"mStartSample" : 157500,
+							"mEndSample" : 157500
+						},{
+							"mStartSample" : 184500,
+							"mEndSample" : 184500
+						},{
+							"mStartSample" : 193500,
+							"mEndSample" : 193500
+						},{
+							"mStartSample" : 202500,
+							"mEndSample" : 202500
+						},{
+							"mStartSample" : 211500,
+							"mEndSample" : 211500
+						},{
+							"mStartSample" : 220500,
+							"mEndSample" : 220500
+						},{
+							"mStartSample" : 238500,
+							"mEndSample" : 238500
+						},{
+							"mStartSample" : 243000,
+							"mEndSample" : 243000
+						},{
+							"mStartSample" : 247500,
+							"mEndSample" : 247500
+						},{
+							"mStartSample" : 297000,
+							"mEndSample" : 297000
+						},{
+							"mStartSample" : 301500,
+							"mEndSample" : 301500
+						},{
+							"mStartSample" : 328500,
+							"mEndSample" : 328500
+						},{
+							"mStartSample" : 337500,
+							"mEndSample" : 337500
+						},{
+							"mStartSample" : 346500,
+							"mEndSample" : 346500
+						},{
+							"mStartSample" : 355500,
+							"mEndSample" : 355500
+						},{
+							"mStartSample" : 364500,
+							"mEndSample" : 364500
+						},{
+							"mStartSample" : 382500,
+							"mEndSample" : 382500
+						},{
+							"mStartSample" : 387000,
+							"mEndSample" : 387000
+						},{
+							"mStartSample" : 391500,
+							"mEndSample" : 391500
+						},{
+							"mStartSample" : 472500,
+							"mEndSample" : 472500
+						},{
+							"mStartSample" : 481500,
+							"mEndSample" : 481500
+						},{
+							"mStartSample" : 486000,
+							"mEndSample" : 486000
+						},{
+							"mStartSample" : 488571,
+							"mEndSample" : 488571
+						},{
+							"mStartSample" : 491142,
+							"mEndSample" : 491142
+						},{
+							"mStartSample" : 493714,
+							"mEndSample" : 493714
+						},{
+							"mStartSample" : 496285,
+							"mEndSample" : 496285
+						},{
+							"mStartSample" : 498857,
+							"mEndSample" : 498857
+						},{
+							"mStartSample" : 501428,
+							"mEndSample" : 501428
+						},{
+							"mStartSample" : 508500,
+							"mEndSample" : 508500
+						},{
+							"mStartSample" : 517500,
+							"mEndSample" : 517500
+						},{
+							"mStartSample" : 526500,
+							"mEndSample" : 526500
+						},{
+							"mStartSample" : 540000,
+							"mEndSample" : 540000
+						},{
+							"mStartSample" : 546000,
+							"mEndSample" : 546000
+						},{
+							"mStartSample" : 552000,
+							"mEndSample" : 552000
+						},{
+							"mStartSample" : 558000,
+							"mEndSample" : 558000
+						},{
+							"mStartSample" : 563142,
+							"mEndSample" : 563142
+						},{
+							"mStartSample" : 568285,
+							"mEndSample" : 568285
+						},{
+							"mStartSample" : 573428,
+							"mEndSample" : 573428
+						},{
+							"mStartSample" : 612000,
+							"mEndSample" : 612000
+						},{
+							"mStartSample" : 616500,
+							"mEndSample" : 616500
+						},{
+							"mStartSample" : 634500,
+							"mEndSample" : 634500
+						},{
+							"mStartSample" : 643500,
+							"mEndSample" : 643500
+						},{
+							"mStartSample" : 652500,
+							"mEndSample" : 652500
+						},{
+							"mStartSample" : 670500,
+							"mEndSample" : 670500
+						},{
+							"mStartSample" : 675000,
+							"mEndSample" : 675000
+						},{
+							"mStartSample" : 706500,
+							"mEndSample" : 706500
+						},{
+							"mStartSample" : 715500,
+							"mEndSample" : 715500
+						},{
+							"mStartSample" : 724500,
+							"mEndSample" : 724500
+						},{
+							"mStartSample" : 742500,
+							"mEndSample" : 742500
+						},{
+							"mStartSample" : 760500,
+							"mEndSample" : 760500
+						},{
+							"mStartSample" : 765000,
+							"mEndSample" : 765000
+						},{
+							"mStartSample" : 796500,
+							"mEndSample" : 796500
+						},{
+							"mStartSample" : 805500,
+							"mEndSample" : 805500
+						},{
+							"mStartSample" : 814500,
+							"mEndSample" : 814500
+						},{
+							"mStartSample" : 832500,
+							"mEndSample" : 832500
+						},{
+							"mStartSample" : 850500,
+							"mEndSample" : 850500
+						},{
+							"mStartSample" : 855000,
+							"mEndSample" : 855000
+						},{
+							"mStartSample" : 868500,
+							"mEndSample" : 868500
+						},{
+							"mStartSample" : 895500,
+							"mEndSample" : 895500
+						},{
+							"mStartSample" : 904500,
+							"mEndSample" : 904500
+						},{
+							"mStartSample" : 922500,
+							"mEndSample" : 922500
+						},{
+							"mStartSample" : 949500,
+							"mEndSample" : 949500
+						},{
+							"mStartSample" : 967500,
+							"mEndSample" : 967500
+						},{
+							"mStartSample" : 976500,
+							"mEndSample" : 976500
+						},{
+							"mStartSample" : 994500,
+							"mEndSample" : 994500
+						},{
+							"mStartSample" : 1008000,
+							"mEndSample" : 1008000
+						},{
+							"mStartSample" : 1017000,
+							"mEndSample" : 1017000
+						},{
+							"mStartSample" : 1026000,
+							"mEndSample" : 1026000
+						},{
+							"mStartSample" : 1035000,
+							"mEndSample" : 1035000
+						},{
+							"mStartSample" : 1048500,
+							"mEndSample" : 1048500
+						},{
+							"mStartSample" : 1057500,
+							"mEndSample" : 1057500
+						},{
+							"mStartSample" : 1066500,
+							"mEndSample" : 1066500
+						},{
+							"mStartSample" : 1075500,
+							"mEndSample" : 1075500
+						},{
+							"mStartSample" : 1080000,
+							"mEndSample" : 1080000
+						},{
+							"mStartSample" : 1089000,
+							"mEndSample" : 1089000
+						},{
+							"mStartSample" : 1098000,
+							"mEndSample" : 1098000
+						},{
+							"mStartSample" : 1107000,
+							"mEndSample" : 1107000
+						},{
+							"mStartSample" : 1120500,
+							"mEndSample" : 1120500
+						},{
+							"mStartSample" : 1129500,
+							"mEndSample" : 1129500
+						},{
+							"mStartSample" : 1138500,
+							"mEndSample" : 1138500
+						},{
+							"mStartSample" : 1147500,
+							"mEndSample" : 1147500
+						},{
+							"mStartSample" : 1156500,
+							"mEndSample" : 1156500
+						},{
+							"mStartSample" : 1183500,
+							"mEndSample" : 1183500
+						},{
+							"mStartSample" : 1192500,
+							"mEndSample" : 1192500
+						},{
+							"mStartSample" : 1215000,
+							"mEndSample" : 1215000
+						},{
+							"mStartSample" : 1219500,
+							"mEndSample" : 1219500
+						},{
+							"mStartSample" : 1224000,
+							"mEndSample" : 1224000
+						},{
+							"mStartSample" : 1228500,
+							"mEndSample" : 1228500
+						},{
+							"mStartSample" : 1264500,
+							"mEndSample" : 1264500
+						},{
+							"mStartSample" : 1273500,
+							"mEndSample" : 1273500
+						},{
+							"mStartSample" : 1282500,
+							"mEndSample" : 1282500
+						},{
+							"mStartSample" : 1309500,
+							"mEndSample" : 1309500
+						},{
+							"mStartSample" : 1318500,
+							"mEndSample" : 1318500
+						},{
+							"mStartSample" : 1336500,
+							"mEndSample" : 1336500
+						},{
+							"mStartSample" : 1350000,
+							"mEndSample" : 1350000
+						},{
+							"mStartSample" : 1354500,
+							"mEndSample" : 1354500
+						},{
+							"mStartSample" : 1368000,
+							"mEndSample" : 1368000
+						},{
+							"mStartSample" : 1372500,
+							"mEndSample" : 1372500
+						},{
+							"mStartSample" : 1408500,
+							"mEndSample" : 1408500
+						},{
+							"mStartSample" : 1417500,
+							"mEndSample" : 1417500
+						},{
+							"mStartSample" : 1426500,
+							"mEndSample" : 1426500
+						},{
+							"mStartSample" : 1444500,
+							"mEndSample" : 1444500
+						},{
+							"mStartSample" : 1462500,
+							"mEndSample" : 1462500
+						},{
+							"mStartSample" : 1489500,
+							"mEndSample" : 1489500
+						},{
+							"mStartSample" : 1507500,
+							"mEndSample" : 1507500
+						},{
+							"mStartSample" : 1516500,
+							"mEndSample" : 1516500
+						},{
+							"mStartSample" : 1543500,
+							"mEndSample" : 1543500
+						},{
+							"mStartSample" : 1561500,
+							"mEndSample" : 1561500
+						},{
+							"mStartSample" : 1580400,
+							"mEndSample" : 1580400
+						},{
+							"mStartSample" : 1588500,
+							"mEndSample" : 1588500
+						},{
+							"mStartSample" : 1615500,
+							"mEndSample" : 1615500
+						},{
+							"mStartSample" : 1624500,
+							"mEndSample" : 1624500
+						},{
+							"mStartSample" : 1645200,
+							"mEndSample" : 1645200
+						},{
+							"mStartSample" : 1652400,
+							"mEndSample" : 1652400
+						},{
+							"mStartSample" : 1659000,
+							"mEndSample" : 1659000
+						},{
+							"mStartSample" : 1662000,
+							"mEndSample" : 1662000
+						},{
+							"mStartSample" : 1678500,
+							"mEndSample" : 1678500
+						},{
+							"mStartSample" : 1695000,
+							"mEndSample" : 1695000
+						},{
+							"mStartSample" : 1722000,
+							"mEndSample" : 1722000
+						},{
+							"mStartSample" : 1734000,
+							"mEndSample" : 1734000
+						},{
+							"mStartSample" : 1758000,
+							"mEndSample" : 1758000
+						},{
+							"mStartSample" : 1776000,
+							"mEndSample" : 1776000
+						},{
+							"mStartSample" : 1794000,
+							"mEndSample" : 1794000
+						},{
+							"mStartSample" : 1806000,
+							"mEndSample" : 1806000
+						},{
+							"mStartSample" : 1830000,
+							"mEndSample" : 1830000
+						},{
+							"mStartSample" : 1848000,
+							"mEndSample" : 1848000
+						},{
+							"mStartSample" : 1858500,
+							"mEndSample" : 1858500
+						},{
+							"mStartSample" : 1863000,
+							"mEndSample" : 1863000
+						},{
+							"mStartSample" : 1876500,
+							"mEndSample" : 1876500
+						},{
+							"mStartSample" : 1881000,
+							"mEndSample" : 1881000
+						},{
+							"mStartSample" : 1890000,
+							"mEndSample" : 1890000
+						},{
+							"mStartSample" : 1903500,
+							"mEndSample" : 1903500
+						},{
+							"mStartSample" : 1918800,
+							"mEndSample" : 1918800
+						},{
+							"mStartSample" : 1922400,
+							"mEndSample" : 1922400
+						},{
+							"mStartSample" : 1930500,
+							"mEndSample" : 1930500
+						},{
+							"mStartSample" : 1935000,
+							"mEndSample" : 1935000
+						},{
+							"mStartSample" : 1948500,
+							"mEndSample" : 1948500
+						},{
+							"mStartSample" : 1953000,
+							"mEndSample" : 1953000
+						},{
+							"mStartSample" : 1962000,
+							"mEndSample" : 1962000
+						},{
+							"mStartSample" : 1975500,
+							"mEndSample" : 1975500
+						},{
+							"mStartSample" : 1980000,
+							"mEndSample" : 1980000
+						},{
+							"mStartSample" : 1984500,
+							"mEndSample" : 1984500
+						},{
+							"mStartSample" : 1993500,
+							"mEndSample" : 1993500
+						},{
+							"mStartSample" : 2020500,
+							"mEndSample" : 2020500
+						},{
+							"mStartSample" : 2025000,
+							"mEndSample" : 2025000
+						},{
+							"mStartSample" : 2062285,
+							"mEndSample" : 2062285
+						},{
+							"mStartSample" : 2064857,
+							"mEndSample" : 2064857
+						},{
+							"mStartSample" : 2074500,
+							"mEndSample" : 2074500
+						},{
+							"mStartSample" : 2092500,
+							"mEndSample" : 2092500
+						},{
+							"mStartSample" : 2110500,
+							"mEndSample" : 2110500
+						},{
+							"mStartSample" : 2200500,
+							"mEndSample" : 2200500
+						},{
+							"mStartSample" : 2205000,
+							"mEndSample" : 2205000
+						},{
+							"mStartSample" : 2218500,
+							"mEndSample" : 2218500
+						},{
+							"mStartSample" : 2236500,
+							"mEndSample" : 2236500
+						},{
+							"mStartSample" : 2254500,
+							"mEndSample" : 2254500
+						},{
+							"mStartSample" : 2437200,
+							"mEndSample" : 2437200
+						},{
+							"mStartSample" : 2440800,
+							"mEndSample" : 2440800
+						},{
+							"mStartSample" : 2444400,
+							"mEndSample" : 2444400
+						},{
+							"mStartSample" : 2497500,
+							"mEndSample" : 2497500
+						},{
+							"mStartSample" : 2502000,
+							"mEndSample" : 2502000
+						},{
+							"mStartSample" : 2515500,
+							"mEndSample" : 2515500
+						},{
+							"mStartSample" : 2538000,
+							"mEndSample" : 2538000
+						},{
+							"mStartSample" : 2542500,
+							"mEndSample" : 2542500
+						},{
+							"mStartSample" : 2556000,
+							"mEndSample" : 2556000
+						},{
+							"mStartSample" : 2592000,
+							"mEndSample" : 2592000
+						},{
+							"mStartSample" : 2599200,
+							"mEndSample" : 2599200
+						},{
+							"mStartSample" : 2623500,
+							"mEndSample" : 2623500
+						},{
+							"mStartSample" : 2641500,
+							"mEndSample" : 2641500
+						},{
+							"mStartSample" : 2659500,
+							"mEndSample" : 2659500
+						},{
+							"mStartSample" : 2677500,
+							"mEndSample" : 2677500
+						},{
+							"mStartSample" : 2695500,
+							"mEndSample" : 2695500
+						},{
+							"mStartSample" : 2713500,
+							"mEndSample" : 2713500
+						},{
+							"mStartSample" : 2731500,
+							"mEndSample" : 2731500
+						},{
+							"mStartSample" : 2740500,
+							"mEndSample" : 2740500
+						},{
+							"mStartSample" : 2749500,
+							"mEndSample" : 2749500
+						},{
+							"mStartSample" : 2758500,
+							"mEndSample" : 2758500
+						},{
+							"mStartSample" : 2767500,
+							"mEndSample" : 2767500
+						},{
+							"mStartSample" : 2776500,
+							"mEndSample" : 2776500
+						},{
+							"mStartSample" : 2785500,
+							"mEndSample" : 2785500
+						},{
+							"mStartSample" : 2794500,
+							"mEndSample" : 2794500
+						},{
+							"mStartSample" : 2803500,
+							"mEndSample" : 2803500
+						},{
+							"mStartSample" : 2808000,
+							"mEndSample" : 2808000
+						},{
+							"mStartSample" : 2812500,
+							"mEndSample" : 2812500
+						},{
+							"mStartSample" : 2817000,
+							"mEndSample" : 2817000
+						},{
+							"mStartSample" : 2821500,
+							"mEndSample" : 2821500
+						},{
+							"mStartSample" : 2826000,
+							"mEndSample" : 2826000
+						},{
+							"mStartSample" : 2830500,
+							"mEndSample" : 2830500
+						},{
+							"mStartSample" : 2835000,
+							"mEndSample" : 2835000
+						},{
+							"mStartSample" : 2839500,
+							"mEndSample" : 2839500
+						},{
+							"mStartSample" : 2844000,
+							"mEndSample" : 2844000
+						},{
+							"mStartSample" : 2848500,
+							"mEndSample" : 2848500
+						},{
+							"mStartSample" : 2853000,
+							"mEndSample" : 2853000
+						},{
+							"mStartSample" : 2857500,
+							"mEndSample" : 2857500
+						},{
+							"mStartSample" : 2862000,
+							"mEndSample" : 2862000
+						},{
+							"mStartSample" : 2866500,
+							"mEndSample" : 2866500
+						},{
+							"mStartSample" : 2871000,
+							"mEndSample" : 2871000
+						},{
+							"mStartSample" : 2875500,
+							"mEndSample" : 2875500
+						},{
+							"mStartSample" : 2997000,
+							"mEndSample" : 2997000
+						},{
+							"mStartSample" : 3010500,
+							"mEndSample" : 3010500
+						},{
+							"mStartSample" : 3015000,
+							"mEndSample" : 3015000
+						},{
+							"mStartSample" : 3141000,
+							"mEndSample" : 3141000
+						},{
+							"mStartSample" : 3172500,
+							"mEndSample" : 3172500
+						},{
+							"mStartSample" : 3217500,
+							"mEndSample" : 3217500
+						},{
+							"mStartSample" : 3222000,
+							"mEndSample" : 3222000
+						},{
+							"mStartSample" : 3253500,
+							"mEndSample" : 3253500
+						},{
+							"mStartSample" : 3258000,
+							"mEndSample" : 3258000
+						},{
+							"mStartSample" : 3262500,
+							"mEndSample" : 3262500
+						},{
+							"mStartSample" : 3285000,
+							"mEndSample" : 3285000
+						},{
+							"mStartSample" : 3289500,
+							"mEndSample" : 3289500
+						},{
+							"mStartSample" : 3316500,
+							"mEndSample" : 3316500
+						},{
+							"mStartSample" : 3334500,
+							"mEndSample" : 3334500
+						},{
+							"mStartSample" : 3352500,
+							"mEndSample" : 3352500
+						},{
+							"mStartSample" : 3433500,
+							"mEndSample" : 3433500
+						},{
+							"mStartSample" : 3442500,
+							"mEndSample" : 3442500
+						}
+					],
+					"_SerializedPayloadTypes" : null
+				},{
+					"__type" : "SonicBloom.Koreo.KoreographyTrack,SonicBloom.Koreo",
+					"_ES3Ref" : "6544279781664170035",
+					"_ES3Ref" : "6544279781664170035",
+					"_AssetPayloads" : null,
+					"_AssetPayloadIdxs" : null,
+					"_ColorPayloads" : null,
+					"_ColorPayloadIdxs" : null,
+					"_CurvePayloads" : null,
+					"_CurvePayloadIdxs" : null,
+					"_FloatPayloads" : null,
+					"_FloatPayloadIdxs" : null,
+					"_GradientPayloads" : null,
+					"_GradientPayloadIdxs" : null,
+					"_IntPayloads" : null,
+					"_IntPayloadIdxs" : null,
+					"_SpectrumPayloads" : null,
+					"_SpectrumPayloadIdxs" : null,
+					"_TextPayloads" : null,
+					"_TextPayloadIdxs" : null,
+					"mEventID" : "1",
+					"mEventList" : [
+						{
+							"mStartSample" : 13500,
+							"mEndSample" : 13500
+						},{
+							"mStartSample" : 18000,
+							"mEndSample" : 18000
+						},{
+							"mStartSample" : 58500,
+							"mEndSample" : 58500
+						},{
+							"mStartSample" : 67500,
+							"mEndSample" : 67500
+						},{
+							"mStartSample" : 85500,
+							"mEndSample" : 85500
+						},{
+							"mStartSample" : 103500,
+							"mEndSample" : 103500
+						},{
+							"mStartSample" : 112500,
+							"mEndSample" : 112500
+						},{
+							"mStartSample" : 121500,
+							"mEndSample" : 121500
+						},{
+							"mStartSample" : 148500,
+							"mEndSample" : 148500
+						},{
+							"mStartSample" : 166500,
+							"mEndSample" : 166500
+						},{
+							"mStartSample" : 171000,
+							"mEndSample" : 171000
+						},{
+							"mStartSample" : 175500,
+							"mEndSample" : 175500
+						},{
+							"mStartSample" : 225000,
+							"mEndSample" : 225000
+						},{
+							"mStartSample" : 229500,
+							"mEndSample" : 229500
+						},{
+							"mStartSample" : 256500,
+							"mEndSample" : 256500
+						},{
+							"mStartSample" : 265500,
+							"mEndSample" : 265500
+						},{
+							"mStartSample" : 274500,
+							"mEndSample" : 274500
+						},{
+							"mStartSample" : 283500,
+							"mEndSample" : 283500
+						},{
+							"mStartSample" : 292500,
+							"mEndSample" : 292500
+						},{
+							"mStartSample" : 310500,
+							"mEndSample" : 310500
+						},{
+							"mStartSample" : 315000,
+							"mEndSample" : 315000
+						},{
+							"mStartSample" : 319500,
+							"mEndSample" : 319500
+						},{
+							"mStartSample" : 369000,
+							"mEndSample" : 369000
+						},{
+							"mStartSample" : 373500,
+							"mEndSample" : 373500
+						},{
+							"mStartSample" : 400500,
+							"mEndSample" : 400500
+						},{
+							"mStartSample" : 409500,
+							"mEndSample" : 409500
+						},{
+							"mStartSample" : 418500,
+							"mEndSample" : 418500
+						},{
+							"mStartSample" : 427500,
+							"mEndSample" : 427500
+						},{
+							"mStartSample" : 436500,
+							"mEndSample" : 436500
+						},{
+							"mStartSample" : 445500,
+							"mEndSample" : 445500
+						},{
+							"mStartSample" : 450000,
+							"mEndSample" : 450000
+						},{
+							"mStartSample" : 453000,
+							"mEndSample" : 453000
+						},{
+							"mStartSample" : 456000,
+							"mEndSample" : 456000
+						},{
+							"mStartSample" : 459000,
+							"mEndSample" : 459000
+						},{
+							"mStartSample" : 462000,
+							"mEndSample" : 462000
+						},{
+							"mStartSample" : 464999,
+							"mEndSample" : 464999
+						},{
+							"mStartSample" : 535500,
+							"mEndSample" : 535500
+						},{
+							"mStartSample" : 543000,
+							"mEndSample" : 543000
+						},{
+							"mStartSample" : 549000,
+							"mEndSample" : 549000
+						},{
+							"mStartSample" : 554999,
+							"mEndSample" : 554999
+						},{
+							"mStartSample" : 560571,
+							"mEndSample" : 560571
+						},{
+							"mStartSample" : 565714,
+							"mEndSample" : 565714
+						},{
+							"mStartSample" : 570857,
+							"mEndSample" : 570857
+						},{
+							"mStartSample" : 580500,
+							"mEndSample" : 580500
+						},{
+							"mStartSample" : 594000,
+							"mEndSample" : 594000
+						},{
+							"mStartSample" : 598500,
+							"mEndSample" : 598500
+						},{
+							"mStartSample" : 607500,
+							"mEndSample" : 607500
+						},{
+							"mStartSample" : 625500,
+							"mEndSample" : 625500
+						},{
+							"mStartSample" : 630000,
+							"mEndSample" : 630000
+						},{
+							"mStartSample" : 661500,
+							"mEndSample" : 661500
+						},{
+							"mStartSample" : 679500,
+							"mEndSample" : 679500
+						},{
+							"mStartSample" : 688500,
+							"mEndSample" : 688500
+						},{
+							"mStartSample" : 697500,
+							"mEndSample" : 697500
+						},{
+							"mStartSample" : 729000,
+							"mEndSample" : 729000
+						},{
+							"mStartSample" : 733500,
+							"mEndSample" : 733500
+						},{
+							"mStartSample" : 751500,
+							"mEndSample" : 751500
+						},{
+							"mStartSample" : 769500,
+							"mEndSample" : 769500
+						},{
+							"mStartSample" : 778500,
+							"mEndSample" : 778500
+						},{
+							"mStartSample" : 787500,
+							"mEndSample" : 787500
+						},{
+							"mStartSample" : 819000,
+							"mEndSample" : 819000
+						},{
+							"mStartSample" : 823500,
+							"mEndSample" : 823500
+						},{
+							"mStartSample" : 841500,
+							"mEndSample" : 841500
+						},{
+							"mStartSample" : 859500,
+							"mEndSample" : 859500
+						},{
+							"mStartSample" : 877500,
+							"mEndSample" : 877500
+						},{
+							"mStartSample" : 886500,
+							"mEndSample" : 886500
+						},{
+							"mStartSample" : 913500,
+							"mEndSample" : 913500
+						},{
+							"mStartSample" : 931500,
+							"mEndSample" : 931500
+						},{
+							"mStartSample" : 940500,
+							"mEndSample" : 940500
+						},{
+							"mStartSample" : 958500,
+							"mEndSample" : 958500
+						},{
+							"mStartSample" : 985500,
+							"mEndSample" : 985500
+						},{
+							"mStartSample" : 1003500,
+							"mEndSample" : 1003500
+						},{
+							"mStartSample" : 1012500,
+							"mEndSample" : 1012500
+						},{
+							"mStartSample" : 1021500,
+							"mEndSample" : 1021500
+						},{
+							"mStartSample" : 1030500,
+							"mEndSample" : 1030500
+						},{
+							"mStartSample" : 1039500,
+							"mEndSample" : 1039500
+						},{
+							"mStartSample" : 1044000,
+							"mEndSample" : 1044000
+						},{
+							"mStartSample" : 1053000,
+							"mEndSample" : 1053000
+						},{
+							"mStartSample" : 1062000,
+							"mEndSample" : 1062000
+						},{
+							"mStartSample" : 1071000,
+							"mEndSample" : 1071000
+						},{
+							"mStartSample" : 1084500,
+							"mEndSample" : 1084500
+						},{
+							"mStartSample" : 1093500,
+							"mEndSample" : 1093500
+						},{
+							"mStartSample" : 1102500,
+							"mEndSample" : 1102500
+						},{
+							"mStartSample" : 1111500,
+							"mEndSample" : 1111500
+						},{
+							"mStartSample" : 1116000,
+							"mEndSample" : 1116000
+						},{
+							"mStartSample" : 1125000,
+							"mEndSample" : 1125000
+						},{
+							"mStartSample" : 1134000,
+							"mEndSample" : 1134000
+						},{
+							"mStartSample" : 1143000,
+							"mEndSample" : 1143000
+						},{
+							"mStartSample" : 1165500,
+							"mEndSample" : 1165500
+						},{
+							"mStartSample" : 1174500,
+							"mEndSample" : 1174500
+						},{
+							"mStartSample" : 1201500,
+							"mEndSample" : 1201500
+						},{
+							"mStartSample" : 1206000,
+							"mEndSample" : 1206000
+						},{
+							"mStartSample" : 1210500,
+							"mEndSample" : 1210500
+						},{
+							"mStartSample" : 1233000,
+							"mEndSample" : 1233000
+						},{
+							"mStartSample" : 1237500,
+							"mEndSample" : 1237500
+						},{
+							"mStartSample" : 1246500,
+							"mEndSample" : 1246500
+						},{
+							"mStartSample" : 1255500,
+							"mEndSample" : 1255500
+						},{
+							"mStartSample" : 1291500,
+							"mEndSample" : 1291500
+						},{
+							"mStartSample" : 1300500,
+							"mEndSample" : 1300500
+						},{
+							"mStartSample" : 1327500,
+							"mEndSample" : 1327500
+						},{
+							"mStartSample" : 1345500,
+							"mEndSample" : 1345500
+						},{
+							"mStartSample" : 1359000,
+							"mEndSample" : 1359000
+						},{
+							"mStartSample" : 1363500,
+							"mEndSample" : 1363500
+						},{
+							"mStartSample" : 1377000,
+							"mEndSample" : 1377000
+						},{
+							"mStartSample" : 1381500,
+							"mEndSample" : 1381500
+						},{
+							"mStartSample" : 1390500,
+							"mEndSample" : 1390500
+						},{
+							"mStartSample" : 1399500,
+							"mEndSample" : 1399500
+						},{
+							"mStartSample" : 1435500,
+							"mEndSample" : 1435500
+						},{
+							"mStartSample" : 1453500,
+							"mEndSample" : 1453500
+						},{
+							"mStartSample" : 1471500,
+							"mEndSample" : 1471500
+						},{
+							"mStartSample" : 1480500,
+							"mEndSample" : 1480500
+						},{
+							"mStartSample" : 1498500,
+							"mEndSample" : 1498500
+						},{
+							"mStartSample" : 1525500,
+							"mEndSample" : 1525500
+						},{
+							"mStartSample" : 1534500,
+							"mEndSample" : 1534500
+						},{
+							"mStartSample" : 1552500,
+							"mEndSample" : 1552500
+						},{
+							"mStartSample" : 1566000,
+							"mEndSample" : 1566000
+						},{
+							"mStartSample" : 1569600,
+							"mEndSample" : 1569600
+						},{
+							"mStartSample" : 1573200,
+							"mEndSample" : 1573200
+						},{
+							"mStartSample" : 1597500,
+							"mEndSample" : 1597500
+						},{
+							"mStartSample" : 1606500,
+							"mEndSample" : 1606500
+						},{
+							"mStartSample" : 1633500,
+							"mEndSample" : 1633500
+						},{
+							"mStartSample" : 1641600,
+							"mEndSample" : 1641600
+						},{
+							"mStartSample" : 1648800,
+							"mEndSample" : 1648800
+						},{
+							"mStartSample" : 1665000,
+							"mEndSample" : 1665000
+						},{
+							"mStartSample" : 1668000,
+							"mEndSample" : 1668000
+						},{
+							"mStartSample" : 1687500,
+							"mEndSample" : 1687500
+						},{
+							"mStartSample" : 1701000,
+							"mEndSample" : 1701000
+						},{
+							"mStartSample" : 1706999,
+							"mEndSample" : 1706999
+						},{
+							"mStartSample" : 1716000,
+							"mEndSample" : 1716000
+						},{
+							"mStartSample" : 1740000,
+							"mEndSample" : 1740000
+						},{
+							"mStartSample" : 1752000,
+							"mEndSample" : 1752000
+						},{
+							"mStartSample" : 1770000,
+							"mEndSample" : 1770000
+						},{
+							"mStartSample" : 1788000,
+							"mEndSample" : 1788000
+						},{
+							"mStartSample" : 1812000,
+							"mEndSample" : 1812000
+						},{
+							"mStartSample" : 1824000,
+							"mEndSample" : 1824000
+						},{
+							"mStartSample" : 1842000,
+							"mEndSample" : 1842000
+						},{
+							"mStartSample" : 1867500,
+							"mEndSample" : 1867500
+						},{
+							"mStartSample" : 1872000,
+							"mEndSample" : 1872000
+						},{
+							"mStartSample" : 1885500,
+							"mEndSample" : 1885500
+						},{
+							"mStartSample" : 1894500,
+							"mEndSample" : 1894500
+						},{
+							"mStartSample" : 1899000,
+							"mEndSample" : 1899000
+						},{
+							"mStartSample" : 1908000,
+							"mEndSample" : 1908000
+						},{
+							"mStartSample" : 1911600,
+							"mEndSample" : 1911600
+						},{
+							"mStartSample" : 1939500,
+							"mEndSample" : 1939500
+						},{
+							"mStartSample" : 1944000,
+							"mEndSample" : 1944000
+						},{
+							"mStartSample" : 1957500,
+							"mEndSample" : 1957500
+						},{
+							"mStartSample" : 1966500,
+							"mEndSample" : 1966500
+						},{
+							"mStartSample" : 1971000,
+							"mEndSample" : 1971000
+						},{
+							"mStartSample" : 1998000,
+							"mEndSample" : 1998000
+						},{
+							"mStartSample" : 2011500,
+							"mEndSample" : 2011500
+						},{
+							"mStartSample" : 2038500,
+							"mEndSample" : 2038500
+						},{
+							"mStartSample" : 2043000,
+							"mEndSample" : 2043000
+						},{
+							"mStartSample" : 2054571,
+							"mEndSample" : 2054571
+						},{
+							"mStartSample" : 2057142,
+							"mEndSample" : 2057142
+						},{
+							"mStartSample" : 2128500,
+							"mEndSample" : 2128500
+						},{
+							"mStartSample" : 2133000,
+							"mEndSample" : 2133000
+						},{
+							"mStartSample" : 2146500,
+							"mEndSample" : 2146500
+						},{
+							"mStartSample" : 2164500,
+							"mEndSample" : 2164500
+						},{
+							"mStartSample" : 2182500,
+							"mEndSample" : 2182500
+						},{
+							"mStartSample" : 2268000,
+							"mEndSample" : 2268000
+						},{
+							"mStartSample" : 2272500,
+							"mEndSample" : 2272500
+						},{
+							"mStartSample" : 2277000,
+							"mEndSample" : 2277000
+						},{
+							"mStartSample" : 2281500,
+							"mEndSample" : 2281500
+						},{
+							"mStartSample" : 2286000,
+							"mEndSample" : 2286000
+						},{
+							"mStartSample" : 2290500,
+							"mEndSample" : 2290500
+						},{
+							"mStartSample" : 2295000,
+							"mEndSample" : 2295000
+						},{
+							"mStartSample" : 2299500,
+							"mEndSample" : 2299500
+						},{
+							"mStartSample" : 2304000,
+							"mEndSample" : 2304000
+						},{
+							"mStartSample" : 2308500,
+							"mEndSample" : 2308500
+						},{
+							"mStartSample" : 2416500,
+							"mEndSample" : 2416500
+						},{
+							"mStartSample" : 2425500,
+							"mEndSample" : 2425500
+						},{
+							"mStartSample" : 2452500,
+							"mEndSample" : 2452500
+						},{
+							"mStartSample" : 2479500,
+							"mEndSample" : 2479500
+						},{
+							"mStartSample" : 2484000,
+							"mEndSample" : 2484000
+						},{
+							"mStartSample" : 2488500,
+							"mEndSample" : 2488500
+						},{
+							"mStartSample" : 2529000,
+							"mEndSample" : 2529000
+						},{
+							"mStartSample" : 2533500,
+							"mEndSample" : 2533500
+						},{
+							"mStartSample" : 2551500,
+							"mEndSample" : 2551500
+						},{
+							"mStartSample" : 2565000,
+							"mEndSample" : 2565000
+						},{
+							"mStartSample" : 2569500,
+							"mEndSample" : 2569500
+						},{
+							"mStartSample" : 2578500,
+							"mEndSample" : 2578500
+						},{
+							"mStartSample" : 2606400,
+							"mEndSample" : 2606400
+						},{
+							"mStartSample" : 2614500,
+							"mEndSample" : 2614500
+						},{
+							"mStartSample" : 2632500,
+							"mEndSample" : 2632500
+						},{
+							"mStartSample" : 2650500,
+							"mEndSample" : 2650500
+						},{
+							"mStartSample" : 2668500,
+							"mEndSample" : 2668500
+						},{
+							"mStartSample" : 2686500,
+							"mEndSample" : 2686500
+						},{
+							"mStartSample" : 2704500,
+							"mEndSample" : 2704500
+						},{
+							"mStartSample" : 2722500,
+							"mEndSample" : 2722500
+						},{
+							"mStartSample" : 2736000,
+							"mEndSample" : 2736000
+						},{
+							"mStartSample" : 2745000,
+							"mEndSample" : 2745000
+						},{
+							"mStartSample" : 2754000,
+							"mEndSample" : 2754000
+						},{
+							"mStartSample" : 2763000,
+							"mEndSample" : 2763000
+						},{
+							"mStartSample" : 2772000,
+							"mEndSample" : 2772000
+						},{
+							"mStartSample" : 2781000,
+							"mEndSample" : 2781000
+						},{
+							"mStartSample" : 2790000,
+							"mEndSample" : 2790000
+						},{
+							"mStartSample" : 2799000,
+							"mEndSample" : 2799000
+						},{
+							"mStartSample" : 2992500,
+							"mEndSample" : 2992500
+						},{
+							"mStartSample" : 3006000,
+							"mEndSample" : 3006000
+						},{
+							"mStartSample" : 3028500,
+							"mEndSample" : 3028500
+						},{
+							"mStartSample" : 3136500,
+							"mEndSample" : 3136500
+						},{
+							"mStartSample" : 3154500,
+							"mEndSample" : 3154500
+						},{
+							"mStartSample" : 3199500,
+							"mEndSample" : 3199500
+						},{
+							"mStartSample" : 3204000,
+							"mEndSample" : 3204000
+						},{
+							"mStartSample" : 3208500,
+							"mEndSample" : 3208500
+						},{
+							"mStartSample" : 3225600,
+							"mEndSample" : 3225600
+						},{
+							"mStartSample" : 3229200,
+							"mEndSample" : 3229200
+						},{
+							"mStartSample" : 3236400,
+							"mEndSample" : 3236400
+						},{
+							"mStartSample" : 3240000,
+							"mEndSample" : 3240000
+						},{
+							"mStartSample" : 3244500,
+							"mEndSample" : 3244500
+						},{
+							"mStartSample" : 3271500,
+							"mEndSample" : 3271500
+						},{
+							"mStartSample" : 3276000,
+							"mEndSample" : 3276000
+						},{
+							"mStartSample" : 3298500,
+							"mEndSample" : 3298500
+						},{
+							"mStartSample" : 3325500,
+							"mEndSample" : 3325500
+						},{
+							"mStartSample" : 3343500,
+							"mEndSample" : 3343500
+						},{
+							"mStartSample" : 3361500,
+							"mEndSample" : 3361500
+						},{
+							"mStartSample" : 3370500,
+							"mEndSample" : 3370500
+						},{
+							"mStartSample" : 3388500,
+							"mEndSample" : 3388500
+						},{
+							"mStartSample" : 3393000,
+							"mEndSample" : 3393000
+						},{
+							"mStartSample" : 3397500,
+							"mEndSample" : 3397500
+						},{
+							"mStartSample" : 3402000,
+							"mEndSample" : 3402000
+						},{
+							"mStartSample" : 3406500,
+							"mEndSample" : 3406500
+						},{
+							"mStartSample" : 3411000,
+							"mEndSample" : 3411000
+						},{
+							"mStartSample" : 3415500,
+							"mEndSample" : 3415500
+						},{
+							"mStartSample" : 3424500,
+							"mEndSample" : 3424500
+						},{
+							"mStartSample" : 3460500,
+							"mEndSample" : 3460500
+						}
+					],
+					"_SerializedPayloadTypes" : null
+				},{
+					"__type" : "SonicBloom.Koreo.KoreographyTrack,SonicBloom.Koreo",
+					"_ES3Ref" : "5239879070636197666",
+					"_ES3Ref" : "5239879070636197666",
+					"_AssetPayloads" : null,
+					"_AssetPayloadIdxs" : null,
+					"_ColorPayloads" : null,
+					"_ColorPayloadIdxs" : null,
+					"_CurvePayloads" : null,
+					"_CurvePayloadIdxs" : null,
+					"_FloatPayloads" : null,
+					"_FloatPayloadIdxs" : null,
+					"_GradientPayloads" : null,
+					"_GradientPayloadIdxs" : null,
+					"_IntPayloads" : null,
+					"_IntPayloadIdxs" : null,
+					"_SpectrumPayloads" : null,
+					"_SpectrumPayloadIdxs" : null,
+					"_TextPayloads" : null,
+					"_TextPayloadIdxs" : null,
+					"mEventID" : "TimingPoint",
+					"mEventList" : [
+						
+					],
+					"_SerializedPayloadTypes" : null
+				}
+			]
+		}
+	}
+}

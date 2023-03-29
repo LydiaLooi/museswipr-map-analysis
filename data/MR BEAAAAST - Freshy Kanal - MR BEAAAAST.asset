@@ -1,0 +1,178 @@
+{
+	"MR BEAAAAST - Freshy Kanal - MR BEAAAAST" : {
+		"__type" : "SonicBloom.Koreo.Koreography,SonicBloom.Koreo",
+		"value" : {
+			"_ES3Ref" : "8445052522237731969",
+			"_ES3Ref" : "8445052522237731969",
+			"mSourceClip" : null,
+			"mAudioFilePath" : "",
+			"mSampleRate" : 48000,
+			"mIgnoreLatencyOffset" : false,
+			"mTempoSections" : [
+				{
+					"sectionName" : "baseTempoSection",
+					"startSample" : 0,
+					"samplesPerBeat" : 19200,
+					"beatsPerMeasure" : 4,
+					"bStartNewMeasure" : true
+				},{
+					"sectionName" : "newTempoSection",
+					"startSample" : 0,
+					"samplesPerBeat" : 19200,
+					"beatsPerMeasure" : 1,
+					"bStartNewMeasure" : true
+				},{
+					"sectionName" : "newTempoSection",
+					"startSample" : 57600,
+					"samplesPerBeat" : 9600,
+					"beatsPerMeasure" : 1,
+					"bStartNewMeasure" : true
+				}
+			],
+			"mTracks" : [
+				{
+					"__type" : "SonicBloom.Koreo.KoreographyTrack,SonicBloom.Koreo",
+					"_ES3Ref" : "2897893611118465153",
+					"_ES3Ref" : "2897893611118465153",
+					"_AssetPayloads" : null,
+					"_AssetPayloadIdxs" : null,
+					"_ColorPayloads" : null,
+					"_ColorPayloadIdxs" : null,
+					"_CurvePayloads" : null,
+					"_CurvePayloadIdxs" : null,
+					"_FloatPayloads" : null,
+					"_FloatPayloadIdxs" : null,
+					"_GradientPayloads" : null,
+					"_GradientPayloadIdxs" : null,
+					"_IntPayloads" : null,
+					"_IntPayloadIdxs" : null,
+					"_SpectrumPayloads" : null,
+					"_SpectrumPayloadIdxs" : null,
+					"_TextPayloads" : null,
+					"_TextPayloadIdxs" : null,
+					"mEventID" : "0",
+					"mEventList" : [
+						{
+							"mStartSample" : 19200,
+							"mEndSample" : 19200
+						},{
+							"mStartSample" : 57600,
+							"mEndSample" : 57600
+						},{
+							"mStartSample" : 62400,
+							"mEndSample" : 62400
+						},{
+							"mStartSample" : 67200,
+							"mEndSample" : 67200
+						},{
+							"mStartSample" : 72000,
+							"mEndSample" : 72000
+						},{
+							"mStartSample" : 76800,
+							"mEndSample" : 76800
+						},{
+							"mStartSample" : 81600,
+							"mEndSample" : 81600
+						},{
+							"mStartSample" : 86400,
+							"mEndSample" : 86400
+						},{
+							"mStartSample" : 91200,
+							"mEndSample" : 91200
+						},{
+							"mStartSample" : 96000,
+							"mEndSample" : 96000
+						},{
+							"mStartSample" : 100800,
+							"mEndSample" : 100800
+						}
+					],
+					"_SerializedPayloadTypes" : null
+				},{
+					"__type" : "SonicBloom.Koreo.KoreographyTrack,SonicBloom.Koreo",
+					"_ES3Ref" : "7996419900640721362",
+					"_ES3Ref" : "7996419900640721362",
+					"_AssetPayloads" : null,
+					"_AssetPayloadIdxs" : null,
+					"_ColorPayloads" : null,
+					"_ColorPayloadIdxs" : null,
+					"_CurvePayloads" : null,
+					"_CurvePayloadIdxs" : null,
+					"_FloatPayloads" : null,
+					"_FloatPayloadIdxs" : null,
+					"_GradientPayloads" : null,
+					"_GradientPayloadIdxs" : null,
+					"_IntPayloads" : null,
+					"_IntPayloadIdxs" : null,
+					"_SpectrumPayloads" : null,
+					"_SpectrumPayloadIdxs" : null,
+					"_TextPayloads" : null,
+					"_TextPayloadIdxs" : null,
+					"mEventID" : "1",
+					"mEventList" : [
+						{
+							"mStartSample" : 38400,
+							"mEndSample" : 38400
+						},{
+							"mStartSample" : 60000,
+							"mEndSample" : 60000
+						},{
+							"mStartSample" : 64800,
+							"mEndSample" : 64800
+						},{
+							"mStartSample" : 69600,
+							"mEndSample" : 69600
+						},{
+							"mStartSample" : 74400,
+							"mEndSample" : 74400
+						},{
+							"mStartSample" : 79200,
+							"mEndSample" : 79200
+						},{
+							"mStartSample" : 84000,
+							"mEndSample" : 84000
+						},{
+							"mStartSample" : 88800,
+							"mEndSample" : 88800
+						},{
+							"mStartSample" : 93600,
+							"mEndSample" : 93600
+						},{
+							"mStartSample" : 98400,
+							"mEndSample" : 98400
+						},{
+							"mStartSample" : 103200,
+							"mEndSample" : 103200
+						}
+					],
+					"_SerializedPayloadTypes" : null
+				},{
+					"__type" : "SonicBloom.Koreo.KoreographyTrack,SonicBloom.Koreo",
+					"_ES3Ref" : "8117601364977361046",
+					"_ES3Ref" : "8117601364977361046",
+					"_AssetPayloads" : null,
+					"_AssetPayloadIdxs" : null,
+					"_ColorPayloads" : null,
+					"_ColorPayloadIdxs" : null,
+					"_CurvePayloads" : null,
+					"_CurvePayloadIdxs" : null,
+					"_FloatPayloads" : null,
+					"_FloatPayloadIdxs" : null,
+					"_GradientPayloads" : null,
+					"_GradientPayloadIdxs" : null,
+					"_IntPayloads" : null,
+					"_IntPayloadIdxs" : null,
+					"_SpectrumPayloads" : null,
+					"_SpectrumPayloadIdxs" : null,
+					"_TextPayloads" : null,
+					"_TextPayloadIdxs" : null,
+					"mEventID" : "TimingPoint",
+					"mEventList" : [
+						
+					],
+					"_SerializedPayloadTypes" : null
+				}
+			]
+		}
+	}
+}
