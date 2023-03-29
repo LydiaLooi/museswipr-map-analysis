@@ -69,59 +69,56 @@ class MuseSwiprMap:
                 else:
                     file.write("\n")
 
-
+import itertools
 def calculate_difficulty(notes):
-    # First, let's sort the notes by time
-    notes = sorted(notes, key=lambda note: note.time)
+    if not notes:
+        return 0
 
-    # Calculate the total time of the map in seconds
-    total_time = notes[-1].time / 44100
+    TIME_CONVERSION = 44100
+    MINIMUM_MAP_TIME = 30
+    LONG_MAP_TIME = 180
 
-    # We'll keep track of the total difficulty
-    total_difficulty = 0
+    time_sec = [note.time / TIME_CONVERSION for note in notes]
+    time_diff = [time_sec[i + 1] - time_sec[i] for i in range(len(time_sec) - 1)]
+    total_duration = time_sec[-1] - time_sec[0]
 
-    # Initialize variables for penalty/buff amounts
-    short_map_penalty = 0.25
-    long_map_buff = 0.05
-    chain_penalty = 1.5
-    zigzag_buff = 1.25
+    # Penalize short maps
+    if total_duration < MINIMUM_MAP_TIME:
+        difficulty_penalty = 0.5
+    else:
+        difficulty_penalty = 1
 
-    # Iterate over the notes to calculate difficulty
-    for i in range(1, len(notes)):
-        time_diff = (notes[i].time - notes[i-1].time) / 44100
-        lane_diff = abs(notes[i].lane - notes[i-1].lane)
+    # Buff long maps
+    if total_duration > LONG_MAP_TIME:
+        difficulty_buff = 1 + 0.005 * (total_duration - LONG_MAP_TIME)
+    else:
+        difficulty_buff = 1
 
-        # Penalize chains of notes in one lane that occur very quickly
-        if lane_diff == 0 and time_diff < 0.05:
-            total_difficulty += chain_penalty * (time_diff + lane_diff)
+    # Penalize chains of notes in one lane occurring quickly
+    chain_penalty = 0
+    for t, group in itertools.groupby(time_diff):
+        count = len(list(group))
+        if count > 3 and t <= 0.05:
+            chain_penalty += count * 0.1
+
+    # Buff zig zag patterns
+    zig_zag_buff = 0
+    zig_zag_count = 0
+    for i in range(len(notes) - 2):
+        if (notes[i].lane != notes[i + 1].lane) and (notes[i + 1].lane != notes[i + 2].lane):
+            zig_zag_count += 1
         else:
-            total_difficulty += time_diff + lane_diff
+            zig_zag_count = 0
 
-    # Buff difficulty for maps longer than 3 minutes (with increasing buff for longer maps)
-    if total_time > 180:
-        time_factor = min((total_time - 180) / 60, 2.0)
-        total_difficulty *= (1 + long_map_buff * time_factor)
+        if zig_zag_count >= 3 and time_diff[i] <= 1 / 13:
+            zig_zag_buff += 0.1
 
-    # Penalize difficulty for maps shorter than 30 seconds
-    if total_time < 30:
-        total_difficulty *= (1 - short_map_penalty)
+    # Calculate difficulty
+    base_difficulty = sum(time_diff) / len(time_diff)
+    difficulty = (base_difficulty * difficulty_penalty - chain_penalty) * difficulty_buff + zig_zag_buff
 
-    # Buff difficulty for sustained "zig zag" patterns that occur at a rate of at least 13 notes per second
-    zigzag_count = 0
-    zigzag_time = 0
-    for i in range(1, len(notes)):
-        time_diff = (notes[i].time - notes[i-1].time) / 44100
-        lane_diff = abs(notes[i].lane - notes[i-1].lane)
-        if lane_diff == 1 and time_diff < 0.08:
-            zigzag_count += 1
-            zigzag_time += time_diff
-        else:
-            if zigzag_count >= 13 and zigzag_time >= zigzag_count * 0.08:
-                total_difficulty *= (1 + zigzag_buff)
-            zigzag_count = 0
-            zigzag_time = 0
+    return difficulty
 
-    return 10 *(1 / (total_difficulty / (len(notes) - 1)))
 
 if __name__ == "__main__":
     # get a list of all files in the directory
