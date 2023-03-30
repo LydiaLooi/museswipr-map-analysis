@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 import os
 import json
 import statistics
@@ -11,8 +11,8 @@ TIME_CONVERSION = 44100 # time_s * TIME_CONVERSION = sample_time
 
 class Note:
     def __init__(self, lane, sample_time):
-        self.lane = lane
-        self.sample_time = sample_time
+        self.lane: Union[0,1] = lane
+        self.sample_time: int = sample_time
 
     def __repr__(self):
         return f"{self.lane},{self.sample_time}"
@@ -154,6 +154,62 @@ def calculate_difficulty(notes, filename, outfile, use_moving_average=True):
         return statistics.mean(nums)
 
 
+def analyze_patterns(notes: List[Note]):
+    patterns = []
+    current_pattern = None
+
+    for i in range(1, len(notes)):
+        prev_note = notes[i - 1]
+        note = notes[i]
+
+        time_difference = note.sample_time - prev_note.sample_time
+        notes_per_second = TIME_CONVERSION / time_difference
+
+        if notes_per_second >= 5:
+            if note.lane != prev_note.lane:
+                pattern = "Zig Zag"
+                required_notes = 3
+            else:
+                pattern = "Single Stream"
+                required_notes = 5
+        elif notes_per_second < 1:
+            pattern = "Simple Note"
+            required_notes = 0
+        else:
+            pattern = "Other"
+            required_notes = 0
+
+        if current_pattern and current_pattern["pattern"] == pattern:
+            current_pattern["notes"].append(note)
+        else:
+            if current_pattern and len(current_pattern["notes"]) >= required_notes:
+                patterns.append(current_pattern)
+
+            current_pattern = {
+                "pattern": pattern,
+                "notes": [prev_note, note],
+            }
+
+    if current_pattern and len(current_pattern["notes"]) >= required_notes:
+        patterns.append(current_pattern)
+
+    return patterns
+
+
+# Generate output
+def print_patterns(patterns):
+    for pattern in patterns:
+        start_time = pattern["notes"][0].sample_time
+        end_time = pattern["notes"][-1].sample_time
+        time_difference = end_time - start_time
+        notes_per_second = len(pattern["notes"]) / (time_difference / TIME_CONVERSION)
+
+        print(
+            f"{time_difference / TIME_CONVERSION:.2f} | {start_time} - {end_time}: "
+            f"{pattern['pattern']} ({notes_per_second:.2f})"
+        )
+
+
 if __name__ == "__main__":
 
 
@@ -173,19 +229,36 @@ if __name__ == "__main__":
             file_path = os.path.join(root, filename)
             # append the file path to the list
             file_list.append(file_path)
+
+    m = "everything will freeze"
+
+    for filename in file_list:
+        try:
+            char = "\\"
+            m_map = MuseSwiprMap(filename)
+
+            name = filename.split("\\")[-1].split(".asset")[0]
+            if m in name.lower():
+                print(name)
+                p = analyze_patterns(m_map.notes)
+                print_patterns(p)
+        except Exception as e:
+            print(f"error parsing file: {filename}: {e}")
+            continue
+
+
     
-    
-    with open("difficulties.txt", "w", encoding="utf-8") as f:
+    # with open("difficulties.txt", "w", encoding="utf-8") as f:
 
-        for filename in file_list:
-            try:
-                char = "\\"
-                m_map = MuseSwiprMap(filename)
+    #     for filename in file_list:
+    #         try:
+    #             char = "\\"
+    #             m_map = MuseSwiprMap(filename)
 
-                name = filename.split("\\")[-1].split(".asset")[0]
+    #             name = filename.split("\\")[-1].split(".asset")[0]
 
-                with open(f"analysis/{name}", "w", encoding="utf-8") as outfile:
-                    f.write(f"{filename.split(char)[-1].split('.asset')[0]}||{calculate_difficulty(m_map.notes, filename, outfile):.2f}\n")
-            except Exception as e:
-                print(f"error parsing file: {filename}: {e}")
-                continue
+    #             with open(f"analysis/{name}", "w", encoding="utf-8") as outfile:
+    #                 f.write(f"{filename.split(char)[-1].split('.asset')[0]}||{calculate_difficulty(m_map.notes, filename, outfile):.2f}\n")
+    #         except Exception as e:
+    #             print(f"error parsing file: {filename}: {e}")
+    #             continue
