@@ -178,6 +178,10 @@ def handle_current_pattern(patterns: List[Pattern], current_pattern: Optional[Pa
         if current_pattern.pattern_name == "Other":
             patterns.append(current_pattern)
         elif len(current_pattern.notes) >= current_pattern.required_notes:
+            if current_pattern.pattern_name == "Zig Zag" and len(current_pattern.notes) == 2:
+                current_pattern.pattern_name = "Switch"
+            elif current_pattern.pattern_name == "Single Stream" and len(current_pattern.notes) < 5:
+                current_pattern.pattern_name = f"{len(current_pattern.notes)}-Stack"
             patterns.append(current_pattern)
     return patterns
 
@@ -249,7 +253,11 @@ def mini_test():
         Note(1, 32000), ## four stack end | zig zag
         Note(0, 34000), 
         Note(1, 36000), ## zigg zag end | two stack 
-        Note(1, 38000) ## two stack end
+        Note(1, 38000), ## two stack end | single stream
+        Note(1, 39000),
+        Note(1, 40000),
+        Note(1, 41000),
+        Note(1, 42000), # single stream end
     ]
 
     # notes = [
