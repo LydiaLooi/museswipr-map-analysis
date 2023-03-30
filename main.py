@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Tuple, Optional, Dict, Any
 import os
 import json
 import statistics
@@ -64,12 +64,12 @@ class MuseSwiprMap:
                 for note in sorted_notes:
                     if note.sample_time <= time < note.sample_time + smallest_time_distance:
                         if note.lane == 0:
-                            file.write("[]\n")
+                            file.write(f"{note.sample_time/44100:.2f}| []\n")
                         elif note.lane == 1:
-                            file.write("     []\n")
+                            file.write(f"{note.sample_time/44100:.2f}|      []\n")
                         break
                 else:
-                    file.write("\n")
+                    file.write(f"{time/44100:.2f}|\n")
 
 
 def create_sections(notes, section_threshold_seconds):
@@ -154,46 +154,65 @@ def calculate_difficulty(notes, filename, outfile, use_moving_average=True):
         return statistics.mean(nums)
 
 
+def get_next_pattern_and_required_notes(prev_note: Note, note: Note, time_difference: int) -> Tuple[str, int]:
+    notes_per_second = TIME_CONVERSION / time_difference
+
+    if notes_per_second >= 5:
+        if note.lane != prev_note.lane:
+            return "Zig Zag", 3
+        else:
+            return "Single Stream", 5
+    elif notes_per_second < 1:
+        return "Simple Note", 0
+    else:
+        return "Other", 0
+
+
+def handle_current_pattern(patterns: List[Dict[str, Any]], current_pattern: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    if current_pattern:
+        if current_pattern["pattern"] == "Other":
+            patterns.append(current_pattern)
+        elif len(current_pattern["notes"]) >= current_pattern["required_notes"]:
+            patterns.append(current_pattern)
+    return patterns
+
+
 def analyze_patterns(notes: List[Note]):
     patterns = []
     current_pattern = None
+    tolerance = 10 * TIME_CONVERSION / 1000  # 10ms in sample time
 
     for i in range(1, len(notes)):
         prev_note = notes[i - 1]
         note = notes[i]
 
         time_difference = note.sample_time - prev_note.sample_time
-        notes_per_second = TIME_CONVERSION / time_difference
+        next_pattern, next_required_notes = get_next_pattern_and_required_notes(prev_note, note, time_difference)
 
-        if notes_per_second >= 5:
-            if note.lane != prev_note.lane:
-                pattern = "Zig Zag"
-                required_notes = 3
+        if current_pattern and current_pattern["pattern"] == next_pattern:
+            base_time_difference = current_pattern["notes"][1].sample_time - current_pattern["notes"][0].sample_time
+            if abs(time_difference - base_time_difference) <= tolerance:
+                current_pattern["notes"].append(note)
             else:
-                pattern = "Single Stream"
-                required_notes = 5
-        elif notes_per_second < 1:
-            pattern = "Simple Note"
-            required_notes = 0
+                patterns = handle_current_pattern(patterns, current_pattern)
+                current_pattern = {
+                    "pattern": next_pattern,
+                    "notes": [prev_note, note],
+                    "required_notes": next_required_notes,
+                }
         else:
-            pattern = "Other"
-            required_notes = 0
-
-        if current_pattern and current_pattern["pattern"] == pattern:
-            current_pattern["notes"].append(note)
-        else:
-            if current_pattern and len(current_pattern["notes"]) >= required_notes:
-                patterns.append(current_pattern)
-
+            patterns = handle_current_pattern(patterns, current_pattern)
             current_pattern = {
-                "pattern": pattern,
+                "pattern": next_pattern,
                 "notes": [prev_note, note],
+                "required_notes": next_required_notes,
             }
 
-    if current_pattern and len(current_pattern["notes"]) >= required_notes:
-        patterns.append(current_pattern)
+    patterns = handle_current_pattern(patterns, current_pattern)
 
     return patterns
+
+
 
 
 # Generate output
@@ -205,16 +224,34 @@ def print_patterns(patterns):
         notes_per_second = len(pattern["notes"]) / (time_difference / TIME_CONVERSION)
 
         print(
-            f"{time_difference / TIME_CONVERSION:.2f} | {start_time} - {end_time}: "
+            f"{time_difference / TIME_CONVERSION:.2f} | {start_time/ TIME_CONVERSION:.2f} - {end_time/ TIME_CONVERSION:.2f}: "
             f"{pattern['pattern']} ({notes_per_second:.2f})"
         )
 
+def mini_test():
 
-if __name__ == "__main__":
+    notes = [
+        Note(0, 0000),
+        Note(0, 1000),
+        Note(0, 2000),
+        Note(0, 3000),
+        Note(0, 4000),
+        Note(1, 6000),
+        Note(0, 8000),
+        Note(1, 10000),
+        Note(0, 12000),
+        Note(1, 14000),
+        Note(0, 15000),
+        Note(1, 16000),
+        Note(0, 17000),
+        Note(1, 18000)
+    ]
 
 
-    # get a list of all files in the directory
-    all_files = os.listdir(DATA_DIR)
+    p = analyze_patterns(notes)
+    print_patterns(p)
+
+def run_analysis():
 
     # filter out any non-file entries
     file_list = []
@@ -230,7 +267,7 @@ if __name__ == "__main__":
             # append the file path to the list
             file_list.append(file_path)
 
-    m = "everything will freeze"
+    m = "nothing but theory"
 
     for filename in file_list:
         try:
@@ -242,10 +279,18 @@ if __name__ == "__main__":
                 print(name)
                 p = analyze_patterns(m_map.notes)
                 print_patterns(p)
+                m_map.output_notes(f"{name}.txt")
         except Exception as e:
             print(f"error parsing file: {filename}: {e}")
             continue
 
+if __name__ == "__main__":
+    # get a list of all files in the directory
+    all_files = os.listdir(DATA_DIR)
+
+    # mini_test()
+
+    run_analysis()
 
     
     # with open("difficulties.txt", "w", encoding="utf-8") as f:
