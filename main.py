@@ -108,6 +108,28 @@ def moving_average_note_density(sections, window_size):
 
     return moving_averages
 
+def weighted_average_of_moving_averages(moving_averages, top_percentage=0.3, top_weight=0.7, bottom_weight=0.3):
+    # Find the threshold that separates the top 30% highest densities from the rest
+    threshold_index = int(len(moving_averages) * (1 - top_percentage))
+    moving_averages_sorted = sorted(moving_averages, reverse=True)
+    threshold = moving_averages_sorted[threshold_index]
+
+    # Calculate the weighted average
+    total_weight = 0
+    weighted_sum = 0
+
+    for avg in moving_averages:
+        if avg >= threshold:
+            weight = top_weight
+        else:
+            weight = bottom_weight
+
+        weighted_sum += avg * weight
+        total_weight += weight
+
+    weighted_average = weighted_sum / total_weight
+    return weighted_average
+
 def calculate_difficulty(notes, filename, outfile, use_moving_average=True):
 
 
@@ -121,7 +143,8 @@ def calculate_difficulty(notes, filename, outfile, use_moving_average=True):
         moving_avg = moving_average_note_density(sections, 5)
         for s in moving_avg:
             outfile.write(f"{s}\n")
-        return statistics.mean(moving_avg)
+        # return statistics.mean(moving_avg)
+        return weighted_average_of_moving_averages(moving_avg)
     
     else:
         nums = []
