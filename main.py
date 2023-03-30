@@ -154,10 +154,11 @@ def calculate_difficulty(notes, filename, outfile, use_moving_average=True):
         return statistics.mean(nums)
     
 class Pattern:
-    def __init__(self, pattern_name, notes: List[Note], required_notes: int):
+    def __init__(self, pattern_name, notes: List[Note], required_notes: int, time_difference=None):
         self.pattern_name = pattern_name
         self.notes = notes
         self.required_notes = required_notes
+        self.time_difference = time_difference
 
 def get_next_pattern_and_required_notes(prev_note: Note, note: Note, time_difference: int) -> Tuple[str, int]:
     notes_per_second = TIME_CONVERSION / time_difference
@@ -200,14 +201,15 @@ def analyze_patterns(notes: List[Note]):
 
         if current_pattern and current_pattern.pattern_name == next_pattern_name:
             base_time_difference = current_pattern.notes[1].sample_time - current_pattern.notes[0].sample_time
+
             if abs(time_difference - base_time_difference) <= tolerance:
                 current_pattern.notes.append(note)
             else:
                 patterns = handle_current_pattern(patterns, current_pattern)
-                current_pattern = Pattern(next_pattern_name, [prev_note, note], next_required_notes)
+                current_pattern = Pattern(next_pattern_name, [prev_note, note], next_required_notes, time_difference)
         else: # If the current pair of notes does not belong to the same pattern as the previous pair of notes
             patterns = handle_current_pattern(patterns, current_pattern)
-            current_pattern = Pattern(next_pattern_name, [prev_note, note], next_required_notes)
+            current_pattern = Pattern(next_pattern_name, [prev_note, note], next_required_notes, time_difference)
     patterns = handle_current_pattern(patterns, current_pattern)
 
     return patterns
@@ -223,7 +225,7 @@ def print_patterns(patterns: List[Pattern]):
 
         print(
             f"{time_difference / TIME_CONVERSION:.2f} | {start_time/ TIME_CONVERSION:.2f} - {end_time/ TIME_CONVERSION:.2f}: "
-            f"{pattern.pattern_name} ({notes_per_second:.2f})"
+            f"{pattern.pattern_name} ({notes_per_second:.2f}nps|{(notes_per_second/4)*60:.2f}BPM) | {pattern.time_difference/TIME_CONVERSION:.2f}s"
         )
 
 def mini_test():
@@ -324,7 +326,7 @@ def run_analysis():
             # append the file path to the list
             file_list.append(file_path)
 
-    m = "typhoo"
+    m = "sans"
 
     for filename in file_list:
         try:
