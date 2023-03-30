@@ -94,7 +94,21 @@ def create_sections(notes, section_threshold_seconds):
     return sections
 
 
-def calculate_difficulty(notes, filename, outfile):
+def moving_average_note_density(sections, window_size):
+    num_sections = len(sections)
+    note_densities = [len(section) for section in sections]
+    moving_averages = []
+
+    for i in range(num_sections):
+        start = max(0, i - window_size + 1)
+        end = i + 1
+        window = note_densities[start:end]
+        average = sum(window) / len(window)
+        moving_averages.append(average)
+
+    return moving_averages
+
+def calculate_difficulty(notes, filename, outfile, use_moving_average=True):
 
 
     sections = create_sections(notes, 1)
@@ -103,12 +117,19 @@ def calculate_difficulty(notes, filename, outfile):
     # TODO: Look at outliers of density - see if it is throughout or just a little bit skewing the difficulty
     # TODO: Look into pattern variety (look at the column diffs)
 
-    nums = []
-    for s in sections:
-        outfile.write(f"{len(s)}\n")
-        nums.append(len(s))
+    if use_moving_average is True:
+        moving_avg = moving_average_note_density(sections, 5)
+        for s in moving_avg:
+            outfile.write(f"{s}\n")
+        return statistics.mean(moving_avg)
+    
+    else:
+        nums = []
+        for s in sections:
+            outfile.write(f"{len(s)}\n")
+            nums.append(len(s))
+        return statistics.mean(nums)
 
-    return statistics.mean(nums)
 
 if __name__ == "__main__":
 
