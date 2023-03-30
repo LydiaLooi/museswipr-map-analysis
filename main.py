@@ -167,8 +167,8 @@ def get_next_pattern_and_required_notes(prev_note: Note, note: Note, time_differ
             return "Zig Zag", 2
         else:
             return "Single Stream", 2
-    elif notes_per_second < 1:
-        return "Simple Note", 0
+    elif notes_per_second < 5:
+        return "Simple Notes", 0
     else:
         return "Other", 0
 
@@ -257,7 +257,21 @@ def mini_test():
         Note(1, 39000),
         Note(1, 40000),
         Note(1, 41000),
-        Note(1, 42000), # single stream end
+        Note(1, 42000), # single stream end | switch
+        Note(0, 43000), # swithc end | stream start
+        Note(0, 44000),
+        Note(0, 45000),
+        Note(0, 46000),
+        Note(0, 47000),
+        Note(0, 48000),
+        Note(0, 49000), # switch 1000
+        Note(1, 50000), # switch end 1000 | zig zag start 2000
+        Note(0, 52000),
+        Note(1, 54000),
+        Note(0, 56000),
+        Note(1, 58000),
+
+
     ]
 
     # notes = [
@@ -310,7 +324,7 @@ def run_analysis():
             # append the file path to the list
             file_list.append(file_path)
 
-    m = "nothing but theory"
+    m = "typhoo"
 
     for filename in file_list:
         try:
@@ -331,8 +345,8 @@ if __name__ == "__main__":
     # get a list of all files in the directory
     all_files = os.listdir(DATA_DIR)
 
-    mini_test()
-    # run_analysis()
+    # mini_test()
+    run_analysis()
 
     
     # with open("difficulties.txt", "w", encoding="utf-8") as f:
