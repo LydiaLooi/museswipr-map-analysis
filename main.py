@@ -152,7 +152,12 @@ def calculate_difficulty(notes, filename, outfile, use_moving_average=True):
             outfile.write(f"{len(s)}\n")
             nums.append(len(s))
         return statistics.mean(nums)
-
+    
+class Pattern:
+    def __init__(self, pattern_name, notes: List[Note], required_notes: int):
+        self.pattern_name = pattern_name
+        self.notes = notes
+        self.required_notes = required_notes
 
 def get_next_pattern_and_required_notes(prev_note: Note, note: Note, time_difference: int) -> Tuple[str, int]:
     notes_per_second = TIME_CONVERSION / time_difference
@@ -168,11 +173,11 @@ def get_next_pattern_and_required_notes(prev_note: Note, note: Note, time_differ
         return "Other", 0
 
 
-def handle_current_pattern(patterns: List[Dict[str, Any]], current_pattern: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def handle_current_pattern(patterns: List[Pattern], current_pattern: Optional[Pattern]) -> List[Pattern]:
     if current_pattern:
-        if current_pattern["pattern"] == "Other":
+        if current_pattern.pattern_name == "Other":
             patterns.append(current_pattern)
-        elif len(current_pattern["notes"]) >= current_pattern["required_notes"]:
+        elif len(current_pattern.notes) >= current_pattern.required_notes:
             patterns.append(current_pattern)
     return patterns
 
@@ -187,45 +192,34 @@ def analyze_patterns(notes: List[Note]):
         note = notes[i]
 
         time_difference = note.sample_time - prev_note.sample_time
-        next_pattern, next_required_notes = get_next_pattern_and_required_notes(prev_note, note, time_difference)
+        next_pattern_name, next_required_notes = get_next_pattern_and_required_notes(prev_note, note, time_difference)
 
-        if current_pattern and current_pattern["pattern"] == next_pattern:
-            base_time_difference = current_pattern["notes"][1].sample_time - current_pattern["notes"][0].sample_time
+        if current_pattern and current_pattern.pattern_name == next_pattern_name:
+            base_time_difference = current_pattern.notes[1].sample_time - current_pattern.notes[0].sample_time
             if abs(time_difference - base_time_difference) <= tolerance:
-                current_pattern["notes"].append(note)
+                current_pattern.notes.append(note)
             else:
                 patterns = handle_current_pattern(patterns, current_pattern)
-                current_pattern = {
-                    "pattern": next_pattern,
-                    "notes": [prev_note, note],
-                    "required_notes": next_required_notes,
-                }
+                current_pattern = Pattern(next_pattern_name, [prev_note, note], next_required_notes)
         else:
             patterns = handle_current_pattern(patterns, current_pattern)
-            current_pattern = {
-                "pattern": next_pattern,
-                "notes": [prev_note, note],
-                "required_notes": next_required_notes,
-            }
-
+            current_pattern = Pattern(next_pattern_name, [prev_note, note], next_required_notes)
     patterns = handle_current_pattern(patterns, current_pattern)
 
     return patterns
 
 
-
-
 # Generate output
-def print_patterns(patterns):
+def print_patterns(patterns: List[Pattern]):
     for pattern in patterns:
-        start_time = pattern["notes"][0].sample_time
-        end_time = pattern["notes"][-1].sample_time
+        start_time = pattern.notes[0].sample_time
+        end_time = pattern.notes[-1].sample_time
         time_difference = end_time - start_time
-        notes_per_second = len(pattern["notes"]) / (time_difference / TIME_CONVERSION)
+        notes_per_second = len(pattern.notes) / (time_difference / TIME_CONVERSION)
 
         print(
             f"{time_difference / TIME_CONVERSION:.2f} | {start_time/ TIME_CONVERSION:.2f} - {end_time/ TIME_CONVERSION:.2f}: "
-            f"{pattern['pattern']} ({notes_per_second:.2f})"
+            f"{pattern.pattern_name} ({notes_per_second:.2f})"
         )
 
 def mini_test():
