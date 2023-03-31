@@ -1,4 +1,6 @@
+from entities import Note, MuseSwiprMap, Pattern
 from typing import List, Union, Tuple, Optional, Dict, Any
+from pattern_analysis import MapPatternGroups
 import os
 import json
 import statistics
@@ -9,67 +11,6 @@ LANE_2_ID = 1
 DATA_DIR = "data"
 TIME_CONVERSION = 44100 # time_s * TIME_CONVERSION = sample_time
 
-class Note:
-    def __init__(self, lane, sample_time):
-        self.lane: Union[0,1] = lane
-        self.sample_time: int = sample_time
-
-    def __repr__(self):
-        return f"{self.lane},{self.sample_time}"
-
-class MuseSwiprMap:
-    def __init__(self, koreograph_asset_filename):
-
-        data = None
-        with open(f"{koreograph_asset_filename}", "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        self.title = list(data.keys())[0]
-        self.tempo_sections = data[self.title]["value"]["mTempoSections"]
-        self.tracks = data[self.title]["value"]["mTracks"]
-        self.notes = []
-
-        self._parse_notes()
-
-    def _parse_notes(self):
-        for t in self.tracks:
-            note_times_data = t["mEventList"]
-            for d in note_times_data:
-                assert d["mStartSample"] == d["mEndSample"]
-                if t["mEventID"] != "TimingPoint":
-                    note = Note(int(t["mEventID"]), d["mStartSample"])
-                    self.notes.append(note)
-        
-        self.notes = sorted(self.notes, key=lambda note: note.sample_time)
-
-    def output_notes(self, file_path):
-        """
-        Written by ChatGPT. May have errors but it's neat :)
-        """
-        notes = self.notes
-        # Find the smallest time distance between notes
-        smallest_time_distance = min(note2.sample_time - note1.sample_time for note1, note2 in zip(notes, notes[1:]))
-        
-        # Sort the notes by descending time order
-        sorted_notes = sorted(notes, key=lambda note: note.sample_time, reverse=True)
-        
-        # Get the range of time values to iterate over
-        start_time = sorted_notes[-1].sample_time
-        end_time = sorted_notes[0].sample_time + smallest_time_distance
-        time_range = range(start_time, end_time, smallest_time_distance)
-        
-        # Write the output to the file
-        with open(file_path, 'w') as file:
-            for time in reversed(time_range):
-                for note in sorted_notes:
-                    if note.sample_time <= time < note.sample_time + smallest_time_distance:
-                        if note.lane == 0:
-                            file.write(f"{note.sample_time/44100:.2f}| []\n")
-                        elif note.lane == 1:
-                            file.write(f"{note.sample_time/44100:.2f}|      []\n")
-                        break
-                else:
-                    file.write(f"{time/44100:.2f}|\n")
 
 
 def create_sections(notes, section_threshold_seconds):
@@ -153,12 +94,7 @@ def calculate_difficulty(notes, filename, outfile, use_moving_average=True):
             nums.append(len(s))
         return statistics.mean(nums)
     
-class Pattern:
-    def __init__(self, pattern_name, notes: List[Note], required_notes: int, time_difference=None):
-        self.pattern_name = pattern_name
-        self.notes = notes
-        self.required_notes = required_notes
-        self.time_difference = time_difference
+
 
 def get_next_pattern_and_required_notes(prev_note: Note, note: Note, time_difference: int) -> Tuple[str, int]:
     notes_per_second = TIME_CONVERSION / time_difference
@@ -326,18 +262,22 @@ def run_analysis():
             # append the file path to the list
             file_list.append(file_path)
 
-    m = "sans"
+    m = "world revolving"
 
     for filename in file_list:
         try:
             char = "\\"
+            mpg = MapPatternGroups()
             m_map = MuseSwiprMap(filename)
 
             name = filename.split("\\")[-1].split(".asset")[0]
             if m in name.lower():
                 print(name)
                 p = analyze_patterns(m_map.notes)
-                print_patterns(p)
+                groups = mpg.identify_pattern_groups(p)
+                for g in groups:
+                    print(g)
+                # print_patterns(p)
                 m_map.output_notes(f"{name}.txt")
         except Exception as e:
             print(f"error parsing file: {filename}: {e}")
