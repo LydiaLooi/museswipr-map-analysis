@@ -1,6 +1,7 @@
 from typing import List, Union
 import json
 
+MAP_OUTPUT = "map_outputs"
 class Note:
     def __init__(self, lane, sample_time):
         self.lane: Union[0,1] = lane
@@ -60,7 +61,7 @@ class MuseSwiprMap:
         time_range = range(start_time, end_time, smallest_time_distance)
         
         # Write the output to the file
-        with open(file_path, 'w') as file:
+        with open(f"{MAP_OUTPUT}/{file_path}", 'w') as file:
             for time in reversed(time_range):
                 for note in sorted_notes:
                     if note.sample_time <= time < note.sample_time + smallest_time_distance:

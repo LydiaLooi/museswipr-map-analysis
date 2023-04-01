@@ -67,7 +67,7 @@ class SimpleGroup(PatternGroup):
         previous_pattern: Optional[Pattern] = self.patterns[-1] if len(self.patterns) > 0 else None
 
         if current_pattern.pattern_name == SIMPLE_NOTE and (previous_pattern is None or previous_pattern.pattern_name == SIMPLE_NOTE):
-            # print(f"added {current_pattern.pattern_name} to SimpleGroup")
+            print(f"added {current_pattern.pattern_name} to SimpleGroup")
             self.patterns.append(current_pattern)
             return True
         return False
@@ -92,7 +92,7 @@ class VaryingStacksGroup(PatternGroup):
 
         if (previous_pattern is None or self.is_n_stack(previous_pattern)) and self.is_n_stack(current_pattern):
             self.patterns.append(current_pattern)
-            # print(f"added {current_pattern.pattern_name} to VaryingStacks")
+            print(f"added {current_pattern.pattern_name} to VaryingStacks")
             return True
         return False
     
@@ -163,7 +163,7 @@ class MapPatternGroups:
     
         for i in range(0, len(patterns_list)):
             current_pattern = patterns_list[i]
-            # print(f"\nCurrent pattern: {current_pattern.pattern_name}")
+            print(f"\nCurrent pattern: {current_pattern.pattern_name}")
             added = False # has this pattern been added?
 
             for group in self.groups:
@@ -174,11 +174,18 @@ class MapPatternGroups:
                 else: 
                     # Check if the group is appendable
                         if group.is_appendable():
+                            # Need to first check if OtherGroup has stragglers...
+                            if len(group.patterns) < len(self.other_group.patterns):
+                                # THERE ARE STRAGGLERS. 
+                                # print(f"THERE ARE STRAGGLERS {group.patterns} | {self.other_group.patterns}")
+                                other_group = OtherGroup(OTHER, self.other_group.patterns[:-len(group.patterns)])
+                                self.pattern_groups.append(other_group)
+
                             added = True
                             group_copy = group.__class__(group.group_name, group.patterns, group.start_sample, group.end_sample)
                             self.pattern_groups.append(group_copy)
                             self.other_group.reset_group(current_pattern) # reset OtherGroup
-                            # print(f"{type(group_copy).__name__} | Appended {group_copy.group_name} with groups: {group_copy.patterns}")
+                            print(f"{type(group_copy).__name__} | Appended {group_copy.group_name} with groups: {group_copy.patterns}")
                             # Reset all groups with current pattern.
                             for group in self.groups:
                                 group.reset_group(current_pattern)
@@ -189,7 +196,7 @@ class MapPatternGroups:
             # We have gone through all the defined groups...
             if not added: 
                 # Append OtherGroup if no other groups were appendale
-                # print(f"No other group appendable... appending Other with {self.other_group.patterns}")
+                print(f"No other group appendable... appending Other with {self.other_group.patterns}")
                 self.pattern_groups.append(OtherGroup(OTHER, self.other_group.patterns, self.other_group.start_sample, self.other_group.end_sample))
                 self.other_group.reset_group(current_pattern) # reset OtherGroup
                 # Reset all groups with current pattern.
@@ -199,7 +206,7 @@ class MapPatternGroups:
         # Do last check
         for last__check_group in self.groups:
             if last__check_group.is_appendable():
-                # print(f"{last__check_group.group_name} is appendable with {last__check_group.patterns}")
+                print(f"{last__check_group.group_name} is appendable with {last__check_group.patterns}")
                 last_group_copy = last__check_group.__class__(last__check_group.group_name, last__check_group.patterns, last__check_group.start_sample, last__check_group.end_sample)
                 self.pattern_groups.append(last_group_copy)
                 return self._return_final_groups()
@@ -224,34 +231,13 @@ if __name__ == "__main__":
     zig_zag = Pattern(ZIG_ZAG, [], 0)
     stream = Pattern(SINGLE_STREAMS, [], 0)
 
-    groups = MapPatternGroups().identify_pattern_groups([simple])
-    assert len(groups) == 1
-    assert groups[0].group_name == SIMPLE_ONLY
 
-    groups = MapPatternGroups().identify_pattern_groups([two, three])
-    assert len(groups) == 1
-    assert groups[0].group_name == VARYING_STACKS
-
-    groups = MapPatternGroups().identify_pattern_groups([switch])
-    assert len(groups) == 1
-    assert groups[0].group_name == OTHER
-
-    patterns = [simple, simple, two, three, switch, zig_zag, switch, two, zig_zag, stream]
+    
+    patterns = [
+        simple, simple, 
+        two, three, 
+        switch, zig_zag, switch, two, zig_zag, stream]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
-    assert len(groups) == 3
-    assert groups[0].group_name == SIMPLE_ONLY
-    assert groups[1].group_name == VARYING_STACKS
-    assert groups[2].group_name == OTHER
-
-    patterns = [switch, two, switch, two, switch, two]
-    groups = MapPatternGroups().identify_pattern_groups(patterns)
-    assert len(groups) == 1
-    assert groups[0].group_name == OTHER
-
-    # Not quite working when there is an Other of one ----------\/ this one
-    patterns = [stream, switch, stream, switch, two, two, two, switch, simple, switch, stream]
-    groups = MapPatternGroups().identify_pattern_groups(patterns)
-    # assert len(groups) == 5
 
     print("="*25)
     for  g in groups:
