@@ -148,10 +148,14 @@ class EvenCirclesGroup(PatternGroup):
     def is_appendable(self) -> bool:
         if len(self.patterns) >= 3:
             # Sanity check that everything in it is only N-stacks or Switches
+            n_stack_count = 0
             for p in self.patterns:
+                if self.is_n_stack(p):
+                    n_stack_count += 1
                 if not self.is_n_stack(p) and p.pattern_name != SWITCH:
                     raise ValueError(f"Even Circle has a: {p.pattern_name}!!")   
-            return True
+            if n_stack_count >= 2:
+                return True
         return False
 class MapPatternGroups:
 

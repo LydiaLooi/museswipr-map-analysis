@@ -68,6 +68,17 @@ def test_even_circle():
     assert len(groups) == 1
     assert groups[0].group_name == EVEN_CIRCLES
 
+def test_invalid_even_circles_pattern():
+    patterns = [
+        Pattern(SWITCH, [Note(0, 0), Note(0, 0.2 * TIME_CONVERSION)], 0),
+        Pattern(TWO_STACK, [Note(0, 0.2 * TIME_CONVERSION), Note(1, 0.4 * TIME_CONVERSION)], 0),
+        Pattern(SWITCH, [Note(1, 0.4 * TIME_CONVERSION), Note(1, 0.6 * TIME_CONVERSION)], 0)
+    ]
+
+    groups = MapPatternGroups().identify_pattern_groups(patterns)
+    assert len(groups) == 1
+    assert groups[0].group_name == OTHER
+
 def test_even_circles_pattern():
     patterns = [
         Pattern(TWO_STACK, [Note(0, 21.42 * TIME_CONVERSION), Note(0, 21.60 * TIME_CONVERSION)], 0),
