@@ -262,7 +262,7 @@ def run_analysis():
             # append the file path to the list
             file_list.append(file_path)
 
-    m = "walame"
+    m = "ghost"
 
     for filename in file_list:
         try:
@@ -272,11 +272,13 @@ def run_analysis():
 
             name = filename.split("\\")[-1].split(".asset")[0]
             if m in name.lower():
-                print(name)
+                
                 p = analyze_patterns(m_map.notes)
                 groups = mpg.identify_pattern_groups(p)
+                print(name)
                 for g in groups:
                     print(g)
+                print("=" * 25)
                 # print_patterns(p)
                 m_map.output_notes(f"{name}.txt")
         except Exception as e:

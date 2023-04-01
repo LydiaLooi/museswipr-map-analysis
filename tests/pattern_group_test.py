@@ -109,3 +109,39 @@ def test_even_circles_have_different_intervals_not_even_circles():
     ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert groups[0].group_name != EVEN_CIRCLES
+
+
+def test_skewed_circles_invalid_is_other():
+    patterns = [
+        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * TIME_CONVERSION)], 0),
+        Pattern(ZIG_ZAG, [
+            Note(0, 0.2 * TIME_CONVERSION), 
+            Note(1, 0.4 * TIME_CONVERSION), 
+            Note(0, 0.6 * TIME_CONVERSION), 
+            Note(1, 0.8 * TIME_CONVERSION), 
+            Note(0, 1 * TIME_CONVERSION),
+            ], 0),
+        Pattern(TWO_STACK, [Note(0, 1.2 * TIME_CONVERSION), Note(0, 1.4 * TIME_CONVERSION)], 0)
+        ]
+    groups = MapPatternGroups().identify_pattern_groups(patterns)
+    assert groups[0].group_name != SKEWED_CIRCLES
+
+def test_skewed_circles_valid():
+    patterns = [
+        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * TIME_CONVERSION)], 0),
+        Pattern(ZIG_ZAG, [Note(0, 0.2 * TIME_CONVERSION), Note(1, 0.4 * TIME_CONVERSION), Note(0, 0.6 * TIME_CONVERSION)], 0),
+        Pattern(TWO_STACK, [Note(0, 0.6 * TIME_CONVERSION), Note(0, 0.8 * TIME_CONVERSION)], 0)
+        ]
+    groups = MapPatternGroups().identify_pattern_groups(patterns)
+    assert groups[0].group_name == SKEWED_CIRCLES
+
+
+def test_skewed_circles_valid_multi_zigs():
+    patterns = [
+        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * TIME_CONVERSION)], 0),
+        Pattern(ZIG_ZAG, [Note(0, 0.2 * TIME_CONVERSION), Note(1, 0.4 * TIME_CONVERSION), Note(0, 0.6 * TIME_CONVERSION)], 0),
+        Pattern(TWO_STACK, [Note(0, 0.6 * TIME_CONVERSION), Note(0, 0.8 * TIME_CONVERSION)], 0),
+        Pattern(ZIG_ZAG, [Note(0, 0.8 * TIME_CONVERSION), Note(1, 1 * TIME_CONVERSION), Note(0, 0.6 * TIME_CONVERSION)], 0),
+        ]
+    groups = MapPatternGroups().identify_pattern_groups(patterns)
+    assert groups[0].group_name == SKEWED_CIRCLES

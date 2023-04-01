@@ -57,8 +57,9 @@ def test_valid_current_pattern_with_different_time_difference_not_added():
     assert added is False
 
 def test_invalid_when_gap_between_switch_and_stack():
-    current_pattern = Pattern(SWITCH, [valid_note1, valid_note2])
-    previous_pattern = Pattern(SWITCH, [valid_note3, valid_note4])
+    previous_pattern = Pattern(SWITCH, [valid_note1, valid_note2])
+    current_pattern = Pattern(TWO_STACK, [valid_note3, valid_note4])
+
     group = EvenCirclesGroup(EVEN_CIRCLES, [previous_pattern])
     added = group.check_pattern(current_pattern)
     assert added is False

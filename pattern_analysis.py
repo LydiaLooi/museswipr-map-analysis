@@ -114,7 +114,6 @@ class VaryingStacksGroup(PatternGroup):
 
 class EvenCirclesGroup(PatternGroup):
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
-        # TODO: CHECK THE DURATION BETWEEN PATTERNS
         if not self.is_active:
             return False
 
@@ -157,6 +156,62 @@ class EvenCirclesGroup(PatternGroup):
             if n_stack_count >= 2:
                 return True
         return False
+    
+
+class SkewedCirclesGroup(PatternGroup):
+    def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
+        if not self.is_active:
+            return False
+
+        previous_pattern: Optional[Pattern] = self.patterns[-1] if len(self.patterns) > 0 else None
+
+        # Check for invalid combinations of previous pattern and current pattern
+        if not self.is_n_stack(current_pattern) and current_pattern.pattern_name != ZIG_ZAG:
+            return False
+        
+        if previous_pattern:
+            if previous_pattern.pattern_name == ZIG_ZAG and not self.is_n_stack(current_pattern):
+                return False
+            
+            if self.is_n_stack(previous_pattern) and current_pattern.pattern_name != ZIG_ZAG:
+                return False
+
+            if abs(current_pattern.time_difference - previous_pattern.time_difference) > TOLERANCE:
+                return False
+
+            if not self.interval_between_patterns_is_tolerable(previous_pattern, current_pattern):
+                return False
+            
+        if current_pattern.pattern_name == ZIG_ZAG and len(current_pattern.notes) != 3:
+            return False
+            
+        # Current pattern should be valid from here
+        self.patterns.append(current_pattern)
+        print(f"added {current_pattern.pattern_name} to SkewedCirclesGroup")
+        return True
+
+
+
+    def reset_group(self, current_pattern: Pattern):
+        self.patterns = []
+        self.check_pattern(current_pattern)
+        self.is_active = True
+
+
+    def is_appendable(self) -> bool:
+        if len(self.patterns) >= 3:
+            # Sanity check that everything in it is only N-stacks or ZIG ZAGS
+            n_stack_count = 0
+            for p in self.patterns:
+                if self.is_n_stack(p):
+                    n_stack_count += 1
+                if not self.is_n_stack(p) and p.pattern_name != ZIG_ZAG:
+                    raise ValueError(f"Skewed Circle has a: {p.pattern_name}!!")   
+            if n_stack_count >= 2:
+                return True
+        return False
+
+
 class MapPatternGroups:
 
     def __init__(self):
@@ -178,6 +233,7 @@ class MapPatternGroups:
     def reset_groups(self):
         self.groups = [
             EvenCirclesGroup(EVEN_CIRCLES, []),
+            SkewedCirclesGroup(SKEWED_CIRCLES, []),
             VaryingStacksGroup(VARYING_STACKS, []),
             SimpleGroup(SIMPLE_ONLY, []),
         ]
