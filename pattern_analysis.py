@@ -1,22 +1,7 @@
 from entities import Pattern
 from typing import List, Optional
 from abc import ABC, abstractmethod
-
-SWITCH = "Switch"
-ZIG_ZAG = "Zig Zag"
-TWO_STACK = "2-Stack"
-THREE_STACK = "3-Stack"
-FOUR_STACK = "4-Stack"
-SINGLE_STREAMS = "Single Streams"
-SIMPLE_NOTE = "Simple Notes"
-
-SIMPLE_ONLY = "Simple Only"
-EVEN_CIRCLES = "Even Circles"
-SKEWED_CIRCLES = "Skewed Circles"
-VARYING_STACKS = "Varying Stacks"
-NOTHING_BUT_THEORY = "Nothing But Theory"
-VARIABLE_STREAM = "Variable Stream"
-OTHER = "Other"
+from constants import *
 
 class PatternGroup(ABC):
     def __init__(self, group_name: str, patterns: List[Pattern], start_sample: int=None, end_sample: int=None):
@@ -24,6 +9,7 @@ class PatternGroup(ABC):
         self.patterns = patterns
         self.start_sample = start_sample
         self.end_sample = end_sample
+        self.is_active = True
     def __repr__(self) -> str:
         if len(self.patterns) >= 5:
             p = self.patterns[:5]
@@ -63,7 +49,8 @@ class OtherGroup(PatternGroup):
 class SimpleGroup(PatternGroup):
 
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
-
+        if not self.is_active:
+            return False
         previous_pattern: Optional[Pattern] = self.patterns[-1] if len(self.patterns) > 0 else None
 
         if current_pattern.pattern_name == SIMPLE_NOTE and (previous_pattern is None or previous_pattern.pattern_name == SIMPLE_NOTE):
@@ -75,6 +62,7 @@ class SimpleGroup(PatternGroup):
     def reset_group(self, current_pattern: Pattern):
         self.patterns = []
         self.check_pattern(current_pattern)
+        self.is_active = True
 
     def is_appendable(self) -> bool:
         if len(self.patterns) > 0:
@@ -87,6 +75,8 @@ class SimpleGroup(PatternGroup):
 class VaryingStacksGroup(PatternGroup):
 
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
+        if not self.is_active:
+            return False
 
         previous_pattern: Optional[Pattern] = self.patterns[-1] if len(self.patterns) > 0 else None
 
@@ -99,6 +89,7 @@ class VaryingStacksGroup(PatternGroup):
     def reset_group(self, current_pattern: Pattern):
         self.patterns = []
         self.check_pattern(current_pattern)
+        self.is_active = True
 
     def is_appendable(self) -> bool:
         if len(self.patterns) >= 2:
@@ -109,6 +100,45 @@ class VaryingStacksGroup(PatternGroup):
             return True
         return False
 
+class EvenCirclesGroup(PatternGroup):
+    def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
+        # TODO: CHECK THE DURATION BETWEEN PATTERNS
+        if not self.is_active:
+            return False
+
+        previous_pattern: Optional[Pattern] = self.patterns[-1] if len(self.patterns) > 0 else None
+
+        # Check for invalid combinations of previous pattern and current pattern
+        if not self.is_n_stack(current_pattern) and current_pattern.pattern_name != SWITCH:
+            return False
+        if previous_pattern:
+            if previous_pattern.pattern_name == SWITCH and not self.is_n_stack(current_pattern):
+                return False
+            
+            if self.is_n_stack(previous_pattern) and current_pattern.pattern_name != SWITCH:
+                return False
+
+            if abs(current_pattern.time_difference - previous_pattern.time_difference) > TOLERANCE:
+                return False
+
+        # Current pattern should be valid from here
+        self.patterns.append(current_pattern)
+        print(f"added {current_pattern.pattern_name} to EvenCirclesGroup")
+        return True
+    
+    def reset_group(self, current_pattern: Pattern):
+        self.patterns = []
+        self.check_pattern(current_pattern)
+        self.is_active = True
+
+    def is_appendable(self) -> bool:
+        if len(self.patterns) >= 3:
+            # Sanity check that everything in it is only N-stacks or Switches
+            for p in self.patterns:
+                if not self.is_n_stack(p) and p.pattern_name != SWITCH:
+                    raise ValueError(f"Even Circle has a: {p.pattern_name}!!")   
+            return True
+        return False
 class MapPatternGroups:
 
     def __init__(self):
@@ -129,8 +159,9 @@ class MapPatternGroups:
     
     def reset_groups(self):
         self.groups = [
+            EvenCirclesGroup(EVEN_CIRCLES, []),
+            VaryingStacksGroup(VARYING_STACKS, []),
             SimpleGroup(SIMPLE_ONLY, []),
-            VaryingStacksGroup(VARYING_STACKS, [])
         ]
         self.other_group = OtherGroup(OTHER, [])
 
@@ -172,23 +203,26 @@ class MapPatternGroups:
                 if _added == True:
                     added = True
                 else: 
+                    if len(group.patterns) > 0:
+                        group.is_active = False # Only set it to inactive if it's already begun adding stuff
+                        
                     # Check if the group is appendable
-                        if group.is_appendable():
-                            # Need to first check if OtherGroup has stragglers...
-                            if len(group.patterns) < len(self.other_group.patterns):
-                                # THERE ARE STRAGGLERS. 
-                                # print(f"THERE ARE STRAGGLERS {group.patterns} | {self.other_group.patterns}")
-                                other_group = OtherGroup(OTHER, self.other_group.patterns[:-len(group.patterns)])
-                                self.pattern_groups.append(other_group)
+                    if group.is_appendable():
+                        # Need to first check if OtherGroup has stragglers...
+                        if len(group.patterns) < len(self.other_group.patterns):
+                            # THERE ARE STRAGGLERS. 
+                            # print(f"THERE ARE STRAGGLERS {group.patterns} | {self.other_group.patterns}")
+                            other_group = OtherGroup(OTHER, self.other_group.patterns[:-len(group.patterns)])
+                            self.pattern_groups.append(other_group)
 
-                            added = True
-                            group_copy = group.__class__(group.group_name, group.patterns, group.start_sample, group.end_sample)
-                            self.pattern_groups.append(group_copy)
-                            self.other_group.reset_group(current_pattern) # reset OtherGroup
-                            print(f"{type(group_copy).__name__} | Appended {group_copy.group_name} with groups: {group_copy.patterns}")
-                            # Reset all groups with current pattern.
-                            for group in self.groups:
-                                group.reset_group(current_pattern)
+                        added = True
+                        group_copy = group.__class__(group.group_name, group.patterns, group.start_sample, group.end_sample)
+                        self.pattern_groups.append(group_copy)
+                        self.other_group.reset_group(current_pattern) # reset OtherGroup
+                        print(f"{type(group_copy).__name__} | Appended {group_copy.group_name} with groups: {group_copy.patterns}")
+                        # Reset all groups with current pattern.
+                        for group in self.groups:
+                            group.reset_group(current_pattern)
 
             self.other_group.check_pattern(current_pattern)
             # print(f"Added = True... Other Group is {self.other_group.patterns}")
@@ -223,16 +257,14 @@ class MapPatternGroups:
 
 
 if __name__ == "__main__":
-    simple = Pattern(SIMPLE_NOTE, [], 0)
-    two = Pattern(TWO_STACK, [], 0)
-    three = Pattern(THREE_STACK, [], 0)
-    four = Pattern(FOUR_STACK, [], 0)
-    switch = Pattern(SWITCH, [], 0)
-    zig_zag = Pattern(ZIG_ZAG, [], 0)
-    stream = Pattern(SINGLE_STREAMS, [], 0)
+    simple = Pattern(SIMPLE_NOTE, [], 0, 1 * TIME_CONVERSION)
+    two = Pattern(TWO_STACK, [], 0, 1 * TIME_CONVERSION)
+    three = Pattern(THREE_STACK, [], 0, 1 * TIME_CONVERSION)
+    four = Pattern(FOUR_STACK, [], 0, 1 * TIME_CONVERSION)
+    switch = Pattern(SWITCH, [], 0, 1 * TIME_CONVERSION)
+    zig_zag = Pattern(ZIG_ZAG, [], 0, 1 * TIME_CONVERSION)
+    stream = Pattern(SINGLE_STREAMS, [], 0, 1 * TIME_CONVERSION)
 
-
-    
     patterns = [
         simple, simple, 
         two, three, 

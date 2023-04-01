@@ -16,6 +16,11 @@ class Pattern:
         self.notes = notes
         self.required_notes = required_notes
         self.time_difference = time_difference
+
+        if self.time_difference is None and len(self.notes) > 1:
+            print("Auto setting time difference...")
+            self.time_difference = abs(self.notes[1].sample_time - self.notes[0].sample_time)
+
     def __repr__(self) -> str:
         return f"{self.pattern_name} {len(self.notes)} {self.time_difference}"
 

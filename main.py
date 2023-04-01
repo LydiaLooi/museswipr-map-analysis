@@ -4,12 +4,12 @@ from pattern_analysis import MapPatternGroups
 import os
 import json
 import statistics
+from constants import TIME_CONVERSION
 
 LANE_1_ID = 0
 LANE_2_ID = 1
 
 DATA_DIR = "data"
-TIME_CONVERSION = 44100 # time_s * TIME_CONVERSION = sample_time
 
 
 

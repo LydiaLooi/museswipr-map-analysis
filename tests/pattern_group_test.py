@@ -1,29 +1,15 @@
-from entities import Pattern
+from entities import Pattern, Note
 from pattern_analysis import MapPatternGroups
+from constants import *
 
-SWITCH = "Switch"
-ZIG_ZAG = "Zig Zag"
-TWO_STACK = "2-Stack"
-THREE_STACK = "3-Stack"
-FOUR_STACK = "4-Stack"
-SINGLE_STREAMS = "Single Streams"
-SIMPLE_NOTE = "Simple Notes"
 
-SIMPLE_ONLY = "Simple Only"
-EVEN_CIRCLES = "Even Circles"
-SKEWED_CIRCLES = "Skewed Circles"
-VARYING_STACKS = "Varying Stacks"
-NOTHING_BUT_THEORY = "Nothing But Theory"
-VARIABLE_STREAM = "Variable Stream"
-OTHER = "Other"
-
-simple = Pattern(SIMPLE_NOTE, [], 0)
-two = Pattern(TWO_STACK, [], 0)
-three = Pattern(THREE_STACK, [], 0)
-four = Pattern(FOUR_STACK, [], 0)
-switch = Pattern(SWITCH, [], 0)
-zig_zag = Pattern(ZIG_ZAG, [], 0)
-stream = Pattern(SINGLE_STREAMS, [], 0)
+simple = Pattern(SIMPLE_NOTE, [], 0, 0)
+two = Pattern(TWO_STACK, [], 0, 0)
+three = Pattern(THREE_STACK, [], 0, 0)
+four = Pattern(FOUR_STACK, [], 0, 0)
+switch = Pattern(SWITCH, [], 0, 0)
+zig_zag = Pattern(ZIG_ZAG, [], 0, 0)
+stream = Pattern(SINGLE_STREAMS, [], 0, 0)
 
 def test_simple_only():
     groups = MapPatternGroups().identify_pattern_groups([simple])
@@ -43,9 +29,8 @@ def test_varying_stacks_and_simple():
         simple, simple, 
         two, four, two, two]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
+    assert groups[0].group_name == VARYING_STACKS
     assert len(groups) == 5
-
-
 
 def test_other_only_one_pattern():
     groups = MapPatternGroups().identify_pattern_groups([switch])
@@ -63,12 +48,6 @@ def test_simple_varying_stacks_end_with_other():
     assert groups[1].group_name == VARYING_STACKS
     assert groups[2].group_name == OTHER
 
-def test_other_with_two_stacks_between():
-    patterns = [switch, two, switch, two, switch, two]
-    groups = MapPatternGroups().identify_pattern_groups(patterns)
-    assert len(groups) == 1
-    assert groups[0].group_name == OTHER
-
 def test_other_in_between():
     patterns = [
         switch, two, zig_zag,
@@ -80,3 +59,41 @@ def test_other_in_between():
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert len(groups) == 5
     assert groups[2].group_name == OTHER
+
+
+def test_even_circle():
+    patterns = [switch, two, switch, two, switch, two]
+    groups = MapPatternGroups().identify_pattern_groups(patterns)
+    assert len(groups) == 1
+    assert groups[0].group_name == EVEN_CIRCLES
+
+def test_even_circles_pattern():
+    patterns = [
+        Pattern(TWO_STACK, [], 0, 0),
+        Pattern(SWITCH, [], 0, 0),
+        Pattern(TWO_STACK, [], 0, 0)
+    ]
+
+    groups = MapPatternGroups().identify_pattern_groups(patterns)
+    assert len(groups) == 1
+    assert groups[0].group_name == EVEN_CIRCLES
+
+def test_even_circles_have_same_intervals_true():
+    patterns = [
+        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 / TIME_CONVERSION)], 0),
+        Pattern(SWITCH, [Note(0, 0.2 / TIME_CONVERSION), Note(1, 0.4 / TIME_CONVERSION)], 0),
+        Pattern(TWO_STACK, [Note(1, 0.4 / TIME_CONVERSION), Note(1, 0.6 / TIME_CONVERSION)], 0)
+    ]
+
+    groups = MapPatternGroups().identify_pattern_groups(patterns)
+    assert len(groups) == 1
+    assert groups[0].group_name == EVEN_CIRCLES
+
+def test_even_circles_have_different_intervals_not_even_circles():
+    patterns = [
+        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 / TIME_CONVERSION)], 0),
+        Pattern(SWITCH, [Note(0, 0.2 / TIME_CONVERSION), Note(1, 0.3 / TIME_CONVERSION)], 0), # Switch is not same time by 0.1s
+        Pattern(TWO_STACK, [Note(1, 0.3 / TIME_CONVERSION), Note(1, 0.5 / TIME_CONVERSION)], 0)
+    ]
+    groups = MapPatternGroups().identify_pattern_groups(patterns)
+    assert groups[0].group_name != EVEN_CIRCLES
