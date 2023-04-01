@@ -10,6 +10,8 @@ class PatternGroup(ABC):
         self.start_sample = start_sample
         self.end_sample = end_sample
         self.is_active = True
+        self.is_interval = False # This is to identify the "Simple Only" equivalent classes
+
     def __repr__(self) -> str:
         if len(self.patterns) >= 5:
             p = self.patterns[:5]
@@ -60,13 +62,16 @@ class OtherGroup(PatternGroup):
     def is_appendable(self) -> bool:
         return super().is_appendable()
 class SimpleGroup(PatternGroup):
+    def __init__(self, group_name: str, patterns: List[Pattern], start_sample: int = None, end_sample: int = None):
+        super().__init__(group_name, patterns, start_sample, end_sample)
+        self.is_interval = True
 
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
         if not self.is_active:
             return False
         previous_pattern: Optional[Pattern] = self.patterns[-1] if len(self.patterns) > 0 else None
 
-        if current_pattern.pattern_name == SIMPLE_NOTE and (previous_pattern is None or previous_pattern.pattern_name == SIMPLE_NOTE):
+        if "Interval" in current_pattern.pattern_name and (previous_pattern is None or "Interval" in previous_pattern.pattern_name):
             print(f"added {current_pattern.pattern_name} to SimpleGroup")
             self.patterns.append(current_pattern)
             return True
@@ -80,10 +85,12 @@ class SimpleGroup(PatternGroup):
     def is_appendable(self) -> bool:
         if len(self.patterns) > 0:
             for p in self.patterns:
-                if p.pattern_name !=  SIMPLE_NOTE:
+                if "Interval" not in p.pattern_name:
                     raise ValueError(f"Simple Group has a: {p.pattern_name}!!")
             return True
         return False
+
+
 
 class VaryingStacksGroup(PatternGroup):
 
@@ -290,7 +297,7 @@ class MapPatternGroups:
             SkewedCirclesGroup(SKEWED_CIRCLES, []),
             VaryingStacksGroup(VARYING_STACKS, []),
             NothingButTheoryGroup(NOTHING_BUT_THEORY, []),
-            SimpleGroup(SIMPLE_ONLY, []),
+            SimpleGroup(SLOW_STRETCH, []),
         ]
         self.other_group = OtherGroup(OTHER, [])
 
@@ -316,7 +323,7 @@ class MapPatternGroups:
             return self.pattern_groups
 
 
-    def identify_pattern_groups(self, patterns_list: List[Pattern]) -> List[PatternGroup]:
+    def identify_pattern_groups(self, patterns_list: List[Pattern], merge_other:bool = True) -> List[PatternGroup]:
 
         # TODO: account f or the duration between patterns too.
         # Lets just first identify Single Notes and Varying Stacks only
@@ -372,21 +379,21 @@ class MapPatternGroups:
                 print(f"{last__check_group.group_name} is appendable with {last__check_group.patterns}")
                 last_group_copy = last__check_group.__class__(last__check_group.group_name, last__check_group.patterns, last__check_group.start_sample, last__check_group.end_sample)
                 self.pattern_groups.append(last_group_copy)
-                return self._return_final_groups()
+                return self._return_final_groups(merge_other)
         if len(self.other_group.patterns) > 0: 
             last_group_copy = OtherGroup(OTHER, self.other_group.patterns, self.other_group.start_sample, self.other_group.end_sample)
             self.pattern_groups.append(last_group_copy)
 
         
 
-        return self._return_final_groups()
+        return self._return_final_groups(merge_other)
 
 
         
 
 
 if __name__ == "__main__":
-    simple = Pattern(SIMPLE_NOTE, [], 0, 1 * TIME_CONVERSION)
+    simple = Pattern(SHORT_INTERVAL, [], 0, 1 * TIME_CONVERSION)
     two = Pattern(TWO_STACK, [], 0, 1 * TIME_CONVERSION)
     three = Pattern(THREE_STACK, [], 0, 1 * TIME_CONVERSION)
     four = Pattern(FOUR_STACK, [], 0, 1 * TIME_CONVERSION)
@@ -400,7 +407,7 @@ if __name__ == "__main__":
         Pattern(TWO_STACK, [Note(0, 21.78 * TIME_CONVERSION), Note(0, 21.96 * TIME_CONVERSION)])
     ]
 
-    groups = MapPatternGroups().identify_pattern_groups(patterns)
+    groups = MapPatternGroups().identify_pattern_groups(patterns, False)
 
     print("="*25)
     for  g in groups:

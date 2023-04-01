@@ -4,7 +4,7 @@ from constants import *
 
 dummy_note = Note(0, 0)
 
-simple = Pattern(SIMPLE_NOTE, [dummy_note, dummy_note], 0, 0)
+simple = Pattern(SHORT_INTERVAL, [dummy_note, dummy_note], 0, 0)
 two = Pattern(TWO_STACK, [dummy_note, dummy_note], 0, 0)
 three = Pattern(THREE_STACK, [dummy_note, dummy_note], 0, 0)
 four = Pattern(FOUR_STACK, [dummy_note, dummy_note], 0, 0)
@@ -15,7 +15,7 @@ stream = Pattern(SINGLE_STREAMS, [dummy_note, dummy_note], 0, 0)
 def test_simple_only():
     groups = MapPatternGroups().identify_pattern_groups([simple])
     assert len(groups) == 1
-    assert groups[0].group_name == SIMPLE_ONLY
+    assert groups[0].group_name == SLOW_STRETCH
 
 def test_varying_stacks_only():
     groups = MapPatternGroups().identify_pattern_groups([two, three])
@@ -45,7 +45,7 @@ def test_simple_varying_stacks_end_with_other():
         switch, zig_zag, switch, two, zig_zag, stream]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert len(groups) == 3
-    assert groups[0].group_name == SIMPLE_ONLY
+    assert groups[0].group_name == SLOW_STRETCH
     assert groups[1].group_name == VARYING_STACKS
     assert groups[2].group_name == OTHER
 

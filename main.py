@@ -5,6 +5,7 @@ import os
 import json
 import statistics
 from constants import TIME_CONVERSION
+from constants import *
 
 LANE_1_ID = 0
 LANE_2_ID = 1
@@ -77,7 +78,6 @@ def calculate_difficulty(notes, filename, outfile, use_moving_average=True):
     sections = create_sections(notes, 1)
 
     # TODO: Look into stretches of high density
-    # TODO: Look at outliers of density - see if it is throughout or just a little bit skewing the difficulty
     # TODO: Look into pattern variety (look at the column diffs)
 
     if use_moving_average is True:
@@ -101,23 +101,27 @@ def get_next_pattern_and_required_notes(prev_note: Note, note: Note, time_differ
 
     if notes_per_second >= 5:
         if note.lane != prev_note.lane:
-            return "Zig Zag", 2
+            return ZIG_ZAG, 2
         else:
-            return "Single Stream", 2
+            return SINGLE_STREAMS, 2
+    elif notes_per_second < 0.5:
+        return LONG_INTERVAL, 0
+    elif notes_per_second < 1:
+        return MED_INTERVAL, 0
     elif notes_per_second < 5:
-        return "Simple Notes", 0
+        return SHORT_INTERVAL, 0
     else:
-        return "Other", 0
+        return OTHER, 0
 
 
 def handle_current_pattern(patterns: List[Pattern], current_pattern: Optional[Pattern]) -> List[Pattern]:
     if current_pattern:
-        if current_pattern.pattern_name == "Other":
+        if current_pattern.pattern_name == OTHER:
             patterns.append(current_pattern)
         elif len(current_pattern.notes) >= current_pattern.required_notes:
-            if current_pattern.pattern_name == "Zig Zag" and len(current_pattern.notes) == 2:
-                current_pattern.pattern_name = "Switch"
-            elif current_pattern.pattern_name == "Single Stream" and len(current_pattern.notes) < 5:
+            if current_pattern.pattern_name == ZIG_ZAG and len(current_pattern.notes) == 2:
+                current_pattern.pattern_name = SWITCH
+            elif current_pattern.pattern_name == SINGLE_STREAMS and len(current_pattern.notes) < 5:
                 current_pattern.pattern_name = f"{len(current_pattern.notes)}-Stack"
             patterns.append(current_pattern)
     return patterns
@@ -212,37 +216,6 @@ def mini_test():
 
     ]
 
-    # notes = [
-    #     Note(0, 0.0000), #Single stream
-    #     Note(0, 0.0227),
-    #     Note(0, 0.0453),
-    #     Note(0, 0.0680),
-    #     Note(0, 0.0907), #Single stream end | zig zag 
-    #     Note(1, 0.1360),
-    #     Note(0, 0.1814),
-    #     Note(1, 0.2268),
-    #     Note(0, 0.2722),
-    #     Note(1, 0.3175), # zig zag end | zig zag start
-    #     Note(0, 0.3402),
-    #     Note(1, 0.3630),
-    #     Note(0, 0.3857),
-    #     Note(1, 0.4084), ## zig zag end | Two stack
-    #     Note(1, 0.4538), ## two stack end | switch 
-    #     Note(0, 0.4765), ## Switch end | three stack 
-    #     Note(0, 0.5220),
-    #     Note(0, 0.5674), ## Three stack end | switch start
-    #     Note(1, 0.5901), ## Switch end | 4 stack start
-    #     Note(1, 0.6355),
-    #     Note(1, 0.6809),
-    #     Note(1, 0.7262), ## four stack end | zig zag
-    #     Note(0, 0.7490), 
-    #     Note(1, 0.7934), ## zigg zag end | two stack 
-    #     Note(1, 0.8387) ## two stack end
-    # ]
-
-
-
-
     p = analyze_patterns(notes)
     print_patterns(p)
 
@@ -262,7 +235,7 @@ def run_analysis():
             # append the file path to the list
             file_list.append(file_path)
 
-    m = "nothing but theory"
+    m = "eyes half closed"
 
     for filename in file_list:
         try:
