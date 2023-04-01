@@ -1,4 +1,4 @@
-from entities import Pattern
+from entities import Pattern, Note
 from typing import List, Optional
 from abc import ABC, abstractmethod
 from constants import *
@@ -13,7 +13,7 @@ class PatternGroup(ABC):
     def __repr__(self) -> str:
         if len(self.patterns) >= 5:
             p = self.patterns[:5]
-            extra = f" ({len(self.patterns)} total)"
+            extra = f" | Last Five: {self.patterns[-5:]}... ({len(self.patterns)} total)"
         else:
             p = self.patterns
             extra = ""
@@ -33,6 +33,18 @@ class PatternGroup(ABC):
     def is_n_stack(self, pattern: Pattern):
         return pattern.pattern_name in ("2-Stack", "3-Stack", "4-Stack")
 
+    def interval_between_patterns_is_tolerable(self, previous_pattern: Pattern, current_pattern: Pattern) -> bool:
+        assert len(previous_pattern.notes) > 1
+        assert len(current_pattern.notes) > 1
+        end_of_first = previous_pattern.notes[-1].sample_time
+        start_of_second = current_pattern.notes[0].sample_time
+        time_difference = abs(end_of_first - start_of_second)
+        if time_difference <= TOLERANCE:
+            # The patterns pretty much have the same note
+            return True
+        return False
+        # interval = abs(time_difference - previous_pattern.time_difference)
+        # return interval <= TOLERANCE
 class OtherGroup(PatternGroup):
 
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
@@ -121,6 +133,8 @@ class EvenCirclesGroup(PatternGroup):
             if abs(current_pattern.time_difference - previous_pattern.time_difference) > TOLERANCE:
                 return False
 
+            if not self.interval_between_patterns_is_tolerable(previous_pattern, current_pattern):
+                return False
         # Current pattern should be valid from here
         self.patterns.append(current_pattern)
         print(f"added {current_pattern.pattern_name} to EvenCirclesGroup")
@@ -205,7 +219,7 @@ class MapPatternGroups:
                 else: 
                     if len(group.patterns) > 0:
                         group.is_active = False # Only set it to inactive if it's already begun adding stuff
-                        
+
                     # Check if the group is appendable
                     if group.is_appendable():
                         # Need to first check if OtherGroup has stragglers...
@@ -266,9 +280,11 @@ if __name__ == "__main__":
     stream = Pattern(SINGLE_STREAMS, [], 0, 1 * TIME_CONVERSION)
 
     patterns = [
-        simple, simple, 
-        two, three, 
-        switch, zig_zag, switch, two, zig_zag, stream]
+        Pattern(TWO_STACK, [Note(0, 21.42 * TIME_CONVERSION), Note(0, 21.60 * TIME_CONVERSION)]),
+        Pattern(SWITCH, [Note(0, 21.60 * TIME_CONVERSION), Note(0, 21.78 * TIME_CONVERSION)]),
+        Pattern(TWO_STACK, [Note(0, 21.78 * TIME_CONVERSION), Note(0, 21.96 * TIME_CONVERSION)])
+    ]
+
     groups = MapPatternGroups().identify_pattern_groups(patterns)
 
     print("="*25)

@@ -2,14 +2,15 @@ from entities import Pattern, Note
 from pattern_analysis import MapPatternGroups
 from constants import *
 
+dummy_note = Note(0, 0)
 
-simple = Pattern(SIMPLE_NOTE, [], 0, 0)
-two = Pattern(TWO_STACK, [], 0, 0)
-three = Pattern(THREE_STACK, [], 0, 0)
-four = Pattern(FOUR_STACK, [], 0, 0)
-switch = Pattern(SWITCH, [], 0, 0)
-zig_zag = Pattern(ZIG_ZAG, [], 0, 0)
-stream = Pattern(SINGLE_STREAMS, [], 0, 0)
+simple = Pattern(SIMPLE_NOTE, [dummy_note, dummy_note], 0, 0)
+two = Pattern(TWO_STACK, [dummy_note, dummy_note], 0, 0)
+three = Pattern(THREE_STACK, [dummy_note, dummy_note], 0, 0)
+four = Pattern(FOUR_STACK, [dummy_note, dummy_note], 0, 0)
+switch = Pattern(SWITCH, [dummy_note, dummy_note], 0, 0)
+zig_zag = Pattern(ZIG_ZAG, [dummy_note, dummy_note], 0, 0)
+stream = Pattern(SINGLE_STREAMS, [dummy_note, dummy_note], 0, 0)
 
 def test_simple_only():
     groups = MapPatternGroups().identify_pattern_groups([simple])
@@ -69,9 +70,9 @@ def test_even_circle():
 
 def test_even_circles_pattern():
     patterns = [
-        Pattern(TWO_STACK, [], 0, 0),
-        Pattern(SWITCH, [], 0, 0),
-        Pattern(TWO_STACK, [], 0, 0)
+        Pattern(TWO_STACK, [Note(0, 21.42 * TIME_CONVERSION), Note(0, 21.60 * TIME_CONVERSION)], 0),
+        Pattern(SWITCH, [Note(0, 21.60 * TIME_CONVERSION), Note(0, 21.78 * TIME_CONVERSION)], 0),
+        Pattern(TWO_STACK, [Note(0, 21.78 * TIME_CONVERSION), Note(0, 21.96 * TIME_CONVERSION)], 0)
     ]
 
     groups = MapPatternGroups().identify_pattern_groups(patterns)
@@ -80,9 +81,9 @@ def test_even_circles_pattern():
 
 def test_even_circles_have_same_intervals_true():
     patterns = [
-        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 / TIME_CONVERSION)], 0),
-        Pattern(SWITCH, [Note(0, 0.2 / TIME_CONVERSION), Note(1, 0.4 / TIME_CONVERSION)], 0),
-        Pattern(TWO_STACK, [Note(1, 0.4 / TIME_CONVERSION), Note(1, 0.6 / TIME_CONVERSION)], 0)
+        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * TIME_CONVERSION)], 0),
+        Pattern(SWITCH, [Note(0, 0.2 * TIME_CONVERSION), Note(1, 0.4 * TIME_CONVERSION)], 0),
+        Pattern(TWO_STACK, [Note(1, 0.4 * TIME_CONVERSION), Note(1, 0.6 * TIME_CONVERSION)], 0)
     ]
 
     groups = MapPatternGroups().identify_pattern_groups(patterns)
@@ -91,9 +92,9 @@ def test_even_circles_have_same_intervals_true():
 
 def test_even_circles_have_different_intervals_not_even_circles():
     patterns = [
-        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 / TIME_CONVERSION)], 0),
-        Pattern(SWITCH, [Note(0, 0.2 / TIME_CONVERSION), Note(1, 0.3 / TIME_CONVERSION)], 0), # Switch is not same time by 0.1s
-        Pattern(TWO_STACK, [Note(1, 0.3 / TIME_CONVERSION), Note(1, 0.5 / TIME_CONVERSION)], 0)
+        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * TIME_CONVERSION)], 0),
+        Pattern(SWITCH, [Note(0, 0.2 * TIME_CONVERSION), Note(1, 0.3 * TIME_CONVERSION)], 0), # Switch is not same time by 0.1s
+        Pattern(TWO_STACK, [Note(1, 0.3 * TIME_CONVERSION), Note(1, 0.5 * TIME_CONVERSION)], 0)
     ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert groups[0].group_name != EVEN_CIRCLES

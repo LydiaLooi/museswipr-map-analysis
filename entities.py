@@ -11,7 +11,7 @@ class Note:
         return f"{self.lane},{self.sample_time}"
 
 class Pattern:
-    def __init__(self, pattern_name, notes: List[Note], required_notes: int, time_difference=None):
+    def __init__(self, pattern_name, notes: List[Note], required_notes: int=0, time_difference=None):
         self.pattern_name = pattern_name
         self.notes = notes
         self.required_notes = required_notes
