@@ -262,7 +262,7 @@ def run_analysis():
             # append the file path to the list
             file_list.append(file_path)
 
-    m = "ghost"
+    m = "nothing but theory"
 
     for filename in file_list:
         try:

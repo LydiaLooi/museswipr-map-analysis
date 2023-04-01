@@ -17,7 +17,8 @@ class PatternGroup(ABC):
         else:
             p = self.patterns
             extra = ""
-        return f"{self.group_name}, {p}{extra}"
+        return f"{self.patterns[0].notes[0].sample_time/TIME_CONVERSION:.2f} | {self.group_name}, {p}{extra}"
+    
     @abstractmethod
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
         pass
@@ -212,6 +213,59 @@ class SkewedCirclesGroup(PatternGroup):
         return False
 
 
+class NothingButTheoryGroup(PatternGroup):
+    def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
+        if not self.is_active:
+            return False
+
+        previous_pattern: Optional[Pattern] = self.patterns[-1] if len(self.patterns) > 0 else None
+
+        # Check for invalid combinations of previous pattern and current pattern
+        if current_pattern.pattern_name != TWO_STACK and current_pattern.pattern_name != ZIG_ZAG:
+            return False
+        
+        if previous_pattern:
+            if previous_pattern.pattern_name == ZIG_ZAG and current_pattern.pattern_name != TWO_STACK:
+                return False
+            
+            if previous_pattern.pattern_name == TWO_STACK and current_pattern.pattern_name != ZIG_ZAG:
+                return False
+
+            if abs(current_pattern.time_difference - previous_pattern.time_difference) > TOLERANCE:
+                return False
+
+            if not self.interval_between_patterns_is_tolerable(previous_pattern, current_pattern):
+                return False
+            
+        if current_pattern.pattern_name == ZIG_ZAG and len(current_pattern.notes) not in  [4, 6]:
+            return False
+            
+        # Current pattern should be valid from here
+        self.patterns.append(current_pattern)
+        print(f"added {current_pattern.pattern_name} to NothingButTheory")
+        return True
+
+
+
+    def reset_group(self, current_pattern: Pattern):
+        self.patterns = []
+        self.check_pattern(current_pattern)
+        self.is_active = True
+
+
+    def is_appendable(self) -> bool:
+        if len(self.patterns) >= 3:
+            # Sanity check that everything in it is only N-stacks or ZIG ZAGS
+            n_stack_count = 0
+            for p in self.patterns:
+                if self.is_n_stack(p):
+                    n_stack_count += 1
+                if p.pattern_name != TWO_STACK and p.pattern_name != ZIG_ZAG:
+                    raise ValueError(f"Nothing but theory has a: {p.pattern_name}!!")   
+            if n_stack_count >= 2:
+                return True
+        return False
+
 class MapPatternGroups:
 
     def __init__(self):
@@ -235,6 +289,7 @@ class MapPatternGroups:
             EvenCirclesGroup(EVEN_CIRCLES, []),
             SkewedCirclesGroup(SKEWED_CIRCLES, []),
             VaryingStacksGroup(VARYING_STACKS, []),
+            NothingButTheoryGroup(NOTHING_BUT_THEORY, []),
             SimpleGroup(SIMPLE_ONLY, []),
         ]
         self.other_group = OtherGroup(OTHER, [])
