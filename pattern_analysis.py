@@ -192,10 +192,6 @@ class EvenCirclesGroup(PatternGroup):
         # Check for invalid combinations of previous pattern and current pattern
         if not self.is_n_stack(current_pattern) and current_pattern.pattern_name != SWITCH:
             return False
-        
-        
-        
-            
 
         if previous_pattern:
             # If the previous pattern is an interval, then we can add it.
@@ -391,60 +387,77 @@ class MapPatternGroups:
         self.other_group = OtherGroup(OTHER, [])
 
     def _return_final_groups(self, merge_other=True) -> List[PatternGroup]:
-        
-        print(f'{"%"*20} MERGING TIME {"%"*20}')
-        if merge_other:
-            new_groups = []
-            current_other = None
-            is_first = True
-            for pg in self.pattern_groups:
-                if pg.group_name != OTHER:
-                    if current_other is not None:
-                        if not self.pattern_is_interval(current_other.patterns[-1]):
-                            current_other.patterns = current_other.patterns[:-1]
-                            print(f"Final pattern is Interval, yeet it: {current_other.patterns}")
-
-                        print(f"***********Appending: {current_other.patterns}")
-                        new_groups.append(current_other)
-                        current_other = None
-                    new_groups.append(pg)
-                    is_first = True
-                else:
-                    # We have found an Other Group
-                    if current_other is None:
-                        current_other = OtherGroup(OTHER, [])
-                    if is_first:
-                        if len(self.pattern_groups) > 1 and len(pg.patterns) == 1 and self.pattern_is_interval(pg.patterns[0]): # There's more than an Other
-                            print("WE FOUNDA ROGUE INTERVAL!!!!")
-                            current_other = None
-                        else:
-                            print(f"FIRST... add all {len(pg.patterns)}")
-                            current_other.patterns += pg.patterns
-                    else: # Otherwise the overlap keeps getting added
-                        if len(pg.patterns) > 2:
-                            if self.pattern_is_interval(pg.patterns[0]):
-                                print(f"NOT FIRST (>2) Interval! {pg.patterns} ... add {pg.patterns[1:]}")
-                                current_other.patterns += pg.patterns[1:]
-                            else:
-                                print(f"NOT FIRST (>2) {pg.patterns} ... add {pg.patterns[2:]}")
-                                current_other.patterns += pg.patterns[2:]
-                    if current_other:
-                        print(f"CURRENT OTHER PATTERNS: {current_other.patterns}")
-                        is_first = False
-                    else:
-                        print("CURRENT OTHER PATTERNS IS ***NONE***")
-            if current_other is not None and len(current_other.patterns) > 0:
-                new_groups.append(current_other)
-            return new_groups
-        else:
+        """
+        Returns the final list of pattern groups after merging, if merge_other is True.
+        """
+        if not merge_other:
             return self.pattern_groups
 
+        new_groups = []
+        current_other = None
+        is_first = True
+        for pg in self.pattern_groups:
+            if pg.group_name != OTHER:
+                current_other = self._handle_non_other_group(new_groups, current_other, pg)
+                is_first = True
+            else:
+                current_other, is_first = self._handle_other_group(current_other, pg, is_first)
 
-    def identify_pattern_groups(self, patterns_list: List[Pattern], merge_other:bool = True) -> List[PatternGroup]:
+        if current_other is not None and len(current_other.patterns) > 0:
+            new_groups.append(current_other)
+        return new_groups
 
-        # TODO: account f or the duration between patterns too.
-        # Lets just first identify Single Notes and Varying Stacks only
-    
+    def _handle_non_other_group(self, new_groups, current_other, pg):
+        """
+        Handles non-OTHER groups while merging pattern groups.
+        """
+        if current_other is not None:
+            if not self.pattern_is_interval(current_other.patterns[-1]):
+                current_other.patterns = current_other.patterns[:-1]
+            new_groups.append(current_other)
+            current_other = None
+        new_groups.append(pg)
+        return current_other
+
+    def _handle_other_group(self, current_other, pg, is_first):
+        """
+        Handles OTHER groups while merging pattern groups.
+        """
+        if current_other is None:
+            current_other = OtherGroup(OTHER, [])
+        if is_first:
+            current_other = self._handle_first_other_group(current_other, pg)
+        else:
+            current_other = self._handle_not_first_other_group(current_other, pg)
+        if current_other:
+            is_first = False
+        return current_other, is_first
+
+    def _handle_first_other_group(self, current_other, pg):
+        """
+        Handles the first occurrence of an OTHER group while merging pattern groups.
+        """
+        if len(self.pattern_groups) > 1 and len(pg.patterns) == 1 and self.pattern_is_interval(pg.patterns[0]):
+            current_other = None
+        else:
+            current_other.patterns += pg.patterns
+        return current_other
+
+    def _handle_not_first_other_group(self, current_other, pg):
+        """
+        Handles subsequent occurrences of OTHER groups while merging pattern groups.
+        """
+        if len(pg.patterns) > 2:
+            if self.pattern_is_interval(pg.patterns[0]):
+                current_other.patterns += pg.patterns[1:]
+            else:
+                current_other.patterns += pg.patterns[2:]
+        return current_other
+
+
+
+
+    def identify_pattern_groups(self, patterns_list: List[Pattern], merge_other: bool = True) -> List[PatternGroup]:
         for i in range(0, len(patterns_list)):
             current_pattern = patterns_list[i]
 
