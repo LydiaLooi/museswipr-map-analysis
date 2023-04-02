@@ -1,5 +1,5 @@
 from pattern_analysis import EvenCirclesGroup, Pattern, Note
-from constants import EVEN_CIRCLES, TWO_STACK, THREE_STACK, FOUR_STACK, SWITCH, ZIG_ZAG, TIME_CONVERSION
+from constants import EVEN_CIRCLES, TWO_STACK, THREE_STACK, FOUR_STACK, SWITCH, ZIG_ZAG, TIME_CONVERSION, SHORT_INTERVAL
 
 
 valid_note1 = Note(0, 0)
@@ -63,3 +63,21 @@ def test_invalid_when_gap_between_switch_and_stack():
     group = EvenCirclesGroup(EVEN_CIRCLES, [previous_pattern])
     added = group.check_pattern(current_pattern)
     assert added is False
+
+
+def test_starting_with_interval_adds_it_and_returns_True():
+    current_pattern = Pattern(SHORT_INTERVAL, [valid_note1, valid_note2])
+
+    group = EvenCirclesGroup(EVEN_CIRCLES, [])
+    added = group.check_pattern(current_pattern)
+    assert added is True
+    assert group.patterns[0].pattern_name == SHORT_INTERVAL
+
+def test_ending_with_interval_adds_it_and_returns_False():
+    previous_pattern = Pattern(TWO_STACK, [valid_note1, valid_note2])
+    current_pattern = Pattern(SHORT_INTERVAL, [valid_note2, valid_note3])
+
+    group = EvenCirclesGroup(EVEN_CIRCLES, [previous_pattern])
+    added = group.check_pattern(current_pattern)
+    assert added is False
+    assert group.patterns[-1].pattern_name == SHORT_INTERVAL
