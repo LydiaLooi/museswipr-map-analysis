@@ -50,11 +50,10 @@ def test_varying_stacks_with_intervals():
         short_interval, long_interval, 
         ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
-    # assert groups[0].group_name == VARYING_STACKS
     assert groups[0].group_name == SLOW_STRETCH
-    assert groups[1].patterns == VARYING_STACKS
+    assert groups[1].group_name == VARYING_STACKS
     assert groups[2].group_name == SLOW_STRETCH
-    # assert groups[4].group_name == VARYING_STACKS
+    assert len(groups[-1].patterns) == 2
 
 def test_other_only_one_pattern():
     groups = MapPatternGroups().identify_pattern_groups([switch])

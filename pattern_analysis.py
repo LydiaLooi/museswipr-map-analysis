@@ -25,9 +25,32 @@ class PatternGroup(ABC):
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
         pass
 
-    @abstractmethod
     def reset_group(self, previous_pattern: Pattern, current_pattern: Pattern):
-        pass
+        
+        print(f"==== RESETTING {self.group_name} ===")
+        self.is_active = True
+        self.patterns = []
+
+        # If previous or current_pattern is an Interval, then only add that one (prioritise the latest one).
+        if self.pattern_is_interval(current_pattern):
+            self.check_pattern(current_pattern)
+
+        elif self.pattern_is_interval(previous_pattern):
+            self.check_pattern(previous_pattern)
+            self.check_pattern(current_pattern)
+            
+        # If not, then attempt to add the previous one first, then the current one too
+        # If it fails at any point, set the group to inactive
+        else:
+            if previous_pattern:
+                added = self.check_pattern(previous_pattern)
+                if added:
+                    added = self.check_pattern(current_pattern)
+                
+                if added is False:
+                    self.is_active = False
+
+        print(f"-----DONE... {self.patterns}")
 
     @abstractmethod
     def is_appendable(self) -> bool:
@@ -84,9 +107,6 @@ class OtherGroup(PatternGroup):
         self.patterns.append(current_pattern)
         return True
         # return False
-    
-    def reset_group(self, previous_pattern: Pattern, current_pattern: Pattern):
-        self.patterns = []
 
     def is_appendable(self) -> bool:
         return super().is_appendable()
@@ -106,13 +126,6 @@ class SlowStretch(PatternGroup):
             return True
         return False
     
-    def reset_group(self, previous_pattern: Pattern, current_pattern: Pattern):
-        self.is_active = True
-        self.patterns = []
-        if previous_pattern:
-            self.check_pattern(previous_pattern)
-        self.check_pattern(current_pattern)
-        
 
     def is_appendable(self) -> bool:
         if len(self.patterns) >= 2:
@@ -147,23 +160,6 @@ class VaryingStacksGroup(PatternGroup):
         self.patterns.append(current_pattern)
         print(f"added {current_pattern.pattern_name} to VaryingStacksGroup")
         return True
-
-        # if (previous_pattern is None or self.is_n_stack(previous_pattern)) and self.is_n_stack(current_pattern):
-        #     self.patterns.append(current_pattern)
-        #     print(f"added {current_pattern.pattern_name} to VaryingStacks")
-        #     return True
-        # return False
-    
-    def reset_group(self, previous_pattern: Pattern, current_pattern: Pattern):
-        self.is_active = True
-        self.patterns = []
-        print(f"### RESETTING VARYING STACK")
-
-        if previous_pattern:
-            print(f"### WITH {previous_pattern.pattern_name}")
-            self.check_pattern(previous_pattern)
-        self.check_pattern(current_pattern)
-        
 
     def is_appendable(self) -> bool:
         print(f"@@@CHECKING IF VARYING STACK IS APPENDABLE with {self.patterns}")
@@ -212,13 +208,6 @@ class EvenCirclesGroup(PatternGroup):
         self.patterns.append(current_pattern)
         print(f"added {current_pattern.pattern_name} to EvenCirclesGroup")
         return True
-    
-    def reset_group(self, previous_pattern: Pattern, current_pattern: Pattern):
-        self.is_active = True
-        self.patterns = []
-        if previous_pattern:
-            self.check_pattern(previous_pattern)
-        self.check_pattern(current_pattern)
         
 
     def is_appendable(self) -> bool:
@@ -266,15 +255,6 @@ class SkewedCirclesGroup(PatternGroup):
         self.patterns.append(current_pattern)
         print(f"added {current_pattern.pattern_name} to SkewedCirclesGroup")
         return True
-
-
-
-    def reset_group(self, previous_pattern: Pattern, current_pattern: Pattern):
-        self.is_active = True
-        self.patterns = []
-        if previous_pattern:
-            self.check_pattern(previous_pattern)
-        self.check_pattern(current_pattern)
 
 
     def is_appendable(self) -> bool:
@@ -329,18 +309,6 @@ class NothingButTheoryGroup(PatternGroup):
         self.patterns.append(current_pattern)
         print(f"added {current_pattern.pattern_name} to NothingButTheory")
         return True
-
-
-
-    def reset_group(self, previous_pattern: Pattern, current_pattern: Pattern):
-
-        self.is_active = True
-
-        self.patterns = []
-        if previous_pattern:
-            self.check_pattern(previous_pattern)
-        added = self.check_pattern(current_pattern)
-
 
 
     def is_appendable(self) -> bool:
@@ -430,7 +398,7 @@ class MapPatternGroups:
                 print("\nPrevious pattern: NONE")
             print(f"Current pattern: {current_pattern.pattern_name}")
             added = False # has this pattern been added?
-
+            reset = False # have we done a reset?
             for group in self.groups:
                 group: PatternGroup
                 _added = group.check_pattern(current_pattern)
@@ -445,20 +413,25 @@ class MapPatternGroups:
                         # Need to first check if OtherGroup has stragglers...
                         if len(group.patterns) < len(self.other_group.patterns):
                             # THERE ARE STRAGGLERS. 
-                            # print(f"THERE ARE STRAGGLERS {group.patterns} | {self.other_group.patterns}")
+                            print(f"THERE ARE STRAGGLERS {group.patterns} | {self.other_group.patterns}")
                             other_group = OtherGroup(OTHER, self.other_group.patterns[:-len(group.patterns)])
                             self.pattern_groups.append(other_group)
 
                         added = True
                         group_copy = group.__class__(group.group_name, group.patterns, group.start_sample, group.end_sample)
                         self.pattern_groups.append(group_copy)
-                        self.other_group.reset_group(previous_pattern, current_pattern) # reset OtherGroup
                         print(f"{type(group_copy).__name__} | Appended {group_copy.group_name} with groups: {group_copy.patterns}")
                         # Reset all groups with current pattern.
                         for group in self.groups:
                             group.reset_group(previous_pattern, current_pattern)
-
-            self.other_group.check_pattern(current_pattern)
+                        self.other_group.reset_group(previous_pattern, current_pattern) # reset OtherGroup
+                        reset = True
+                        break # STOP LOOKING !! WE FOUND SOMETHING
+            if not reset:
+                self.other_group.check_pattern(current_pattern)
+                print(f"...Adding {current_pattern.pattern_name} to other...: {self.other_group.patterns}")
+            else:
+                print("...Already reset... so not adding to other_group")
             # print(f"Added = True... Other Group is {self.other_group.patterns}")
 
             # We have gone through all the defined groups...
@@ -514,11 +487,11 @@ if __name__ == "__main__":
     # ]
 
     patterns = [
-        short_interval, med_interval,
-        three, four, 
-        short_interval, long_interval, 
-        ]
+        short_interval, short_interval, 
+        two, three, two,
+        switch, zig_zag, switch, two, zig_zag, stream]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
+    # groups = MapPatternGroups().identify_pattern_groups(patterns)
 
     print("="*25)
     for  g in groups:
