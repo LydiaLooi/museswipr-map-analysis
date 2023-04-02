@@ -7,10 +7,20 @@ class PatternGroup(ABC):
     def __init__(self, group_name: str, patterns: List[Pattern], start_sample: int=None, end_sample: int=None):
         self.group_name = group_name
         self.patterns = patterns
-        self.start_sample = start_sample
-        self.end_sample = end_sample
+        self.start_sample = start_sample # (UNUSED)
+        self.end_sample = end_sample # (UNUSED)
         self.is_active = True
-        self.is_interval = False # This is to identify the "Simple Only" equivalent classes
+        self.is_interval = False # This is to identify the "Simple Only" equivalent classes (UNUSED)
+        self.weighting = 1
+
+    @property
+    def approx_total_notes(self): # because i cbf make it accurate ((:
+        note_count = 0
+        for p in patterns:
+            note_count += len(p.notes)
+            if len(p.notes) >= 3:
+                note_count -= 2 # -2 for the overlap of patterns approx
+        return note_count
 
     def __repr__(self) -> str:
         if len(self.patterns) >= 5:
@@ -19,15 +29,20 @@ class PatternGroup(ABC):
         else:
             p = self.patterns
             extra = ""
-        return f"{self.patterns[0].notes[0].sample_time/TIME_CONVERSION:.2f} | {self.group_name}, {p}{extra}"
-    
+        if len(self.patterns) > 0:
+            return f"{self.patterns[0].notes[0].sample_time/TIME_CONVERSION:.2f} | {self.group_name}, {p}{extra}"
+        else:
+            return f"{self.group_name}, {p}"
+    def get_difficulty_score(self):
+        return 1
+
     @abstractmethod
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
         pass
 
     def reset_group(self, previous_pattern: Pattern, current_pattern: Pattern):
         
-        print(f"==== RESETTING {self.group_name} ===")
+        # print(f"==== RESETTING {self.group_name} ===")
         self.is_active = True
         self.patterns = []
 
@@ -50,7 +65,7 @@ class PatternGroup(ABC):
                 if added is False:
                     self.is_active = False
 
-        print(f"-----DONE... {self.patterns}")
+        # print(f"-----DONE... {self.patterns}")
 
     @abstractmethod
     def is_appendable(self) -> bool:
@@ -102,6 +117,10 @@ class PatternGroup(ABC):
             return False
 class OtherGroup(PatternGroup):
 
+    def __init__(self, group_name: str, patterns: List[Pattern], start_sample: int = None, end_sample: int = None):
+        super().__init__(group_name, patterns, start_sample, end_sample)
+        self.weighting = 5
+
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
         # if current_pattern.pattern_name != SIMPLE_NOTE:
         self.patterns.append(current_pattern)
@@ -110,6 +129,54 @@ class OtherGroup(PatternGroup):
 
     def is_appendable(self) -> bool:
         return super().is_appendable()
+    
+    def get_difficulty_score(self) -> float:
+        # Create a mapping of pattern names to difficulty scores
+        pattern_difficulty = {
+            SWITCH: 1.9,
+            ZIG_ZAG: 1.3,
+            TWO_STACK: 1.2,
+            THREE_STACK: 1.3,
+            FOUR_STACK: 1.4,
+            SINGLE_STREAMS: 1.4,
+            SHORT_INTERVAL: 0.7,
+            MED_INTERVAL: 0.6,
+            LONG_INTERVAL: 0.5,
+        }
+
+        HAS_INTERVAL = 0.8
+        NO_INTERVAL = 1.2
+
+        # Calculate the total weighted difficulty score of the group's patterns
+        total_weighted_difficulty = 0
+        total_weighting = 0
+        for pattern in self.patterns:
+            # Look up the difficulty score for the pattern name
+            difficulty_score = pattern_difficulty.get(pattern.pattern_name, 0)
+            
+            # Calculate the weighted difficulty score for the pattern
+            weighted_difficulty = difficulty_score * self.weighting
+            
+            # Add the weighted difficulty score to the total
+            total_weighted_difficulty += weighted_difficulty
+            total_weighting += self.weighting
+
+        # Calculate the average weighted difficulty score
+        if total_weighting > 0:
+            average_weighted_difficulty = total_weighted_difficulty / total_weighting
+            print(f"AVERAGE WEIGHTED DIFFICULTY: {average_weighted_difficulty}")
+        else:
+            average_weighted_difficulty = 0
+
+        # Apply any adjustment factors based on the group's properties or context
+        # Here you can add any heuristics that you believe can adjust the difficulty score based on the context
+        # For example, you might adjust the difficulty score based on the speed of the music or the number of notes in the patterns
+
+        # Clamp the difficulty score to the range [0, 1]
+        difficulty_score = max(0, min(2, average_weighted_difficulty))
+
+        return difficulty_score
+
 class SlowStretch(PatternGroup):
     def __init__(self, group_name: str, patterns: List[Pattern], start_sample: int = None, end_sample: int = None):
         super().__init__(group_name, patterns, start_sample, end_sample)
@@ -121,7 +188,7 @@ class SlowStretch(PatternGroup):
         previous_pattern: Optional[Pattern] = self.patterns[-1] if len(self.patterns) > 0 else None
 
         if "Interval" in current_pattern.pattern_name and (previous_pattern is None or "Interval" in previous_pattern.pattern_name):
-            print(f"added {current_pattern.pattern_name} to SlowStretch")
+            # print(f"added {current_pattern.pattern_name} to SlowStretch")
             self.patterns.append(current_pattern)
             return True
         return False
@@ -158,11 +225,11 @@ class VaryingStacksGroup(PatternGroup):
 
         # Current pattern should be valid from here
         self.patterns.append(current_pattern)
-        print(f"added {current_pattern.pattern_name} to VaryingStacksGroup")
+        # print(f"added {current_pattern.pattern_name} to VaryingStacksGroup")
         return True
 
     def is_appendable(self) -> bool:
-        print(f"@@@CHECKING IF VARYING STACK IS APPENDABLE with {self.patterns}")
+        # print(f"@@@CHECKING IF VARYING STACK IS APPENDABLE with {self.patterns}")
         if len(self.patterns) >= 2:
             # Needs at least 2 n-stacks to be valid
             n_stack_count = 0
@@ -197,7 +264,7 @@ class EvenCirclesGroup(PatternGroup):
             # If the previous pattern is an interval, then we can add it.
             if self.pattern_is_interval(previous_pattern):
                 self.patterns.append(current_pattern)
-                print(f"added {current_pattern.pattern_name} to EvenCirclesGroup")
+                # print(f"added {current_pattern.pattern_name} to EvenCirclesGroup")
                 return True
             
             if previous_pattern.pattern_name == SWITCH and not self.is_n_stack(current_pattern):
@@ -213,7 +280,7 @@ class EvenCirclesGroup(PatternGroup):
                 return False
         # Current pattern should be valid from here
         self.patterns.append(current_pattern)
-        print(f"added {current_pattern.pattern_name} to EvenCirclesGroup")
+        # print(f"added {current_pattern.pattern_name} to EvenCirclesGroup")
         return True
         
 
@@ -253,7 +320,7 @@ class SkewedCirclesGroup(PatternGroup):
             # If the previous pattern is an interval, then we can add it.
             if self.pattern_is_interval(previous_pattern):
                 self.patterns.append(current_pattern)
-                print(f"added {current_pattern.pattern_name} to SkewedCirclesGroup")
+                # print(f"added {current_pattern.pattern_name} to SkewedCirclesGroup")
                 return True
             
             if previous_pattern.pattern_name == ZIG_ZAG and not self.is_n_stack(current_pattern):
@@ -273,7 +340,7 @@ class SkewedCirclesGroup(PatternGroup):
             
         # Current pattern should be valid from here
         self.patterns.append(current_pattern)
-        print(f"added {current_pattern.pattern_name} to SkewedCirclesGroup")
+        # print(f"added {current_pattern.pattern_name} to SkewedCirclesGroup")
         return True
 
 
@@ -317,7 +384,7 @@ class NothingButTheoryGroup(PatternGroup):
             # If the previous pattern is an interval, then we can add it.
             if self.pattern_is_interval(previous_pattern):
                 self.patterns.append(current_pattern)
-                print(f"added {current_pattern.pattern_name} to SkewedCirclesGroup")
+                # print(f"added {current_pattern.pattern_name} to SkewedCirclesGroup")
                 return True
             
             if previous_pattern.pattern_name == ZIG_ZAG and current_pattern.pattern_name != TWO_STACK:
@@ -336,7 +403,7 @@ class NothingButTheoryGroup(PatternGroup):
             
         # Current pattern should be valid from here
         self.patterns.append(current_pattern)
-        print(f"added {current_pattern.pattern_name} to NothingButTheory")
+        # print(f"added {current_pattern.pattern_name} to NothingButTheory")
         return True
 
 
@@ -466,11 +533,11 @@ class MapPatternGroups:
             else:
                 previous_pattern: Optional[Pattern]  = None
 
-            if previous_pattern:
-                print(f"\nPrevious pattern: {previous_pattern.pattern_name}")
-            else:
-                print("\nPrevious pattern: NONE")
-            print(f"Current pattern: {current_pattern.pattern_name}")
+            # if previous_pattern:
+                # print(f"\nPrevious pattern: {previous_pattern.pattern_name}")
+            # else:
+                # print("\nPrevious pattern: NONE")
+            # print(f"Current pattern: {current_pattern.pattern_name}")
             added = False # has this pattern been added?
             reset = False # have we done a reset?
             for group in self.groups:
@@ -487,14 +554,14 @@ class MapPatternGroups:
                         # Need to first check if OtherGroup has stragglers...
                         if len(group.patterns) < len(self.other_group.patterns):
                             # THERE ARE STRAGGLERS. 
-                            print(f"THERE ARE STRAGGLERS {group.patterns} | {self.other_group.patterns}")
+                            # print(f"THERE ARE STRAGGLERS {group.patterns} | {self.other_group.patterns}")
                             other_group = OtherGroup(OTHER, self.other_group.patterns[:-len(group.patterns)])
                             self.pattern_groups.append(other_group)
 
                         added = True
                         group_copy = group.__class__(group.group_name, group.patterns, group.start_sample, group.end_sample)
                         self.pattern_groups.append(group_copy)
-                        print(f"{type(group_copy).__name__} | Appended {group_copy.group_name} with groups: {group_copy.patterns}")
+                        # print(f"{type(group_copy).__name__} | Appended {group_copy.group_name} with groups: {group_copy.patterns}")
                         # Reset all groups with current pattern.
                         for group in self.groups:
                             group.reset_group(previous_pattern, current_pattern)
@@ -503,15 +570,15 @@ class MapPatternGroups:
                         break # STOP LOOKING !! WE FOUND SOMETHING
             if not reset:
                 self.other_group.check_pattern(current_pattern)
-                print(f"...Adding {current_pattern.pattern_name} to other...: {self.other_group.patterns}")
-            else:
-                print("...Already reset... so not adding to other_group")
+                # print(f"...Adding {current_pattern.pattern_name} to other...: {self.other_group.patterns}")
+            # else:
+                # print("...Already reset... so not adding to other_group")
             # print(f"Added = True... Other Group is {self.other_group.patterns}")
 
             # We have gone through all the defined groups...
             if not added: 
                 # Append OtherGroup if no other groups were appendale
-                print(f"No other group appendable... appending Other with {self.other_group.patterns}")
+                # print(f"No other group appendable... appending Other with {self.other_group.patterns}")
                 self.pattern_groups.append(OtherGroup(OTHER, self.other_group.patterns, self.other_group.start_sample, self.other_group.end_sample))
                 self.other_group.reset_group(previous_pattern, current_pattern) # reset OtherGroup
                 # Reset all groups with current pattern.
@@ -521,7 +588,7 @@ class MapPatternGroups:
         # Do last check
         for last_check_group in self.groups:
             if last_check_group.is_appendable():
-                print(f"{last_check_group.group_name} is appendable with {last_check_group.patterns}")
+                # print(f"{last_check_group.group_name} is appendable with {last_check_group.patterns}")
                 last_group_copy = last_check_group.__class__(last_check_group.group_name, last_check_group.patterns, last_check_group.start_sample, last_check_group.end_sample)
                 self.pattern_groups.append(last_group_copy)
                 return self._return_final_groups(merge_other)

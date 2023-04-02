@@ -1,3 +1,4 @@
+from constants import *
 from typing import List, Union
 import json
 
@@ -20,6 +21,10 @@ class Pattern:
         if self.time_difference is None and len(self.notes) > 1:
             print("Auto setting time difference...")
             self.time_difference = abs(self.notes[1].sample_time - self.notes[0].sample_time)
+
+    @property
+    def notes_per_second(self):
+        return TIME_CONVERSION / self.time_difference
 
     def __repr__(self) -> str:
         return f"{self.pattern_name} {len(self.notes)} {self.time_difference}"
