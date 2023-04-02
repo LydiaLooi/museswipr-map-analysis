@@ -309,3 +309,19 @@ def test_nothing_but_theory_with_start_end_interval_valid():
     assert len(groups) == 1
     assert groups[0].group_name == NOTHING_BUT_THEORY
     assert len(groups[0].patterns) == 6
+
+
+def test_slow_stretch_with_varying_intervals():
+    # Taken from Eyes half closed 128.11s
+    patterns = [
+        Pattern(SHORT_INTERVAL, [Note(0, 5669300), Note(0, 5679100)], 0),
+        Pattern(SHORT_INTERVAL, [Note(0, 5688900), Note(0, 5695433), Note(0, 5701966)], 0),
+        Pattern(SHORT_INTERVAL, [Note(0, 5708500), Note(0, 5715033)], 0),
+        Pattern(SHORT_INTERVAL, [Note(0, 5721566), Note(0, 5728100), Note(0, 5747700)], 0),
+        Pattern(SHORT_INTERVAL, [Note(0, 5757500), Note(0, 5767300)], 0)
+    ]
+
+    groups = MapPatternGroups().identify_pattern_groups(patterns)
+    assert len(groups) == 1
+    assert groups[0].group_name == SLOW_STRETCH
+    assert len(groups[0].patterns) == 5

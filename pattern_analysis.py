@@ -192,7 +192,18 @@ class EvenCirclesGroup(PatternGroup):
         # Check for invalid combinations of previous pattern and current pattern
         if not self.is_n_stack(current_pattern) and current_pattern.pattern_name != SWITCH:
             return False
+        
+        
+        
+            
+
         if previous_pattern:
+            # If the previous pattern is an interval, then we can add it.
+            if self.pattern_is_interval(previous_pattern):
+                self.patterns.append(current_pattern)
+                print(f"added {current_pattern.pattern_name} to EvenCirclesGroup")
+                return True
+            
             if previous_pattern.pattern_name == SWITCH and not self.is_n_stack(current_pattern):
                 return False
             
@@ -231,11 +242,24 @@ class SkewedCirclesGroup(PatternGroup):
 
         previous_pattern: Optional[Pattern] = self.patterns[-1] if len(self.patterns) > 0 else None
 
+        if self.pattern_is_interval(current_pattern):
+            at_start = self.add_interval_is_at_start(current_pattern)
+            if not at_start:
+                # We end the pattern here.
+                return False
+            return True
+
         # Check for invalid combinations of previous pattern and current pattern
         if not self.is_n_stack(current_pattern) and current_pattern.pattern_name != ZIG_ZAG:
             return False
         
         if previous_pattern:
+            # If the previous pattern is an interval, then we can add it.
+            if self.pattern_is_interval(previous_pattern):
+                self.patterns.append(current_pattern)
+                print(f"added {current_pattern.pattern_name} to SkewedCirclesGroup")
+                return True
+            
             if previous_pattern.pattern_name == ZIG_ZAG and not self.is_n_stack(current_pattern):
                 return False
             
@@ -264,7 +288,7 @@ class SkewedCirclesGroup(PatternGroup):
             for p in self.patterns:
                 if self.is_n_stack(p):
                     n_stack_count += 1
-                if not self.is_n_stack(p) and p.pattern_name != ZIG_ZAG:
+                if not self.is_n_stack(p) and p.pattern_name != ZIG_ZAG and not self.pattern_is_interval(p):
                     raise ValueError(f"Skewed Circle has a: {p.pattern_name}!!")   
             if n_stack_count >= 2:
                 return True
@@ -273,23 +297,33 @@ class SkewedCirclesGroup(PatternGroup):
 
 class NothingButTheoryGroup(PatternGroup):
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
-        # print(f">>> Checking NothingButTheory current pattern: {current_pattern.pattern_name}")
-        # print(f">>> Checking NothingButTheory PATTERNS: {self.patterns}")
         if not self.is_active:
             return False
 
         previous_pattern: Optional[Pattern] = self.patterns[-1] if len(self.patterns) > 0 else None
-        
-        # print(f"???1 Bruh: {current_pattern.pattern_name != TWO_STACK}")
-        # print(f"???2 Bruh: {current_pattern.pattern_name != ZIG_ZAG}")
-        # print(f"???3 Bruh: {current_pattern.pattern_name != TWO_STACK and current_pattern.pattern_name != ZIG_ZAG}")
+
+        if self.pattern_is_interval(current_pattern):
+            at_start = self.add_interval_is_at_start(current_pattern)
+            if not at_start:
+                # We end the pattern here.
+                return False
+            return True
+
         # Check for invalid combinations of previous pattern and current pattern
         if current_pattern.pattern_name != TWO_STACK and current_pattern.pattern_name != ZIG_ZAG:
             return False
         
-        print(f">>> Checking NothingButTheory 2 previous pattern: {previous_pattern}")
+        if current_pattern.pattern_name == ZIG_ZAG and len(current_pattern.notes) not in  [4, 6]:
+            return False
+
 
         if previous_pattern:
+            # If the previous pattern is an interval, then we can add it.
+            if self.pattern_is_interval(previous_pattern):
+                self.patterns.append(current_pattern)
+                print(f"added {current_pattern.pattern_name} to SkewedCirclesGroup")
+                return True
+            
             if previous_pattern.pattern_name == ZIG_ZAG and current_pattern.pattern_name != TWO_STACK:
                 return False
             
@@ -302,8 +336,7 @@ class NothingButTheoryGroup(PatternGroup):
             if not self.interval_between_patterns_is_tolerable(previous_pattern, current_pattern):
                 return False
             
-        if current_pattern.pattern_name == ZIG_ZAG and len(current_pattern.notes) not in  [4, 6]:
-            return False
+
             
         # Current pattern should be valid from here
         self.patterns.append(current_pattern)
@@ -320,7 +353,7 @@ class NothingButTheoryGroup(PatternGroup):
             for p in self.patterns:
                 if self.is_n_stack(p):
                     n_stack_count += 1
-                if p.pattern_name != TWO_STACK and p.pattern_name != ZIG_ZAG:
+                if p.pattern_name != TWO_STACK and p.pattern_name != ZIG_ZAG and not self.pattern_is_interval(p):
                     raise ValueError(f"Nothing but theory has a: {p.pattern_name}!!")   
             if n_stack_count >= 2:
                 return True
@@ -371,6 +404,7 @@ class MapPatternGroups:
                             current_other.patterns = current_other.patterns[:-1]
                             print(f"Final pattern is Interval, yeet it: {current_other.patterns}")
 
+                        print(f"***********Appending: {current_other.patterns}")
                         new_groups.append(current_other)
                         current_other = None
                     new_groups.append(pg)
@@ -380,8 +414,12 @@ class MapPatternGroups:
                     if current_other is None:
                         current_other = OtherGroup(OTHER, [])
                     if is_first:
-                        print(f"FIRST... add all {len(pg.patterns)}")
-                        current_other.patterns += pg.patterns
+                        if len(self.pattern_groups) > 1 and len(pg.patterns) == 1 and self.pattern_is_interval(pg.patterns[0]): # There's more than an Other
+                            print("WE FOUNDA ROGUE INTERVAL!!!!")
+                            current_other = None
+                        else:
+                            print(f"FIRST... add all {len(pg.patterns)}")
+                            current_other.patterns += pg.patterns
                     else: # Otherwise the overlap keeps getting added
                         if len(pg.patterns) > 2:
                             if self.pattern_is_interval(pg.patterns[0]):
@@ -390,9 +428,11 @@ class MapPatternGroups:
                             else:
                                 print(f"NOT FIRST (>2) {pg.patterns} ... add {pg.patterns[2:]}")
                                 current_other.patterns += pg.patterns[2:]
-
-                    print(f"CURRENT OTHER PATTERNS: {current_other.patterns}")
-                    is_first = False
+                    if current_other:
+                        print(f"CURRENT OTHER PATTERNS: {current_other.patterns}")
+                        is_first = False
+                    else:
+                        print("CURRENT OTHER PATTERNS IS ***NONE***")
             if current_other is not None and len(current_other.patterns) > 0:
                 new_groups.append(current_other)
             return new_groups
@@ -508,8 +548,12 @@ if __name__ == "__main__":
     # ]
 
     patterns = [
-        short_interval, switch, med_interval, switch, long_interval
-    ]
+        Pattern(LONG_INTERVAL, [_Note(0, 0), _Note(0, 10)], 0),
+        Pattern(TWO_STACK, [_Note(0, 10), _Note(0, 10.1)], 0),
+        Pattern(ZIG_ZAG, [_Note(0, 10.1), _Note(0, 10.2), _Note(0, 10.3)], 0),
+        Pattern(TWO_STACK, [_Note(0, 10.3), _Note(0, 10.4)], 0),
+        Pattern(SHORT_INTERVAL, [_Note(0, 10.4), _Note(0, 11)], 0)
+        ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
 
     # groups = MapPatternGroups().identify_pattern_groups(patterns)

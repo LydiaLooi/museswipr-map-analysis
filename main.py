@@ -128,31 +128,46 @@ def handle_current_pattern(patterns: List[Pattern], current_pattern: Optional[Pa
 
 
 def analyze_patterns(notes: List[Note]):
+    """
+    Given a list of `Note` objects, detects patterns in the sequence of notes and returns a list of `Pattern` objects.
+
+    Args:
+        notes (List[Note]): A list of `Note` objects representing the sequence of notes to be analyzed.
+
+    Returns:
+        A list of `Pattern` objects, each representing a detected pattern in the sequence of notes.
+    """
     patterns = []
     current_pattern = None
     tolerance = 10 * TIME_CONVERSION / 1000  # 10ms in sample time
 
-    for i in range(1, len(notes)): # Starts at second note :)
+    for i in range(1, len(notes)): # Starts at second note
         prev_note = notes[i - 1]
         note = notes[i]
 
         time_difference = note.sample_time - prev_note.sample_time
-        next_pattern_name, next_required_notes = get_next_pattern_and_required_notes(prev_note, note, time_difference) #TODO make changes here that passes in the curent pattern to keep track of n-stacks to get em
 
+        # Get the name of the next pattern and the notes required to complete it
+        next_pattern_name, next_required_notes = get_next_pattern_and_required_notes(prev_note, note, time_difference)
+
+        # If the current pair of notes belongs to the same pattern as the previous pair of notes
         if current_pattern and current_pattern.pattern_name == next_pattern_name:
             base_time_difference = current_pattern.notes[1].sample_time - current_pattern.notes[0].sample_time
 
+            # If the time difference between the current pair of notes is within the tolerance of the base time difference of the current pattern
             if abs(time_difference - base_time_difference) <= tolerance:
                 current_pattern.notes.append(note)
-            else:
+            else: # The time difference between the current pair of notes is not within the tolerance of the base time difference of the current pattern
                 patterns = handle_current_pattern(patterns, current_pattern)
                 current_pattern = Pattern(next_pattern_name, [prev_note, note], next_required_notes, time_difference)
         else: # If the current pair of notes does not belong to the same pattern as the previous pair of notes
             patterns = handle_current_pattern(patterns, current_pattern)
             current_pattern = Pattern(next_pattern_name, [prev_note, note], next_required_notes, time_difference)
+
     patterns = handle_current_pattern(patterns, current_pattern)
 
     return patterns
+
 
 
 # Generate output
@@ -161,7 +176,7 @@ def print_patterns(patterns: List[Pattern]):
         start_time = pattern.notes[0].sample_time
         end_time = pattern.notes[-1].sample_time
         time_difference = end_time - start_time
-        notes_per_second = len(pattern.notes) / (time_difference / TIME_CONVERSION)
+        notes_per_second = TIME_CONVERSION / abs(pattern.notes[1].sample_time - pattern.notes[0].sample_time)
 
         print(
             f"{time_difference / TIME_CONVERSION:.2f} | {start_time/ TIME_CONVERSION:.2f} - {end_time/ TIME_CONVERSION:.2f}: "
@@ -171,49 +186,23 @@ def print_patterns(patterns: List[Pattern]):
 def mini_test():
 
     notes = [
-        Note(0, 0000), #Single stream
-        Note(0, 1000),
-        Note(0, 2000),
-        Note(0, 3000),
-        Note(0, 4000), #Single stream end | zig zag 
-        Note(1, 6000),
-        Note(0, 8000),
-        Note(1, 10000),
-        Note(0, 12000),
-        Note(1, 14000), # zig zag end | zig zag start
-        Note(0, 15000),
-        Note(1, 16000),
-        Note(0, 17000),
-        Note(1, 18000), ## zig zag end | Two stack
-        Note(1, 20000), ## two stack end | switch 
-        Note(0, 21000), ## Switch end | three stack 
-        Note(0, 23000),
-        Note(0, 25000), ## Three stack end | switch start
-        Note(1, 26000), ## Switch end | 4 stack start
-        Note(1, 28000),
-        Note(1, 30000),
-        Note(1, 32000), ## four stack end | zig zag
-        Note(0, 34000), 
-        Note(1, 36000), ## zigg zag end | two stack 
-        Note(1, 38000), ## two stack end | single stream
-        Note(1, 39000),
-        Note(1, 40000),
-        Note(1, 41000),
-        Note(1, 42000), # single stream end | switch
-        Note(0, 43000), # swithc end | stream start
-        Note(0, 44000),
-        Note(0, 45000),
-        Note(0, 46000),
-        Note(0, 47000),
-        Note(0, 48000),
-        Note(0, 49000), # switch 1000
-        Note(1, 50000), # switch end 1000 | zig zag start 2000
-        Note(0, 52000),
-        Note(1, 54000),
-        Note(0, 56000),
-        Note(1, 58000),
-
-
+        Note(1,5669300),
+        Note(1,5679100),
+        Note(0,5688900),
+        Note(1,5695433),
+        Note(0,5701966),
+        Note(1,5708500),
+        Note(0,5715033),
+        Note(1,5721566),
+        Note(0,5728100),
+        Note(1,5747700),
+        Note(1,5757500),
+        Note(1,5767300),
+        Note(0,5773833),
+        Note(1,5780366),
+        Note(0,5786900),
+        Note(1,5793433),
+        Note(0,5799966),
     ]
 
     p = analyze_patterns(notes)
@@ -245,7 +234,8 @@ def run_analysis():
 
             name = filename.split("\\")[-1].split(".asset")[0]
             if m in name.lower():
-                
+                # for n in m_map.notes:
+                #     print(n)
                 p = analyze_patterns(m_map.notes)
                 groups = mpg.identify_pattern_groups(p)
                 print(name)
