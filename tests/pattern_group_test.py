@@ -68,8 +68,11 @@ def test_simple_varying_stacks_end_with_other():
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert len(groups) == 3
     assert groups[0].group_name == SLOW_STRETCH
+    assert len(groups[0].patterns) == 2
     assert groups[1].group_name == VARYING_STACKS
+    assert len(groups[1].patterns) == 4
     assert groups[2].group_name == OTHER
+    assert len(groups[2].patterns) == 7
 
 def test_other_with_multiple_intervals():
     patterns = [

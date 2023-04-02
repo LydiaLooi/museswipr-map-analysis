@@ -358,9 +358,12 @@ class MapPatternGroups:
         self.other_group = OtherGroup(OTHER, [])
 
     def _return_final_groups(self, merge_other=True) -> List[PatternGroup]:
+        
+        print(f'{"%"*20} MERGING TIME {"%"*20}')
         if merge_other:
             new_groups = []
             current_other = None
+            is_first = True
             for pg in self.pattern_groups:
                 if pg.group_name != OTHER:
                     if current_other is not None:
@@ -371,7 +374,15 @@ class MapPatternGroups:
                 else:
                     if current_other is None:
                         current_other = OtherGroup(OTHER, [])
-                    current_other.patterns += pg.patterns
+                    if is_first:
+                        print(f"FIRST... add all {len(pg.patterns)}")
+                        current_other.patterns += pg.patterns
+                    elif len(pg.patterns) > 2: # Otherwise the overlap keeps getting added
+                        print(f"NOT FIRST... add {len(pg.patterns[2:])}")
+                        current_other.patterns += pg.patterns[2:]
+
+                    print(f"CURRENT OTHER PATTERNS: {current_other.patterns}")
+                    is_first = False
             if current_other is not None:
                 new_groups.append(current_other)
             return new_groups
@@ -491,6 +502,8 @@ if __name__ == "__main__":
         two, three, two,
         switch, zig_zag, switch, two, zig_zag, stream]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
+
+    print(len(groups[2].patterns))
     # groups = MapPatternGroups().identify_pattern_groups(patterns)
 
     print("="*25)
