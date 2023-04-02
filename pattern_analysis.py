@@ -367,23 +367,28 @@ class MapPatternGroups:
             for pg in self.pattern_groups:
                 if pg.group_name != OTHER:
                     if current_other is not None:
+                        if not self.pattern_is_interval(current_other.patterns[-1]):
+                            current_other.patterns = current_other.patterns[:-1]
+                        
                         new_groups.append(current_other)
-                        # TODO, set the start and end times
                         current_other = None
                     new_groups.append(pg)
+                    is_first = True
                 else:
+                    # We have found an Other Group
                     if current_other is None:
                         current_other = OtherGroup(OTHER, [])
                     if is_first:
                         print(f"FIRST... add all {len(pg.patterns)}")
                         current_other.patterns += pg.patterns
-                    elif len(pg.patterns) > 2: # Otherwise the overlap keeps getting added
-                        print(f"NOT FIRST... add {len(pg.patterns[2:])}")
-                        current_other.patterns += pg.patterns[2:]
+                    else: # Otherwise the overlap keeps getting added
+                        if len(pg.patterns) > 2:
+                            print(f"NOT FIRST (more than 2)... add {len(pg.patterns[2:])}")
+                            current_other.patterns += pg.patterns[2:]
 
                     print(f"CURRENT OTHER PATTERNS: {current_other.patterns}")
                     is_first = False
-            if current_other is not None:
+            if current_other is not None and len(current_other.patterns) > 0:
                 new_groups.append(current_other)
             return new_groups
         else:
@@ -498,9 +503,12 @@ if __name__ == "__main__":
     # ]
 
     patterns = [
-        short_interval, short_interval, 
+        switch, stream,
         two, three, two,
-        switch, zig_zag, switch, two, zig_zag, stream]
+        switch,
+        short_interval, short_interval, short_interval,
+        switch, stream, switch
+    ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
 
     print(len(groups[2].patterns))

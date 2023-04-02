@@ -39,14 +39,14 @@ def test_with_differing_intervals_only():
     assert groups[0].group_name == SLOW_STRETCH
 
 def test_varying_stacks_only():
-    groups = MapPatternGroups().identify_pattern_groups([two, three])
+    groups = MapPatternGroups().identify_pattern_groups([two, three, two])
     assert len(groups) == 1
     assert groups[0].group_name == VARYING_STACKS
 
 def test_varying_stacks_with_intervals():
     patterns = [
         short_interval, med_interval,
-        three, four, 
+        three, four, two,
         short_interval, long_interval, 
         ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
@@ -85,14 +85,24 @@ def test_other_with_multiple_intervals():
 def test_other_in_between():
     patterns = [
         switch, two, zig_zag,
-        two, two,
+        two, two, three,
         switch,
         short_interval, short_interval, short_interval,
         switch
     ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert len(groups) == 5
+    assert groups[0].group_name	== OTHER
+    assert len(groups[0].patterns)	== 4
+    assert groups[1].group_name == VARYING_STACKS
+    assert len(groups[1].patterns)	== 3
     assert groups[2].group_name == OTHER
+    assert len(groups[2].patterns)	== 3
+    assert groups[3].group_name == SLOW_STRETCH
+    assert len(groups[3].patterns)	== 3
+    assert groups[4].group_name == OTHER
+    assert len(groups[4].patterns)	== 2
+
 
 
 def test_even_circle():
