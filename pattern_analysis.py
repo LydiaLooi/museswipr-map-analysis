@@ -369,7 +369,8 @@ class MapPatternGroups:
                     if current_other is not None:
                         if not self.pattern_is_interval(current_other.patterns[-1]):
                             current_other.patterns = current_other.patterns[:-1]
-                        
+                            print(f"Final pattern is Interval, yeet it: {current_other.patterns}")
+
                         new_groups.append(current_other)
                         current_other = None
                     new_groups.append(pg)
@@ -383,8 +384,12 @@ class MapPatternGroups:
                         current_other.patterns += pg.patterns
                     else: # Otherwise the overlap keeps getting added
                         if len(pg.patterns) > 2:
-                            print(f"NOT FIRST (more than 2)... add {len(pg.patterns[2:])}")
-                            current_other.patterns += pg.patterns[2:]
+                            if self.pattern_is_interval(pg.patterns[0]):
+                                print(f"NOT FIRST (>2) Interval! {pg.patterns} ... add {pg.patterns[1:]}")
+                                current_other.patterns += pg.patterns[1:]
+                            else:
+                                print(f"NOT FIRST (>2) {pg.patterns} ... add {pg.patterns[2:]}")
+                                current_other.patterns += pg.patterns[2:]
 
                     print(f"CURRENT OTHER PATTERNS: {current_other.patterns}")
                     is_first = False
@@ -503,15 +508,10 @@ if __name__ == "__main__":
     # ]
 
     patterns = [
-        switch, stream,
-        two, three, two,
-        switch,
-        short_interval, short_interval, short_interval,
-        switch, stream, switch
+        short_interval, switch, med_interval, switch, long_interval
     ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
 
-    print(len(groups[2].patterns))
     # groups = MapPatternGroups().identify_pattern_groups(patterns)
 
     print("="*25)
