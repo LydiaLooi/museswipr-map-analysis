@@ -12,11 +12,12 @@ class Note:
         return f"{self.lane},{self.sample_time}"
 
 class Pattern:
-    def __init__(self, pattern_name, notes: List[Note], required_notes: int=0, time_difference=None):
+    def __init__(self, pattern_name, notes: List[Note], required_notes: int=0, time_difference=None, sample_rate:int=DEFAULT_SAMPLE_RATE):
         self.pattern_name = pattern_name
         self.notes = notes
         self.required_notes = required_notes
         self.time_difference = time_difference
+        self.sample_rate = sample_rate
 
         if self.time_difference is None and len(self.notes) > 1:
             print("Auto setting time difference...")
@@ -24,7 +25,7 @@ class Pattern:
 
     @property
     def notes_per_second(self):
-        return TIME_CONVERSION / self.time_difference
+        return self.sample_rate / self.time_difference
 
     def __repr__(self) -> str:
         return f"{self.pattern_name} {len(self.notes)} {self.time_difference}"
@@ -41,6 +42,8 @@ class MuseSwiprMap:
         self.tracks = data[self.title]["value"]["mTracks"]
         self.notes = []
 
+        self.sample_rate = int(data[self.title]["value"]["mSampleRate"])
+
         self._parse_notes()
 
     def _parse_notes(self):
@@ -54,7 +57,7 @@ class MuseSwiprMap:
         
         self.notes = sorted(self.notes, key=lambda note: note.sample_time)
 
-    def output_notes(self, file_path):
+    def output_notes(self, file_path, sample_rate:int=DEFAULT_SAMPLE_RATE):
         """
         Written by ChatGPT. May have errors but it's neat :)
         """
@@ -76,9 +79,9 @@ class MuseSwiprMap:
                 for note in sorted_notes:
                     if note.sample_time <= time < note.sample_time + smallest_time_distance:
                         if note.lane == 0:
-                            file.write(f"{note.sample_time/44100:.2f}| []\n")
+                            file.write(f"{note.sample_time/sample_rate:.2f}| []\n")
                         elif note.lane == 1:
-                            file.write(f"{note.sample_time/44100:.2f}|      []\n")
+                            file.write(f"{note.sample_time/sample_rate:.2f}|      []\n")
                         break
                 else:
-                    file.write(f"{time/44100:.2f}|\n")
+                    file.write(f"{time/sample_rate:.2f}|\n")

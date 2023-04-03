@@ -1,4 +1,4 @@
-TIME_CONVERSION = 44100 # time_s * TIME_CONVERSION = sample_time
+DEFAULT_SAMPLE_RATE = 44100 # time_s * TIME_CONVERSION = sample_time
 
 SWITCH = "Switch"
 ZIG_ZAG = "Zig Zag"
@@ -19,4 +19,4 @@ NOTHING_BUT_THEORY = "Nothing But Theory"
 VARIABLE_STREAM = "Variable Stream"
 OTHER = "Other"
 
-TOLERANCE = 20 * TIME_CONVERSION // 1000
+TOLERANCE = 20 * DEFAULT_SAMPLE_RATE // 1000

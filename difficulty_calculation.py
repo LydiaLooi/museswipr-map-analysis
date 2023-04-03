@@ -1,14 +1,14 @@
 from typing import List, Tuple, Optional
 import statistics
-from constants import TIME_CONVERSION
+from constants import DEFAULT_SAMPLE_RATE
 from constants import *
 from entities import Note, MuseSwiprMap, Pattern
 from pattern_multipliers import skewed_circle_multiplier, even_circle_multiplier, stream_multiplier, zig_zag_multiplier, nothing_but_theory_multiplier
 
 from pattern_analysis import MapPatternGroups
 
-def create_sections(notes, section_threshold_seconds=1):
-    section_threshold = section_threshold_seconds * TIME_CONVERSION
+def create_sections(notes, section_threshold_seconds=1, sample_rate:int=DEFAULT_SAMPLE_RATE):
+    section_threshold = section_threshold_seconds * sample_rate
     song_start_samples = min(note.sample_time for note in notes)
     song_duration_samples = max(note.sample_time for note in notes)
 
@@ -65,7 +65,7 @@ def weighted_average_of_values(values, top_percentage=0.3, top_weight=0.7, botto
     weighted_average = weighted_sum / total_weight
     return weighted_average
 
-def get_pattern_weighting(notes: List[Note]) -> float:
+def get_pattern_weighting(notes: List[Note], sample_rate: int=DEFAULT_SAMPLE_RATE) -> float:
     """Calculates the overall weighting of pattern difficulty
 
     Gets the pattern group's difficulty which::
@@ -82,7 +82,7 @@ def get_pattern_weighting(notes: List[Note]) -> float:
         float: The pattern weighting
     """
     mpg = MapPatternGroups()
-    patterns = analyze_patterns(notes)
+    patterns = analyze_patterns(notes, sample_rate)
     groups = mpg.identify_pattern_groups(patterns)
 
     total_difficulty_score = 0
@@ -100,11 +100,11 @@ def get_pattern_weighting(notes: List[Note]) -> float:
 
     return difficulty
 
-def calculate_difficulty(notes, outfile=None, use_moving_average=True):
+def calculate_difficulty(notes, outfile=None, use_moving_average=True, sample_rate:int=DEFAULT_SAMPLE_RATE):
 
     print(f"{'Difficulty':_^50}")
 
-    sections = create_sections(notes, 1)
+    sections = create_sections(notes, 1, sample_rate)
 
     difficulty = None
 
@@ -134,8 +134,8 @@ def calculate_difficulty(notes, outfile=None, use_moving_average=True):
     return (weighting, difficulty, weighted_difficulty)
 
 
-def get_next_pattern_and_required_notes(prev_note: Note, note: Note, time_difference: int) -> Tuple[str, int]:
-    notes_per_second = TIME_CONVERSION / time_difference
+def get_next_pattern_and_required_notes(prev_note: Note, note: Note, time_difference: int, sample_rate:int=DEFAULT_SAMPLE_RATE) -> Tuple[str, int]:
+    notes_per_second = sample_rate / time_difference
 
     if notes_per_second >= 5:
         if note.lane != prev_note.lane:
@@ -165,7 +165,7 @@ def handle_current_pattern(patterns: List[Pattern], current_pattern: Optional[Pa
     return patterns
 
 
-def analyze_patterns(notes: List[Note]):
+def analyze_patterns(notes: List[Note], sample_rate: int = DEFAULT_SAMPLE_RATE):
     """
     Given a list of `Note` objects, detects patterns in the sequence of notes and returns a list of `Pattern` objects.
 
@@ -177,7 +177,7 @@ def analyze_patterns(notes: List[Note]):
     """
     patterns = []
     current_pattern = None
-    tolerance = 10 * TIME_CONVERSION / 1000  # 10ms in sample time
+    tolerance = 10 * sample_rate / 1000  # 10ms in sample time
 
     for i in range(1, len(notes)): # Starts at second note
         prev_note = notes[i - 1]
@@ -197,10 +197,10 @@ def analyze_patterns(notes: List[Note]):
                 current_pattern.notes.append(note)
             else: # The time difference between the current pair of notes is not within the tolerance of the base time difference of the current pattern
                 patterns = handle_current_pattern(patterns, current_pattern)
-                current_pattern = Pattern(next_pattern_name, [prev_note, note], next_required_notes, time_difference)
+                current_pattern = Pattern(next_pattern_name, [prev_note, note], required_notes=next_required_notes, time_difference=time_difference, sample_rate=sample_rate)
         else: # If the current pair of notes does not belong to the same pattern as the previous pair of notes
             patterns = handle_current_pattern(patterns, current_pattern)
-            current_pattern = Pattern(next_pattern_name, [prev_note, note], next_required_notes, time_difference)
+            current_pattern = Pattern(next_pattern_name, [prev_note, note], required_notes=next_required_notes, time_difference=time_difference, sample_rate=sample_rate)
 
     patterns = handle_current_pattern(patterns, current_pattern)
 
@@ -209,231 +209,25 @@ def analyze_patterns(notes: List[Note]):
 
 
 # Generate output
-def print_patterns(patterns: List[Pattern]):
-    for pattern in patterns:
+def print_patterns(patterns: List[Pattern], sample_rate:int=DEFAULT_SAMPLE_RATE):
+    sorted_patterns = sorted(patterns, key=lambda pattern: pattern.notes[0].sample_time)
+    
+    print(f"Sample rate: {sample_rate}")
+
+    for pattern in sorted_patterns:
         start_time = pattern.notes[0].sample_time
-        end_time = pattern.notes[-1].sample_time
+        # print(f"FIRST NOTE: {pattern.notes[0].sample_time}")
+        end_time = pattern.notes[1].sample_time
+        # print(f"SECOND NOTE: {pattern.notes[1].sample_time}")
         time_difference = end_time - start_time
-        notes_per_second = TIME_CONVERSION / abs(pattern.notes[1].sample_time - pattern.notes[0].sample_time)
+        notes_per_second = sample_rate / abs(pattern.notes[1].sample_time - pattern.notes[0].sample_time)
 
         print(
-            f"{time_difference / TIME_CONVERSION:.2f} | {start_time/ TIME_CONVERSION:.2f} - {end_time/ TIME_CONVERSION:.2f}: "
-            f"{pattern.pattern_name} ({notes_per_second:.2f}nps|{(notes_per_second/4)*60:.2f}BPM) | {pattern.time_difference/TIME_CONVERSION:.2f}s"
+            f"{time_difference / sample_rate:.2f} | {start_time/ sample_rate:.2f} - {end_time/ sample_rate:.2f}: "
+            f"{pattern.pattern_name} ({notes_per_second:.2f}nps|{(notes_per_second/4)*60:.2f}BPM) | {pattern.time_difference/sample_rate:.2f}s"
         )
 
 
 
 if __name__ == "__main__":
-    from pattern_analysis import OtherGroup
-    def _Note(lane, seconds):
-        return Note(lane, seconds * TIME_CONVERSION)
-    super_easier = [
-        _Note(0, 0),
-        _Note(0, 0.3),
-        _Note(1, 0.6),
-        _Note(0, 0.9),
-        _Note(0, 1.2),
-        _Note(0, 1.5),
-        _Note(0, 1.9),
-        _Note(0, 2.5),
-        _Note(1, 3.5),
-        _Note(0, 4),
-        _Note(0, 4.3),
-        _Note(0, 4.7),
-        _Note(0, 5),
-        _Note(0, 10),
-        _Note(0, 10.3),
-        _Note(1, 15),
-    ]
-
-
-    much_easier = [
-        _Note(0, 0),
-        _Note(1, 0.3),
-        _Note(0, 0.6),
-        _Note(1, 0.9),
-        _Note(0, 1.2),
-        _Note(1, 1.5),
-        _Note(1, 1.9),
-        _Note(0, 2.5),
-        _Note(0, 3.5),
-        _Note(1, 4),
-        _Note(0, 4.3),
-        _Note(0, 4.7),
-        _Note(0, 5),
-        _Note(1, 10),
-        _Note(0, 10.3),
-        _Note(0, 15),
-    ]
-
-
-    easier = [
-        _Note(0, 0),
-        _Note(1, 10),
-        _Note(0, 10.1),
-        _Note(1, 10.2),
-        _Note(0, 12),
-        _Note(1, 12.1),
-        _Note(1, 15),
-        _Note(0, 15.1),
-        _Note(0, 20),
-        _Note(1, 20.1),
-        _Note(0, 20.2),
-        _Note(0, 25),
-        _Note(0, 25.1),
-        _Note(1, 40),
-        _Note(0, 40.1),
-        _Note(0, 42),
-    ]
-
-    even_circles_easy = [
-        _Note(1, 0.1),
-        _Note(1, 0.2),
-        _Note(0, 0.3),
-        _Note(0, 0.4),
-        _Note(1, 0.5),
-        _Note(1, 0.6),
-        _Note(0, 0.7),
-        _Note(0, 0.8),
-        _Note(1, 0.9),
-        _Note(1, 1.0),
-        _Note(0, 1.1),
-        _Note(0, 1.2),
-        _Note(1, 1.3),
-        _Note(1, 1.4),
-        _Note(0, 1.5),
-        _Note(0, 1.6),
-    ]
-
-    even_circles_hard = [
-        _Note(1, 0.1),
-        _Note(1, 0.2),
-        _Note(1, 0.3),
-        _Note(0, 0.4),
-        _Note(0, 0.5),
-        _Note(1, 0.6),
-        _Note(1, 0.7),
-        _Note(1, 0.8),
-        _Note(1, 0.9),
-        _Note(0, 1.0),
-        _Note(0, 1.1),
-        _Note(0, 1.2),
-        _Note(1, 1.3),
-        _Note(1, 1.4),
-        _Note(0, 1.5),
-        _Note(0, 1.6),
-    ]
-
-
-    samples = {
-        'super_easier': super_easier, 
-        'much_easier': much_easier, 
-        'easier': easier, 
-        'even circles easy': even_circles_easy,
-        'even circles hard': even_circles_hard
-        }
-    
-    for name, s in samples.items():
-        print(f"{name.capitalize():=^50}")
-        diff = calculate_difficulty(s)
-
-        patterns = analyze_patterns(s)
-
-        # print_patterns(patterns)
-        # mpg = MapPatternGroups()
-        # groups = mpg.identify_pattern_groups(patterns)
-        # for g in groups:
-        #     print(f"{g.group_name}: {g.calc_pattern_group_difficulty()}")
-
-        print("\n\n")
-
-    # import math
-    # class Sample():
-    #     def __init__(self, name, patterns):
-    #         self.group_name = name
-    #         self.patterns = patterns
-
-    #     def variation_score(self) -> float:
-    #         # Thanks to ChatGPT for writing this for me
-    #         lst = [p.pattern_name for p in self.patterns]
-
-    #         print(f"Pattern names: {lst}")
-    #         n = len(lst)
-    #         unique_vals = set(lst)
-    #         freq = [lst.count(x) / n for x in unique_vals]
-
-    #         entropy = -sum(p * math.log2(p) for p in freq)
-
-    #         return entropy
-
-    # mpg = MapPatternGroups()
-
-    # even_patterns = [
-    #     Pattern("A", []),
-    #     Pattern("B", []),
-    #     Pattern("A", []),
-    #     Pattern("B", []),
-    #     Pattern("A", []),
-    #     Pattern("B", []),
-    #     Pattern("A", []),
-    #     Pattern("B", []),
-    # ]
-
-    # odd_patterns = [
-    #     Pattern("A", []),
-    #     Pattern("B", []),
-    #     Pattern("C", []),
-    #     Pattern("B", []),
-    #     Pattern("D", []),
-    #     Pattern("B", []),
-    #     Pattern("A", []),
-    #     Pattern("B", []),
-    # ]
-
-    # other_patterns = [
-    #     Pattern("A", []),
-    #     Pattern("A", []),
-    #     Pattern("B", []),
-    #     Pattern("A", []),
-    #     Pattern("A", []),
-    #     Pattern("B", []),
-    #     Pattern("A", []),
-    #     Pattern("A", []),
-    #     Pattern("B", []),
-    # ]
-    
-
-    # same_patterns = [
-    #     Pattern("A", []),
-    #     Pattern("A", []),
-    #     Pattern("A", []),
-    #     Pattern("A", []),
-    #     Pattern("A", []),
-    #     Pattern("A", []),
-    #     Pattern("A", []),
-    #     Pattern("A", []),
-    # ]
-
-
-    # almost_same_patterns = [
-    #     Pattern("A", []),
-    #     Pattern("B", []),
-    #     Pattern("C", []),
-    #     Pattern("B", []),
-    #     Pattern("D", []),
-    #     Pattern("A", []),
-    #     Pattern("L", []),
-    #     Pattern("C", []),
-    # ]
-
-    # groups = [
-    #     Sample("Group A", even_patterns),
-    #     Sample("Group B", odd_patterns),
-    #     Sample("Group C", other_patterns),
-    #     Sample("Group D", same_patterns),
-    #     Sample("Group E", almost_same_patterns),
-    # ]
-
-    # for g in groups:
-    #     print(f"{g.group_name}: {g.variation_score()}\n")
-
+    pass

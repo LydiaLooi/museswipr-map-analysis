@@ -178,37 +178,4 @@ class MapPatternGroups:
 
 
 if __name__ == "__main__":
-    dummy_note = Note(0, 0)
-
-    short_interval = Pattern(SHORT_INTERVAL, [dummy_note, dummy_note], 0, 0)
-    med_interval = Pattern(MED_INTERVAL, [dummy_note, dummy_note], 0, 0)
-    long_interval = Pattern(LONG_INTERVAL, [dummy_note, dummy_note], 0, 0)
-    two = Pattern(TWO_STACK, [dummy_note, dummy_note], 0, 0)
-    three = Pattern(THREE_STACK, [dummy_note, dummy_note], 0, 0)
-    four = Pattern(FOUR_STACK, [dummy_note, dummy_note], 0, 0)
-    switch = Pattern(SWITCH, [dummy_note, dummy_note], 0, 0)
-    zig_zag = Pattern(ZIG_ZAG, [dummy_note, dummy_note], 0, 0)
-    stream = Pattern(SINGLE_STREAMS, [dummy_note, dummy_note], 0, 0)
-
-    def _Note(lane, seconds):
-        return Note(lane, seconds * TIME_CONVERSION)
-    
-
-    # patterns = [
-    #     short_interval, switch, med_interval, switch, long_interval
-    # ]
-
-    patterns = [
-        Pattern(LONG_INTERVAL, [_Note(0, 0), _Note(0, 10)], 0),
-        Pattern(TWO_STACK, [_Note(0, 10), _Note(0, 10.1)], 0),
-        Pattern(ZIG_ZAG, [_Note(0, 10.1), _Note(0, 10.2), _Note(0, 10.3)], 0),
-        Pattern(TWO_STACK, [_Note(0, 10.3), _Note(0, 10.4)], 0),
-        Pattern(SHORT_INTERVAL, [_Note(0, 10.4), _Note(0, 11)], 0)
-        ]
-    groups = MapPatternGroups().identify_pattern_groups(patterns)
-
-    # groups = MapPatternGroups().identify_pattern_groups(patterns)
-
-    print("="*25)
-    for  g in groups:
-        print(f"{g.group_name} | {g.patterns}")
+    pass

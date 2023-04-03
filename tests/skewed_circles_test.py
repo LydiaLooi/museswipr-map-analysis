@@ -1,12 +1,12 @@
 from pattern_analysis import SkewedCirclesGroup, Note, Pattern
-from constants import SKEWED_CIRCLES, TWO_STACK, THREE_STACK, FOUR_STACK, SWITCH, ZIG_ZAG, TIME_CONVERSION, SINGLE_STREAMS
+from constants import SKEWED_CIRCLES, TWO_STACK, THREE_STACK, FOUR_STACK, SWITCH, ZIG_ZAG, DEFAULT_SAMPLE_RATE, SINGLE_STREAMS
 
 
 valid_note1 = Note(0, 0)
-valid_note2 = Note(0, 0.1 * TIME_CONVERSION)
-valid_note3 = Note(0, 0.2 * TIME_CONVERSION)
-valid_note4 = Note(0, 0.3 * TIME_CONVERSION) 
-valid_note5 = Note(0, 0.4 * TIME_CONVERSION) 
+valid_note2 = Note(0, 0.1 * DEFAULT_SAMPLE_RATE)
+valid_note3 = Note(0, 0.2 * DEFAULT_SAMPLE_RATE)
+valid_note4 = Note(0, 0.3 * DEFAULT_SAMPLE_RATE) 
+valid_note5 = Note(0, 0.4 * DEFAULT_SAMPLE_RATE) 
 
 
 def test_valid_current_four_stack_when_first():

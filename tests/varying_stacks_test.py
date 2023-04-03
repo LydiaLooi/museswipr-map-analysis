@@ -1,15 +1,15 @@
 from pattern_analysis import VaryingStacksGroup, Note, Pattern
-from constants import VARYING_STACKS, TWO_STACK, THREE_STACK, FOUR_STACK, SWITCH, ZIG_ZAG, TIME_CONVERSION, SINGLE_STREAMS, SHORT_INTERVAL, MED_INTERVAL, LONG_INTERVAL
+from constants import VARYING_STACKS, TWO_STACK, THREE_STACK, FOUR_STACK, SWITCH, ZIG_ZAG, DEFAULT_SAMPLE_RATE, SINGLE_STREAMS, SHORT_INTERVAL, MED_INTERVAL, LONG_INTERVAL
 
 
 valid_note1 = Note(0, 0)
-valid_note2 = Note(0, 0.1 * TIME_CONVERSION)
-valid_note3 = Note(0, 0.2 * TIME_CONVERSION)
-valid_note4 = Note(0, 0.3 * TIME_CONVERSION) 
-valid_note5 = Note(0, 0.4 * TIME_CONVERSION) 
-valid_note6 = Note(0, 0.5 * TIME_CONVERSION) 
-valid_note7 = Note(0, 0.6 * TIME_CONVERSION) 
-valid_note8 = Note(0, 0.7 * TIME_CONVERSION) 
+valid_note2 = Note(0, 0.1 * DEFAULT_SAMPLE_RATE)
+valid_note3 = Note(0, 0.2 * DEFAULT_SAMPLE_RATE)
+valid_note4 = Note(0, 0.3 * DEFAULT_SAMPLE_RATE) 
+valid_note5 = Note(0, 0.4 * DEFAULT_SAMPLE_RATE) 
+valid_note6 = Note(0, 0.5 * DEFAULT_SAMPLE_RATE) 
+valid_note7 = Note(0, 0.6 * DEFAULT_SAMPLE_RATE) 
+valid_note8 = Note(0, 0.7 * DEFAULT_SAMPLE_RATE) 
 
 
 

@@ -15,7 +15,7 @@ zig_zag = Pattern(ZIG_ZAG, [dummy_note, dummy_note], 0, 0)
 stream = Pattern(SINGLE_STREAMS, [dummy_note, dummy_note], 0, 0)
 
 def _Note(lane, seconds):
-    return Note(lane, seconds * TIME_CONVERSION)
+    return Note(lane, seconds * DEFAULT_SAMPLE_RATE)
 
 def test_one_interval_is_other():
     groups = MapPatternGroups().identify_pattern_groups([short_interval])
@@ -122,14 +122,14 @@ def test_even_circle():
 
 def test_even_circle_with_intervals_start_and_end():
     patterns = [
-        Pattern(LONG_INTERVAL, [Note(0, 0), Note(0, 10 * TIME_CONVERSION)]), 
-        Pattern(SWITCH, [Note(0, 10 * TIME_CONVERSION), Note(1, 10.1 * TIME_CONVERSION)]), 
-        Pattern(TWO_STACK, [Note(1, 10.1 * TIME_CONVERSION), Note(1, 10.2 * TIME_CONVERSION)]),  
-        Pattern(SWITCH, [Note(1, 10.2 * TIME_CONVERSION), Note(0, 10.3 * TIME_CONVERSION)]), 
-        Pattern(TWO_STACK, [Note(0, 10.3 * TIME_CONVERSION), Note(0, 10.4 * TIME_CONVERSION)]), 
-        Pattern(SWITCH, [Note(0, 10.4 * TIME_CONVERSION), Note(1, 10.5 * TIME_CONVERSION)]), 
-        Pattern(TWO_STACK, [Note(1, 10.5 * TIME_CONVERSION), Note(1, 10.6 * TIME_CONVERSION)]), 
-        Pattern(MED_INTERVAL, [Note(1, 10.6), Note(0, 12.6 * TIME_CONVERSION)])
+        Pattern(LONG_INTERVAL, [Note(0, 0), Note(0, 10 * DEFAULT_SAMPLE_RATE)]), 
+        Pattern(SWITCH, [Note(0, 10 * DEFAULT_SAMPLE_RATE), Note(1, 10.1 * DEFAULT_SAMPLE_RATE)]), 
+        Pattern(TWO_STACK, [Note(1, 10.1 * DEFAULT_SAMPLE_RATE), Note(1, 10.2 * DEFAULT_SAMPLE_RATE)]),  
+        Pattern(SWITCH, [Note(1, 10.2 * DEFAULT_SAMPLE_RATE), Note(0, 10.3 * DEFAULT_SAMPLE_RATE)]), 
+        Pattern(TWO_STACK, [Note(0, 10.3 * DEFAULT_SAMPLE_RATE), Note(0, 10.4 * DEFAULT_SAMPLE_RATE)]), 
+        Pattern(SWITCH, [Note(0, 10.4 * DEFAULT_SAMPLE_RATE), Note(1, 10.5 * DEFAULT_SAMPLE_RATE)]), 
+        Pattern(TWO_STACK, [Note(1, 10.5 * DEFAULT_SAMPLE_RATE), Note(1, 10.6 * DEFAULT_SAMPLE_RATE)]), 
+        Pattern(MED_INTERVAL, [Note(1, 10.6), Note(0, 12.6 * DEFAULT_SAMPLE_RATE)])
         ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert len(groups) == 1
@@ -138,10 +138,10 @@ def test_even_circle_with_intervals_start_and_end():
 
 def test_invalid_even_circles_pattern():
     patterns = [
-        Pattern(SWITCH, [Note(0, 0), Note(0, 0.2 * TIME_CONVERSION)], 0),
-        Pattern(TWO_STACK, [Note(0, 0.2 * TIME_CONVERSION), Note(1, 0.4 * TIME_CONVERSION)], 0),
-        Pattern(SWITCH, [Note(1, 0.4 * TIME_CONVERSION), Note(1, 0.6 * TIME_CONVERSION)], 0),
-        Pattern(MED_INTERVAL, [Note(1, 0.6 * TIME_CONVERSION), Note(1, 1.2 * TIME_CONVERSION)], 0)
+        Pattern(SWITCH, [Note(0, 0), Note(0, 0.2 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(TWO_STACK, [Note(0, 0.2 * DEFAULT_SAMPLE_RATE), Note(1, 0.4 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(SWITCH, [Note(1, 0.4 * DEFAULT_SAMPLE_RATE), Note(1, 0.6 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(MED_INTERVAL, [Note(1, 0.6 * DEFAULT_SAMPLE_RATE), Note(1, 1.2 * DEFAULT_SAMPLE_RATE)], 0)
     ]
 
     groups = MapPatternGroups().identify_pattern_groups(patterns)
@@ -151,9 +151,9 @@ def test_invalid_even_circles_pattern():
 
 def test_even_circles_pattern():
     patterns = [
-        Pattern(TWO_STACK, [Note(0, 21.42 * TIME_CONVERSION), Note(0, 21.60 * TIME_CONVERSION)], 0),
-        Pattern(SWITCH, [Note(0, 21.60 * TIME_CONVERSION), Note(0, 21.78 * TIME_CONVERSION)], 0),
-        Pattern(TWO_STACK, [Note(0, 21.78 * TIME_CONVERSION), Note(0, 21.96 * TIME_CONVERSION)], 0)
+        Pattern(TWO_STACK, [Note(0, 21.42 * DEFAULT_SAMPLE_RATE), Note(0, 21.60 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(SWITCH, [Note(0, 21.60 * DEFAULT_SAMPLE_RATE), Note(0, 21.78 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(TWO_STACK, [Note(0, 21.78 * DEFAULT_SAMPLE_RATE), Note(0, 21.96 * DEFAULT_SAMPLE_RATE)], 0)
     ]
 
     groups = MapPatternGroups().identify_pattern_groups(patterns)
@@ -164,9 +164,9 @@ def test_even_circles_pattern():
 
 def test_even_circles_have_different_time_diffs_not_even_circles():
     patterns = [
-        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * TIME_CONVERSION)], 0),
-        Pattern(SWITCH, [Note(0, 0.2 * TIME_CONVERSION), Note(1, 0.3 * TIME_CONVERSION)], 0), # Switch is not same time by 0.1s
-        Pattern(TWO_STACK, [Note(1, 0.3 * TIME_CONVERSION), Note(1, 0.5 * TIME_CONVERSION)], 0)
+        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(SWITCH, [Note(0, 0.2 * DEFAULT_SAMPLE_RATE), Note(1, 0.3 * DEFAULT_SAMPLE_RATE)], 0), # Switch is not same time by 0.1s
+        Pattern(TWO_STACK, [Note(1, 0.3 * DEFAULT_SAMPLE_RATE), Note(1, 0.5 * DEFAULT_SAMPLE_RATE)], 0)
     ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert groups[0].group_name == OTHER
@@ -174,12 +174,12 @@ def test_even_circles_have_different_time_diffs_not_even_circles():
 
 def test_even_circles_same_time_diff_with_intervals_with_diff_time_diff():
     patterns = [
-        Pattern(SHORT_INTERVAL, [Note(0, 0), Note(0, 0.5 * TIME_CONVERSION)], 0),
-        Pattern(SWITCH, [Note(0, 0.5 * TIME_CONVERSION), Note(1, 0.6 * TIME_CONVERSION)], 0),
-        Pattern(TWO_STACK, [Note(1, 0.6 * TIME_CONVERSION), Note(1, 0.7 * TIME_CONVERSION)], 0),
-        Pattern(SWITCH, [Note(1, 0.7 * TIME_CONVERSION), Note(0, 0.8 * TIME_CONVERSION)], 0),
-        Pattern(TWO_STACK, [Note(0, 0.8 * TIME_CONVERSION), Note(0, 0.9 * TIME_CONVERSION)], 0),
-        Pattern(LONG_INTERVAL, [Note(0, 0.9 * TIME_CONVERSION), Note(1, 5 * TIME_CONVERSION)], 0),
+        Pattern(SHORT_INTERVAL, [Note(0, 0), Note(0, 0.5 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(SWITCH, [Note(0, 0.5 * DEFAULT_SAMPLE_RATE), Note(1, 0.6 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(TWO_STACK, [Note(1, 0.6 * DEFAULT_SAMPLE_RATE), Note(1, 0.7 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(SWITCH, [Note(1, 0.7 * DEFAULT_SAMPLE_RATE), Note(0, 0.8 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(TWO_STACK, [Note(0, 0.8 * DEFAULT_SAMPLE_RATE), Note(0, 0.9 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(LONG_INTERVAL, [Note(0, 0.9 * DEFAULT_SAMPLE_RATE), Note(1, 5 * DEFAULT_SAMPLE_RATE)], 0),
     ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert groups[0].group_name == EVEN_CIRCLES   
@@ -188,15 +188,15 @@ def test_even_circles_same_time_diff_with_intervals_with_diff_time_diff():
 
 def test_skewed_circles_with_invalid_zigzag_is_other():
     patterns = [
-        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * TIME_CONVERSION)], 0),
+        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * DEFAULT_SAMPLE_RATE)], 0),
         Pattern(ZIG_ZAG, [
-            Note(0, 0.2 * TIME_CONVERSION), 
-            Note(1, 0.4 * TIME_CONVERSION), 
-            Note(0, 0.6 * TIME_CONVERSION), 
-            Note(1, 0.8 * TIME_CONVERSION), 
-            Note(0, 1 * TIME_CONVERSION),
+            Note(0, 0.2 * DEFAULT_SAMPLE_RATE), 
+            Note(1, 0.4 * DEFAULT_SAMPLE_RATE), 
+            Note(0, 0.6 * DEFAULT_SAMPLE_RATE), 
+            Note(1, 0.8 * DEFAULT_SAMPLE_RATE), 
+            Note(0, 1 * DEFAULT_SAMPLE_RATE),
             ], 0),
-        Pattern(TWO_STACK, [Note(0, 1.2 * TIME_CONVERSION), Note(0, 1.4 * TIME_CONVERSION)], 0)
+        Pattern(TWO_STACK, [Note(0, 1.2 * DEFAULT_SAMPLE_RATE), Note(0, 1.4 * DEFAULT_SAMPLE_RATE)], 0)
         ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert groups[0].group_name == OTHER
@@ -204,9 +204,9 @@ def test_skewed_circles_with_invalid_zigzag_is_other():
 
 def test_skewed_circles_valid():
     patterns = [
-        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * TIME_CONVERSION)], 0),
-        Pattern(ZIG_ZAG, [Note(0, 0.2 * TIME_CONVERSION), Note(1, 0.4 * TIME_CONVERSION), Note(0, 0.6 * TIME_CONVERSION)], 0),
-        Pattern(TWO_STACK, [Note(0, 0.6 * TIME_CONVERSION), Note(0, 0.8 * TIME_CONVERSION)], 0)
+        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(ZIG_ZAG, [Note(0, 0.2 * DEFAULT_SAMPLE_RATE), Note(1, 0.4 * DEFAULT_SAMPLE_RATE), Note(0, 0.6 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(TWO_STACK, [Note(0, 0.6 * DEFAULT_SAMPLE_RATE), Note(0, 0.8 * DEFAULT_SAMPLE_RATE)], 0)
         ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert groups[0].group_name == SKEWED_CIRCLES
@@ -226,10 +226,10 @@ def test_skewed_circles_with_start_end_intervals_valid():
 
 def test_skewed_circles_valid_multi_zigs():
     patterns = [
-        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * TIME_CONVERSION)], 0),
-        Pattern(ZIG_ZAG, [Note(0, 0.2 * TIME_CONVERSION), Note(1, 0.4 * TIME_CONVERSION), Note(0, 0.6 * TIME_CONVERSION)], 0),
-        Pattern(TWO_STACK, [Note(0, 0.6 * TIME_CONVERSION), Note(0, 0.8 * TIME_CONVERSION)], 0),
-        Pattern(ZIG_ZAG, [Note(0, 0.8 * TIME_CONVERSION), Note(1, 1 * TIME_CONVERSION), Note(0, 0.6 * TIME_CONVERSION)], 0),
+        Pattern(TWO_STACK, [Note(0, 0), Note(0, 0.2 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(ZIG_ZAG, [Note(0, 0.2 * DEFAULT_SAMPLE_RATE), Note(1, 0.4 * DEFAULT_SAMPLE_RATE), Note(0, 0.6 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(TWO_STACK, [Note(0, 0.6 * DEFAULT_SAMPLE_RATE), Note(0, 0.8 * DEFAULT_SAMPLE_RATE)], 0),
+        Pattern(ZIG_ZAG, [Note(0, 0.8 * DEFAULT_SAMPLE_RATE), Note(1, 1 * DEFAULT_SAMPLE_RATE), Note(0, 0.6 * DEFAULT_SAMPLE_RATE)], 0),
         ]
     groups = MapPatternGroups().identify_pattern_groups(patterns)
     assert groups[0].group_name == SKEWED_CIRCLES

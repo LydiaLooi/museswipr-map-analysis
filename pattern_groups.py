@@ -7,13 +7,16 @@ from entities import Note, Pattern
 from pattern_multipliers import stream_multiplier, zig_zag_multiplier, even_circle_multiplier, skewed_circle_multiplier, zig_zag_length_multiplier, nothing_but_theory_multiplier
 
 class PatternGroup(ABC):
-    def __init__(self, group_name: str, patterns: List[Pattern], start_sample: int=None, end_sample: int=None):
+    def __init__(self, group_name: str, patterns: List[Pattern], start_sample: int=None, end_sample: int=None, sample_rate: int=DEFAULT_SAMPLE_RATE):
         self.group_name = group_name
         self.patterns = patterns
         self.start_sample = start_sample
         self.end_sample = end_sample
         self.is_active = True
         self.weighting = 1
+
+        self.sample_rate = sample_rate
+        self.tolerance = 20 * sample_rate // 1000
 
         self.entropy_weighting = 0.5
         self.distance_weighting = 0.5
@@ -35,7 +38,7 @@ class PatternGroup(ABC):
             p = self.patterns
             extra = ""
         if len(self.patterns) > 0:
-            return f"{self.patterns[0].notes[0].sample_time/TIME_CONVERSION:.2f} | {self.group_name}, {p}{extra}"
+            return f"{self.patterns[0].notes[0].sample_time/DEFAULT_SAMPLE_RATE:.2f} | {self.group_name}, {p}{extra}"
         else:
             return f"{self.group_name}, {p}"
 
@@ -65,7 +68,7 @@ class PatternGroup(ABC):
         if self.pattern_is_interval(previous_pattern) or self.pattern_is_interval(current_pattern):
             return True
         
-        result = abs(current_pattern.time_difference - previous_pattern.time_difference) <= TOLERANCE
+        result = abs(current_pattern.time_difference - previous_pattern.time_difference) <= self.tolerance
 
         return result
 
@@ -78,7 +81,7 @@ class PatternGroup(ABC):
         end_of_first = previous_pattern.notes[-1].sample_time
         start_of_second = current_pattern.notes[0].sample_time
         time_difference = abs(end_of_first - start_of_second)
-        if time_difference <= TOLERANCE:
+        if time_difference <= self.tolerance:
             # The patterns pretty much have the same note
             return True
         return False
@@ -397,7 +400,7 @@ class SkewedCirclesGroup(PatternGroup):
             if self.is_n_stack(previous_pattern) and current_pattern.pattern_name != ZIG_ZAG:
                 return False
 
-            if abs(current_pattern.time_difference - previous_pattern.time_difference) > TOLERANCE:
+            if abs(current_pattern.time_difference - previous_pattern.time_difference) > self.tolerance:
                 return False
 
             if not self.interval_between_patterns_is_tolerable(previous_pattern, current_pattern):
@@ -465,7 +468,7 @@ class NothingButTheoryGroup(PatternGroup):
             if previous_pattern.pattern_name == TWO_STACK and current_pattern.pattern_name != ZIG_ZAG:
                 return False
 
-            if abs(current_pattern.time_difference - previous_pattern.time_difference) > TOLERANCE:
+            if abs(current_pattern.time_difference - previous_pattern.time_difference) > self.tolerance:
                 return False
 
             if not self.interval_between_patterns_is_tolerable(previous_pattern, current_pattern):
