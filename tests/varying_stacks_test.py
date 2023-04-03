@@ -1,4 +1,4 @@
-from pattern_analysis import VaryingStacksGroup, Note, Pattern
+from pattern_analysis import VaryingStacksPattern, Note, Segment
 from constants import VARYING_STACKS, TWO_STACK, THREE_STACK, FOUR_STACK, SWITCH, ZIG_ZAG, DEFAULT_SAMPLE_RATE, SINGLE_STREAMS, SHORT_INTERVAL, MED_INTERVAL, LONG_INTERVAL
 
 
@@ -14,47 +14,47 @@ valid_note8 = Note(0, 0.7 * DEFAULT_SAMPLE_RATE)
 
 
 def test_valid_current_two_stack_when_first():
-    current_pattern = Pattern(TWO_STACK, [], 0, 0)
+    current_pattern = Segment(TWO_STACK, [], 0, 0)
 
-    group = VaryingStacksGroup(VARYING_STACKS, [])
-    added = group.check_pattern(current_pattern)
+    group = VaryingStacksPattern(VARYING_STACKS, [])
+    added = group.check_segment(current_pattern)
     assert added
 
 def test_valid_interval_when_first():
-    current_pattern = Pattern(SHORT_INTERVAL, [], 0, 0)
+    current_pattern = Segment(SHORT_INTERVAL, [], 0, 0)
 
-    group = VaryingStacksGroup(VARYING_STACKS, [])
-    added = group.check_pattern(current_pattern)
+    group = VaryingStacksPattern(VARYING_STACKS, [])
+    added = group.check_segment(current_pattern)
     assert added
 
 def test_valid_stack_when_interval_previous():
-    previous_pattern = Pattern(SHORT_INTERVAL, [], 0, 0)
-    current_pattern = Pattern(TWO_STACK, [], 0, 0)
+    previous_pattern = Segment(SHORT_INTERVAL, [], 0, 0)
+    current_pattern = Segment(TWO_STACK, [], 0, 0)
 
-    group = VaryingStacksGroup(VARYING_STACKS, [previous_pattern])
-    added = group.check_pattern(current_pattern)
+    group = VaryingStacksPattern(VARYING_STACKS, [previous_pattern])
+    added = group.check_segment(current_pattern)
     assert added
 
 def test_valid_stack_when_stack_previous():
-    previous_pattern = Pattern(TWO_STACK, [], 0, 0)
-    current_pattern = Pattern(FOUR_STACK, [], 0, 0)
+    previous_pattern = Segment(TWO_STACK, [], 0, 0)
+    current_pattern = Segment(FOUR_STACK, [], 0, 0)
 
-    group = VaryingStacksGroup(VARYING_STACKS, [previous_pattern])
-    added = group.check_pattern(current_pattern)
+    group = VaryingStacksPattern(VARYING_STACKS, [previous_pattern])
+    added = group.check_segment(current_pattern)
     assert added
 
 
 def test_valid_stack_when_ends_with_interval_returns_False_but_adds():
-    current_pattern = Pattern(LONG_INTERVAL, [], 0, 0)
+    current_pattern = Segment(LONG_INTERVAL, [], 0, 0)
 
     patterns = [
-        Pattern(SHORT_INTERVAL, [], 0, 0),
-        Pattern(TWO_STACK, [], 0, 0),
-        Pattern(THREE_STACK, [], 0, 0)
+        Segment(SHORT_INTERVAL, [], 0, 0),
+        Segment(TWO_STACK, [], 0, 0),
+        Segment(THREE_STACK, [], 0, 0)
     ]
 
-    group = VaryingStacksGroup(VARYING_STACKS, patterns)
-    added = group.check_pattern(current_pattern)
+    group = VaryingStacksPattern(VARYING_STACKS, patterns)
+    added = group.check_segment(current_pattern)
     assert added is False
-    assert group.patterns[-1].pattern_name == LONG_INTERVAL
+    assert group.segments[-1].segment_name == LONG_INTERVAL
 

@@ -1,9 +1,9 @@
-from entities import Note, MuseSwiprMap, Pattern
+from entities import Note, MuseSwiprMap, Segment
 
-from pattern_analysis import MapPatternGroups
+from pattern_analysis import MapPatterns
 import os
 from constants import *
-from difficulty_calculation import analyze_patterns, print_patterns, calculate_difficulty
+from difficulty_calculation import analyse_segments, print_segments, calculate_difficulty
 
 LANE_1_ID = 0
 LANE_2_ID = 1
@@ -32,8 +32,8 @@ def mini_test():
         Note(0,5799966),
     ]
 
-    p = analyze_patterns(notes)
-    print_patterns(p)
+    p = analyse_segments(notes)
+    print_segments(p)
 
 def run_analysis():
 
@@ -56,14 +56,14 @@ def run_analysis():
     for filename in file_list:
         try:
             char = "\\"
-            mpg = MapPatternGroups()
+            mpg = MapPatterns()
             m_map = MuseSwiprMap(filename)
 
             name = filename.split("\\")[-1].split(".asset")[0]
             if m in name.lower():
                 # for n in m_map.notes:
                 #     print(n)
-                p = analyze_patterns(m_map.notes)
+                p = analyse_segments(m_map.notes)
                 # groups = mpg.identify_pattern_groups(p)
                 # # print(name)
                 # for g in groups:
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     # mini_test()
     # run_analysis()
 
-    m = ""
+    m = "nothing but theory"
     
     with open("difficulties_data.txt", "w", encoding="utf-8") as f:
 
@@ -92,7 +92,7 @@ if __name__ == "__main__":
                 try:
                     char = "\\"
                     m_map = MuseSwiprMap(f"{DATA_DIR}/{filename}")
-                    patterns = analyze_patterns(m_map.notes, m_map.sample_rate)
+                    patterns = analyse_segments(m_map.notes, m_map.sample_rate)
                     name = filename.split("\\")[-1].split(".asset")[0]
                     print(name)
                     # print_patterns(patterns, m_map.sample_rate)

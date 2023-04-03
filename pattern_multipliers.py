@@ -104,7 +104,7 @@ def stream_multiplier(nps, lower_bound=1, upper_bound=1.3, lower_clamp=6.5, uppe
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
 
-def variable_stream_length_multiplier(num_notes, lower_bound=1.1, upper_bound=1.2, lower_clamp=6.5, upper_clamp=12):
+def pattern_stream_length_multiplier(num_notes, lower_bound=1.1, upper_bound=1.2, lower_clamp=6.5, upper_clamp=12):
     def smoothstep(x):
         return x * x * (3 - (2 * x))
 
@@ -169,7 +169,7 @@ if __name__ == "__main__":
 
     nbt_values = [nothing_but_theory_multiplier(nps) for nps in nps_values]
     stream_values = [stream_multiplier(nps) for nps in nps_values]
-    variable_stream_values = [variable_stream_length_multiplier(nps) for nps in nps_values]
+    pattern_stream_values = [pattern_stream_length_multiplier(nps) for nps in nps_values]
 
     zig_zag_length_values = [zig_zag_length_multiplier(nps) for nps in nps_values]
 
@@ -190,7 +190,7 @@ if __name__ == "__main__":
     plt.plot(nps_values, three_stack_values, label='Three Stacks)')
     plt.plot(nps_values, two_stack_values, label='Two Stacks)')
 
-    plt.plot(nps_values, variable_stream_values, label='Variable Stream (Multiplier for Num notes)')
+    plt.plot(nps_values, pattern_stream_values, label='Pattern Stream (Multiplier for Num notes)')
     plt.plot(nps_values, zig_zag_length_values, label='Zig Zag (Multiplier for Num notes)')
 
     plt.xlabel('Note Speed (NPS)')

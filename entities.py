@@ -11,9 +11,9 @@ class Note:
     def __repr__(self):
         return f"{self.lane},{self.sample_time}"
 
-class Pattern:
-    def __init__(self, pattern_name, notes: List[Note], required_notes: int=0, time_difference=None, sample_rate:int=DEFAULT_SAMPLE_RATE):
-        self.pattern_name = pattern_name
+class Segment:
+    def __init__(self, segment_name, notes: List[Note], required_notes: int=0, time_difference=None, sample_rate:int=DEFAULT_SAMPLE_RATE):
+        self.segment_name = segment_name
         self.notes = notes
         self.required_notes = required_notes
         self.time_difference = time_difference
@@ -28,7 +28,7 @@ class Pattern:
         return self.sample_rate / self.time_difference
 
     def __repr__(self) -> str:
-        return f"{self.pattern_name} {len(self.notes)} {self.time_difference}"
+        return f"{self.segment_name} {len(self.notes)} {self.time_difference}"
 
 class MuseSwiprMap:
     def __init__(self, koreograph_asset_filename):
