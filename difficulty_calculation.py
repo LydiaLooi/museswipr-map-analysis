@@ -65,22 +65,42 @@ def weighted_average_of_moving_averages(moving_averages, top_percentage=0.3, top
     weighted_average = weighted_sum / total_weight
     return weighted_average
 
-def get_pattern_weighting(notes):
+def get_pattern_weighting(notes: List[Note]) -> float:
+    """Calculates the overall weighting of pattern difficulty
+
+    Gets the pattern group's difficulty which::
+    - accounts for pattern group multipliers
+    - accounts for pattern group variation multiplier
+    - accounts for pattern group length multiplier
+
+    Then gets the average of them.
+    
+    Args:
+        note List[Note]: A list of Notes in order of occurrence
+
+    Returns:
+        float: The pattern weighting
+    """
     mpg = MapPatternGroups()
     patterns = analyze_patterns(notes)
     groups = mpg.identify_pattern_groups(patterns)
 
     total_difficulty_score = 0
 
+
     for g in groups:
-        score = g.calc_variation_score()
+        score = g.calc_pattern_group_difficulty()
         total_difficulty_score += score
     
+    # Gets the average difficulty score across all the pattern groups
     average_difficulty_score = total_difficulty_score/len(groups)
+    print(f"{'Average Difficulty Score:':>25} {average_difficulty_score}")
+
     return average_difficulty_score
 
 def calculate_difficulty(notes, outfile=None, use_moving_average=True):
 
+    print(f"{'Difficulty':_^50}")
 
     sections = create_sections(notes, 1)
 
@@ -102,14 +122,14 @@ def calculate_difficulty(notes, outfile=None, use_moving_average=True):
         difficulty = statistics.mean(nums)
     
     weighting = get_pattern_weighting(notes)
-
-    print(f"{'Difficulty':_^50}")
-    print(f"{'Weight:':>25} {weighting}")
+    print(f"{'':.^50}")
+    weighted_difficulty = weighting * difficulty
+    print(f"{'Final Weighting:':>25} {weighting}")
     print(f"{'Base Difficulty:':>25} {difficulty}")
-    print(f"{'Weighted Difficulty:':>25} {weighting * difficulty}")
+    print(f"{'Weighted Difficulty:':>25} {weighted_difficulty}")
     print(f"{'':_^50}")
     
-    return difficulty
+    return (weighting, difficulty, weighted_difficulty)
 
 
 def get_next_pattern_and_required_notes(prev_note: Note, note: Note, time_difference: int) -> Tuple[str, int]:
@@ -304,124 +324,114 @@ if __name__ == "__main__":
 
 
     samples = {
-        # 'super_easier': super_easier, 
-        # 'much_easier': much_easier, 
-        # 'easier': easier, 
+        'super_easier': super_easier, 
+        'much_easier': much_easier, 
+        'easier': easier, 
         'even circles easy': even_circles_easy,
         'even circles hard': even_circles_hard
         }
     
-    # for name, s in samples.items():
-    #     print(f"{name.capitalize():=^50}")
-    #     diff = calculate_difficulty(s)
+    for name, s in samples.items():
+        print(f"{name.capitalize():=^50}")
+        diff = calculate_difficulty(s)
 
-    #     patterns = analyze_patterns(s)
+        patterns = analyze_patterns(s)
 
-    #     # print_patterns(patterns)
-    #     print_patterns(patterns)
-    #     mpg = MapPatternGroups()
-    #     groups = mpg.identify_pattern_groups(patterns)
-    #     for g in groups:
-    #         print(f"{g.group_name}: {g.variation_score()}")
+        # print_patterns(patterns)
+        # mpg = MapPatternGroups()
+        # groups = mpg.identify_pattern_groups(patterns)
+        # for g in groups:
+        #     print(f"{g.group_name}: {g.calc_pattern_group_difficulty()}")
 
-    #     print(f'{"=":=^50}\n')
+        print("\n\n")
 
-    import math
-    class Sample():
-        def __init__(self, name, patterns):
-            self.group_name = name
-            self.patterns = patterns
+    # import math
+    # class Sample():
+    #     def __init__(self, name, patterns):
+    #         self.group_name = name
+    #         self.patterns = patterns
 
-        def variation_score(self) -> float:
-            # Thanks to ChatGPT for writing this for me
-            lst = [p.pattern_name for p in self.patterns]
+    #     def variation_score(self) -> float:
+    #         # Thanks to ChatGPT for writing this for me
+    #         lst = [p.pattern_name for p in self.patterns]
 
-            print(f"Pattern names: {lst}")
-            n = len(lst)
-            unique_vals = set(lst)
-            freq = [lst.count(x) / n for x in unique_vals]
+    #         print(f"Pattern names: {lst}")
+    #         n = len(lst)
+    #         unique_vals = set(lst)
+    #         freq = [lst.count(x) / n for x in unique_vals]
 
-            entropy = -sum(p * math.log2(p) for p in freq)
+    #         entropy = -sum(p * math.log2(p) for p in freq)
 
-            return entropy
+    #         return entropy
 
-    mpg = MapPatternGroups()
+    # mpg = MapPatternGroups()
 
-    even_patterns = [
-        Pattern("A", []),
-        Pattern("B", []),
-        Pattern("A", []),
-        Pattern("B", []),
-        Pattern("A", []),
-        Pattern("B", []),
-        Pattern("A", []),
-        Pattern("B", []),
-    ]
+    # even_patterns = [
+    #     Pattern("A", []),
+    #     Pattern("B", []),
+    #     Pattern("A", []),
+    #     Pattern("B", []),
+    #     Pattern("A", []),
+    #     Pattern("B", []),
+    #     Pattern("A", []),
+    #     Pattern("B", []),
+    # ]
 
-    odd_patterns = [
-        Pattern("A", []),
-        Pattern("B", []),
-        Pattern("C", []),
-        Pattern("B", []),
-        Pattern("D", []),
-        Pattern("B", []),
-        Pattern("A", []),
-        Pattern("B", []),
-    ]
+    # odd_patterns = [
+    #     Pattern("A", []),
+    #     Pattern("B", []),
+    #     Pattern("C", []),
+    #     Pattern("B", []),
+    #     Pattern("D", []),
+    #     Pattern("B", []),
+    #     Pattern("A", []),
+    #     Pattern("B", []),
+    # ]
 
-    other_patterns = [
-        Pattern("A", []),
-        Pattern("A", []),
-        Pattern("B", []),
-        Pattern("A", []),
-        Pattern("A", []),
-        Pattern("B", []),
-        Pattern("A", []),
-        Pattern("A", []),
-        Pattern("B", []),
-    ]
+    # other_patterns = [
+    #     Pattern("A", []),
+    #     Pattern("A", []),
+    #     Pattern("B", []),
+    #     Pattern("A", []),
+    #     Pattern("A", []),
+    #     Pattern("B", []),
+    #     Pattern("A", []),
+    #     Pattern("A", []),
+    #     Pattern("B", []),
+    # ]
     
 
-    same_patterns = [
-        Pattern("A", []),
-        Pattern("A", []),
-        Pattern("A", []),
-        Pattern("A", []),
-        Pattern("A", []),
-        Pattern("A", []),
-        Pattern("A", []),
-        Pattern("A", []),
-    ]
+    # same_patterns = [
+    #     Pattern("A", []),
+    #     Pattern("A", []),
+    #     Pattern("A", []),
+    #     Pattern("A", []),
+    #     Pattern("A", []),
+    #     Pattern("A", []),
+    #     Pattern("A", []),
+    #     Pattern("A", []),
+    # ]
 
 
-    almost_same_patterns = [
-        Pattern("A", []),
-        Pattern("B", []),
-        Pattern("C", []),
-        Pattern("B", []),
-        Pattern("D", []),
-        Pattern("A", []),
-        Pattern("L", []),
-        Pattern("C", []),
-    ]
+    # almost_same_patterns = [
+    #     Pattern("A", []),
+    #     Pattern("B", []),
+    #     Pattern("C", []),
+    #     Pattern("B", []),
+    #     Pattern("D", []),
+    #     Pattern("A", []),
+    #     Pattern("L", []),
+    #     Pattern("C", []),
+    # ]
 
-    groups = [
-        Sample("Group A", even_patterns),
-        Sample("Group B", odd_patterns),
-        Sample("Group C", other_patterns),
-        Sample("Group D", same_patterns),
-        Sample("Group E", almost_same_patterns),
-    ]
+    # groups = [
+    #     Sample("Group A", even_patterns),
+    #     Sample("Group B", odd_patterns),
+    #     Sample("Group C", other_patterns),
+    #     Sample("Group D", same_patterns),
+    #     Sample("Group E", almost_same_patterns),
+    # ]
 
-    for g in groups:
-        print(f"{g.group_name}: {g.variation_score()}\n")
+    # for g in groups:
+    #     print(f"{g.group_name}: {g.variation_score()}\n")
 
-"""
-1,1,1,0,0,1,1,1,1,0,0,0,1,1,0,0,
-
-1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,
-
-
-
-
-"""

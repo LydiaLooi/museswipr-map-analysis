@@ -81,20 +81,24 @@ if __name__ == "__main__":
     all_files = os.listdir(DATA_DIR)
 
     # mini_test()
-    run_analysis()
+    # run_analysis()
 
+    m = ""
     
-    # with open("difficulties.txt", "w", encoding="utf-8") as f:
+    with open("difficulties_data.txt", "w", encoding="utf-8") as f:
 
-    #     for filename in file_list:
-    #         try:
-    #             char = "\\"
-    #             m_map = MuseSwiprMap(filename)
+        for filename in all_files:
+            if m in filename.lower():
+                try:
+                    char = "\\"
+                    m_map = MuseSwiprMap(f"{DATA_DIR}/{filename}")
 
-    #             name = filename.split("\\")[-1].split(".asset")[0]
-
-    #             with open(f"analysis/{name}", "w", encoding="utf-8") as outfile:
-    #                 f.write(f"{filename.split(char)[-1].split('.asset')[0]}||{calculate_difficulty(m_map.notes, filename, outfile):.2f}\n")
-    #         except Exception as e:
-    #             print(f"error parsing file: {filename}: {e}")
-    #             continue
+                    name = filename.split("\\")[-1].split(".asset")[0]
+                    print(filename)
+                    with open(f"analysis/{name}", "w", encoding="utf-8") as outfile:
+                        weighting, difficulty, final = calculate_difficulty(m_map.notes, outfile=outfile)
+                        f.write(f"{filename.split(char)[-1].split('.asset')[0]}||{final:.2f}||{weighting:.2f}||{difficulty:.2f}\n")
+                except Exception as e:
+                    print(f"ERROR parsing a file: {e}")
+                    continue
+                

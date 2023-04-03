@@ -10,8 +10,8 @@ class PatternGroup(ABC):
     def __init__(self, group_name: str, patterns: List[Pattern], start_sample: int=None, end_sample: int=None):
         self.group_name = group_name
         self.patterns = patterns
-        self.start_sample = start_sample # (UNUSED)
-        self.end_sample = end_sample # (UNUSED)
+        self.start_sample = start_sample
+        self.end_sample = end_sample
         self.is_active = True
         self.weighting = 1
 
@@ -21,7 +21,7 @@ class PatternGroup(ABC):
     @property
     def approx_total_notes(self): # because i cbf make it accurate ((:
         note_count = 0
-        for p in patterns:
+        for p in self.patterns:
             note_count += len(p.notes)
             if len(p.notes) >= 3:
                 note_count -= 2 # -2 for the overlap of patterns approx
@@ -53,8 +53,10 @@ class PatternGroup(ABC):
         return pattern.pattern_name in ("2-Stack", "3-Stack", "4-Stack")
 
     def pattern_is_interval(self, pattern: Pattern):
-        return "Interval" in pattern.pattern_name
-
+        if pattern:
+            return "Interval" in pattern.pattern_name
+        return False
+    
     def time_difference_is_tolerable(self, previous_pattern: Pattern, current_pattern: Pattern):
         assert previous_pattern.time_difference is not None
         assert current_pattern.time_difference is not None
@@ -117,7 +119,7 @@ class PatternGroup(ABC):
             self.patterns.append(interval_pattern)
             return False
         
-    def calc_variation_score(self) -> float:
+    def _calc_variation_score(self) -> float:
         """Calculates the variation score of the pattern group based on the patterns within.
 
         The entropy score measures the amount of uncertainty or randomness in the distribution 
@@ -130,15 +132,62 @@ class PatternGroup(ABC):
         Returns:
             entropy: The calculated amount of uncertainty or randomness in the patterns
         """
+        intervals = {
+            SHORT_INTERVAL: 0.7,
+            MED_INTERVAL: 0.6,
+            LONG_INTERVAL: 0.4
+        }
         # Thanks to ChatGPT for writing this for me
         lst = [p.pattern_name for p in self.patterns]
 
-        print(f"Pattern names: {lst}")
+        interval_list = []
+
+        # Check for intervals:
+        for name in lst:
+            if name in intervals:
+                interval_list.append(intervals[name])
+
         n = len(lst)
         unique_vals = set(lst)
         freq = [lst.count(x) / n for x in unique_vals]
         entropy = -sum(p * math.log2(p) for p in freq)
+
+        if len(interval_list) != 0:
+            # average interval debuffs and multiply that by the entropy
+            average_debuff = sum(interval_list)/len(interval_list)
+            entropy *= average_debuff
+
         return entropy
+    
+    
+    def _calc_pattern_group_multiplier(self) -> float:
+        """Calculates the PatternGroup's multiplier based on notes per secondo
+        This method should be overridded to be PatternGroup specific.
+        Default returns 1.
+
+        Returns:
+            float: The multiplier
+        """
+        return 1
+    
+    def _calc_pattern_length_multiplier(self) -> float:
+        return 1
+
+    def calc_pattern_group_difficulty(self) -> float:
+
+        print(f"{self.group_name:.>25} {'Difficulty':.<25}")
+        variation_multiplier = self._calc_variation_score()
+        group_multiplier = self._calc_pattern_group_multiplier()
+        length_multiplier = self._calc_pattern_length_multiplier()
+
+        print(f"{'Variation Multiplier:':>25} {variation_multiplier}")
+        print(f"{'Group Multiplier:':>25} {group_multiplier}")
+        print(f"{'Length Multiplier:':>25} {length_multiplier}")
+
+        print(f"Patterns: {self.patterns}")
+
+        return variation_multiplier * group_multiplier
+
 class OtherGroup(PatternGroup):
 
     def __init__(self, group_name: str, patterns: List[Pattern], start_sample: int = None, end_sample: int = None):
@@ -179,8 +228,9 @@ class SlowStretch(PatternGroup):
         return False
 
 
-    def calc_variation_score(self) -> float:
+    def _calc_variation_score(self) -> float:
         # Variation score for Slow Stretches is based on column variation rather than pattern variation
+
         lst = []
         unique_sample_times = set()
         for p in self.patterns:
@@ -283,6 +333,9 @@ class EvenCirclesGroup(PatternGroup):
                 return True
         return False
     
+    def _calc_variation_score(self) -> float:
+        # TODO:Variation should be between the variation of N-stacks
+        return super()._calc_variation_score()
 
 class SkewedCirclesGroup(PatternGroup):
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
@@ -404,3 +457,7 @@ class NothingButTheoryGroup(PatternGroup):
             if n_stack_count >= 2:
                 return True
         return False
+
+    def _calc_variation_score(self) -> float:
+        # TODO: Variation is in the form of variation between ZigZag 4 and ZigZag 6
+        return super()._calc_variation_score()
