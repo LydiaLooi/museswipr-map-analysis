@@ -18,8 +18,8 @@ class Pattern(ABC):
         self.sample_rate = sample_rate
         self.tolerance = 20 * sample_rate // 1000
 
-        self.entropy_weighting = 0.5
-        self.distance_weighting = 0.5
+        self.variation_weighting = 0.5
+        self.pattern_weighting = 0.5
 
         self.intervals = {
             SHORT_INTERVAL: 0.7,
@@ -251,29 +251,23 @@ class Pattern(ABC):
         return 1
 
     def calc_pattern_difficulty(self, pls_print=False) -> float:
-        variation_weight = 0.5
-        group_weight = 0.5
         if pls_print:
             print(f"{self.group_name:.>25} {'Difficulty':.<25}")
         variation_multiplier = self._calc_variation_score()
-        group_multiplier = self._calc_pattern_multiplier()
+        pattern_multiplier = self._calc_pattern_multiplier()
         length_multiplier = self._calc_pattern_length_multiplier()
 
-        final = (variation_weight * variation_multiplier) + (group_weight * group_multiplier)
+        final = (self.variation_weighting * variation_multiplier) + (self.pattern_weighting * pattern_multiplier)
 
         if pls_print:
             print(f"{'Variation Multiplier:':>25} {variation_multiplier}")
-            print(f"{'Group Multiplier:':>25} {group_multiplier}")
+            print(f"{'Pattern Multiplier:':>25} {pattern_multiplier}")
             print(f"{'Length Multiplier:':>25} {length_multiplier}")
             print(f"{'After Weighting:':>25} {final}")
 
         return final
 
 class OtherPattern(Pattern):
-
-    def __init__(self, group_name: str, patterns: List[Segment], start_sample: int = None, end_sample: int = None):
-        super().__init__(group_name, patterns, start_sample, end_sample)
-        self.weighting = 5
 
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         self.segments.append(current_segment)
@@ -291,8 +285,6 @@ class OtherPattern(Pattern):
 
 
 class SlowStretchPattern(Pattern):
-    def __init__(self, group_name: str, segments: List[Segment], start_sample: int = None, end_sample: int = None):
-        super().__init__(group_name, segments, start_sample, end_sample)
 
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         if not self.is_active:
@@ -334,6 +326,11 @@ class SlowStretchPattern(Pattern):
         return entropy
     
 class VaryingStacksPattern(Pattern):
+
+    def __init__(self, pattern_name: str, segments: List[Segment], start_sample: int = None, end_sample: int = None, sample_rate: int = DEFAULT_SAMPLE_RATE):
+        super().__init__(pattern_name, segments, start_sample, end_sample, sample_rate)
+        self.pattern_weighting = 0.8
+        self.variation_weighting = 0.2
 
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         if not self.is_active:
@@ -499,6 +496,7 @@ class SkewedCirclesGroup(Pattern):
         return multiplier
 
 class NothingButTheoryGroup(Pattern):
+
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         if not self.is_active:
             return False

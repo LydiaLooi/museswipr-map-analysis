@@ -83,7 +83,8 @@ if __name__ == "__main__":
     # mini_test()
     # run_analysis()
 
-    m = ""
+    m = "nothing but theory"
+    pls_print = True
     
     with open("difficulties_data.txt", "w", encoding="utf-8") as f:
 
@@ -99,7 +100,7 @@ if __name__ == "__main__":
 
                     print(filename) #  Printing filename might cause issues due to encoding stuff
                     with open(f"analysis/{name}", "w", encoding="utf-8") as outfile:
-                        weighting, difficulty, final = calculate_difficulty(m_map.notes, outfile=outfile, sample_rate=m_map.sample_rate)
+                        weighting, difficulty, final = calculate_difficulty(m_map.notes, outfile=outfile, sample_rate=m_map.sample_rate, pls_print=pls_print)
                         f.write(f"{filename.split(char)[-1].split('.asset')[0]}||{final:.2f}||{weighting:.2f}||{difficulty:.2f}\n")
                     m_map.output_notes(f"{name}.txt", m_map.sample_rate)
                 except Exception as e:

@@ -65,7 +65,7 @@ def weighted_average_of_values(values, top_percentage=0.3, top_weight=0.7, botto
     weighted_average = weighted_sum / total_weight
     return weighted_average
 
-def get_pattern_weighting(notes: List[Note], sample_rate: int=DEFAULT_SAMPLE_RATE) -> float:
+def get_pattern_weighting(notes: List[Note], sample_rate: int=DEFAULT_SAMPLE_RATE, pls_print=False) -> float:
     """Calculates the overall weighting of pattern difficulty
 
     Gets the Pattern's difficulty which::
@@ -89,7 +89,7 @@ def get_pattern_weighting(notes: List[Note], sample_rate: int=DEFAULT_SAMPLE_RAT
     scores = []
 
     for g in groups:
-        score = g.calc_pattern_difficulty()
+        score = g.calc_pattern_difficulty(pls_print=pls_print)
         total_difficulty_score += score
         scores.append(score)
     # Gets the average difficulty score across all the Patterns
@@ -100,7 +100,7 @@ def get_pattern_weighting(notes: List[Note], sample_rate: int=DEFAULT_SAMPLE_RAT
 
     return difficulty
 
-def calculate_difficulty(notes, outfile=None, use_moving_average=True, sample_rate:int=DEFAULT_SAMPLE_RATE):
+def calculate_difficulty(notes, outfile=None, use_moving_average=True, sample_rate:int=DEFAULT_SAMPLE_RATE, pls_print=False):
 
     print(f"{'Difficulty':_^50}")
 
@@ -123,7 +123,7 @@ def calculate_difficulty(notes, outfile=None, use_moving_average=True, sample_ra
             nums.append(len(s))
         difficulty = statistics.mean(nums)
     
-    weighting = get_pattern_weighting(notes)
+    weighting = get_pattern_weighting(notes, pls_print=pls_print)
     print(f"{'':.^50}")
     weighted_difficulty = weighting * difficulty
     print(f"{'Final Weighting:':>25} {weighting}")
