@@ -43,17 +43,17 @@ def moving_average_note_density(sections, window_size):
 
     return moving_averages
 
-def weighted_average_of_moving_averages(moving_averages, top_percentage=0.3, top_weight=0.7, bottom_weight=0.3):
+def weighted_average_of_values(values, top_percentage=0.3, top_weight=0.7, bottom_weight=0.3):
     # Find the threshold that separates the top 30% highest densities from the rest
-    threshold_index = int(len(moving_averages) * (1 - top_percentage))
-    moving_averages_sorted = sorted(moving_averages, reverse=True)
+    threshold_index = int(len(values) * (1 - top_percentage))
+    moving_averages_sorted = sorted(values, reverse=True)
     threshold = moving_averages_sorted[threshold_index]
 
     # Calculate the weighted average
     total_weight = 0
     weighted_sum = 0
 
-    for avg in moving_averages:
+    for avg in values:
         if avg >= threshold:
             weight = top_weight
         else:
@@ -86,17 +86,19 @@ def get_pattern_weighting(notes: List[Note]) -> float:
     groups = mpg.identify_pattern_groups(patterns)
 
     total_difficulty_score = 0
-
+    scores = []
 
     for g in groups:
         score = g.calc_pattern_group_difficulty()
         total_difficulty_score += score
-    
+        scores.append(score)
     # Gets the average difficulty score across all the pattern groups
+    difficulty = weighted_average_of_values(scores, top_percentage=0.4, top_weight=0.9, bottom_weight=0.1)
     average_difficulty_score = total_difficulty_score/len(groups)
     print(f"{'Average Difficulty Score:':>25} {average_difficulty_score}")
+    print(f"{'WEIGHTED Average Difficulty Score:':>25} {difficulty}")
 
-    return average_difficulty_score
+    return difficulty
 
 def calculate_difficulty(notes, outfile=None, use_moving_average=True):
 
@@ -111,7 +113,7 @@ def calculate_difficulty(notes, outfile=None, use_moving_average=True):
         if outfile:
             for s in moving_avg:
                 outfile.write(f"{s}\n")
-        difficulty = weighted_average_of_moving_averages(moving_avg)
+        difficulty = weighted_average_of_values(moving_avg)
     
     else:
         nums = []

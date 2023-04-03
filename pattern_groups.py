@@ -132,21 +132,35 @@ class PatternGroup(ABC):
         Returns:
             entropy: The calculated amount of uncertainty or randomness in the patterns
         """
+        end_extra_debuff = 0.75 # For if the interval is at the start or end
+
         intervals = {
             SHORT_INTERVAL: 0.7,
             MED_INTERVAL: 0.6,
             LONG_INTERVAL: 0.4
         }
         # Thanks to ChatGPT for writing this for me
-        lst = [p.pattern_name for p in self.patterns]
-
+        temp_lst = [p.pattern_name for p in self.patterns]
+        switch_count = 0
         interval_list = []
+        lst = []
 
         # Check for intervals:
-        for name in lst:
+        for i, name in enumerate(temp_lst):
+            if name == SWITCH:
+                switch_count += 1
             if name in intervals:
-                interval_list.append(intervals[name])
+                if i == 0 or i == len(temp_lst) - 1: # If it's the firs
+                    interval_list.append(intervals[name] * end_extra_debuff)
+                    # Don't add it to the list to check
+                else:
+                    interval_list.append(intervals[name])
+                    lst.append("Interval") # Rename all Intervals to the same name
+            else:
+                lst.append(name)
 
+        
+        print(f"Checking entropy of: {lst}")
         n = len(lst)
         unique_vals = set(lst)
         freq = [lst.count(x) / n for x in unique_vals]
@@ -156,6 +170,14 @@ class PatternGroup(ABC):
             # average interval debuffs and multiply that by the entropy
             average_debuff = sum(interval_list)/len(interval_list)
             entropy *= average_debuff
+            print(f">>> Debuffing (due to Intervals) by {average_debuff} <<<")
+
+        if entropy > 1 and switch_count > 0:
+            # switch_debuff = switch_count/len(lst)
+            switch_debuff = 0.75
+            print(f">>> Debuffing (Die to Switches) by {switch_debuff:.2f} <<<")
+            entropy *= switch_debuff
+
 
         return entropy
     
@@ -243,7 +265,8 @@ class SlowStretch(PatternGroup):
         freq = [lst.count(x) / n for x in unique_vals]
 
         entropy = -sum(p * math.log2(p) for p in freq)
-
+        if int(entropy) == 0 :
+            return 1
         return entropy
     
 class VaryingStacksGroup(PatternGroup):
