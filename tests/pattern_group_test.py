@@ -296,6 +296,19 @@ def test_nothing_but_theory_valid():
     assert groups[0].group_name == NOTHING_BUT_THEORY
     assert len(groups[0].segments) == 4
 
+
+def test_nothing_but_theory_valid_other_stacks():
+    patterns = [
+        Segment(TWO_STACK, [_Note(0, 0.7), _Note(0, 0.8)], 0),
+        Segment(ZIG_ZAG, [_Note(0, 0.8), _Note(0, 0.9), _Note(0, 1), _Note(0, 1.1)], 0),
+        Segment(THREE_STACK, [_Note(0, 1.1), _Note(0, 1.2), _Note(0, 1.3)], 0),
+        Segment(ZIG_ZAG, [_Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5), _Note(0, 1.6)], 0),
+    ]
+    groups = MapPatterns().identify_patterns(patterns)
+    assert len(groups) == 1
+    assert groups[0].group_name == NOTHING_BUT_THEORY
+    assert len(groups[0].segments) == 4
+
 def test_nothing_but_theory_with_start_end_interval_valid():
     patterns = [
         Segment(SHORT_INTERVAL, [_Note(0, 0.0), _Note(0, 0.7)], 0),

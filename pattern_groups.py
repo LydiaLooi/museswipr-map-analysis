@@ -1,10 +1,10 @@
 import math
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from constants import *
 from entities import Note, Segment
-from pattern_multipliers import stream_multiplier, zig_zag_multiplier, even_circle_multiplier, skewed_circle_multiplier, zig_zag_length_multiplier, nothing_but_theory_multiplier
+from pattern_multipliers import even_circle_multiplier, skewed_circle_multiplier, nothing_but_theory_multiplier,stream_multiplier, zig_zag_multiplier, zig_zag_length_multiplier, two_stack_multiplier, four_stack_multiplier, three_stack_multiplier, varying_stacks_multiplier, pattern_stream_length_multiplier
 
 class Pattern(ABC):
     def __init__(self, pattern_name: str, segments: List[Segment], start_sample: int=None, end_sample: int=None, sample_rate: int=DEFAULT_SAMPLE_RATE):
@@ -20,6 +20,15 @@ class Pattern(ABC):
 
         self.entropy_weighting = 0.5
         self.distance_weighting = 0.5
+
+        self.intervals = {
+            SHORT_INTERVAL: 0.7,
+            MED_INTERVAL: 0.6,
+            LONG_INTERVAL: 0.4
+        }
+
+        self.end_extra_debuff = 0.9 # For if the interval is at the start or end
+
 
     @property
     def approx_total_notes(self): # because i cbf make it accurate ((:
@@ -52,8 +61,8 @@ class Pattern(ABC):
         pass
 
     @staticmethod
-    def is_n_stack(pattern: Segment):
-        return pattern.segment_name in ("2-Stack", "3-Stack", "4-Stack")
+    def is_n_stack(segment: Segment):
+        return segment.segment_name in ("2-Stack", "3-Stack", "4-Stack")
 
     def segment_is_interval(self, segment: Segment):
         if segment:
@@ -122,7 +131,54 @@ class Pattern(ABC):
             self.segments.append(interval_segment)
             return False
         
-    def _calc_variation_score(self) -> float:
+    def _get_segment_type_counts(self, segment_names):
+        segment_counts = {
+            SWITCH: 0,
+            ZIG_ZAG: 0,
+            TWO_STACK: 0,
+            THREE_STACK: 0,
+            FOUR_STACK: 0,
+            SINGLE_STREAMS: 0,
+            SHORT_INTERVAL: 0,
+            MED_INTERVAL: 0,
+            LONG_INTERVAL: 0
+        }
+        for name in segment_names:
+            segment_counts[name] += 1
+        return segment_counts
+
+    def _calc_switch_debuff(self, segment_counts: Dict[str, int], entropy: float, pls_print=False) -> float:
+        """Looks at the number of switches with relation to how many segments there are.
+        
+        A low segment count (<4) such as [zig zag, switch, zig zag] will be debuffed
+        more heavily than a long arrangement of segments with more switches. A higher
+        switch proportion results in less debuff.
+
+        Args:
+            segment_counts (Dict[str: int]): The dictionary of segment type counts 
+            entropy (float): The current entropy value
+
+        Returns:
+            float: The entropy affected by the debuff
+        """
+        switch_proportion = None
+        switch_count = segment_counts[SWITCH]
+        total_patterns = sum(segment_counts.values())
+        if entropy > 1 and switch_count > 0:
+            if total_patterns < 4:
+                switch_debuff = 0.7
+            else:
+                switch_proportion = switch_count/total_patterns
+                if switch_proportion < 0.5:
+                    switch_debuff = 0.8
+                else:
+                    switch_debuff = 0.9 # if there are more switches, then don't make the buff as hard
+            if pls_print:
+                print(f">>> Switch (proportion {switch_proportion}) debuff by {switch_debuff:.2f} <<<")
+            entropy *= switch_debuff
+        return entropy
+
+    def _calc_variation_score(self, pls_print=False) -> float:
         """Calculates the variation score of the Pattern based on the segments within.
 
         The entropy score measures the amount of uncertainty or randomness in the distribution 
@@ -135,51 +191,45 @@ class Pattern(ABC):
         Returns:
             entropy: The calculated amount of uncertainty or randomness in the segments
         """
-        end_extra_debuff = 0.75 # For if the interval is at the start or end
 
-        intervals = {
-            SHORT_INTERVAL: 0.7,
-            MED_INTERVAL: 0.6,
-            LONG_INTERVAL: 0.4
-        }
         # Thanks to ChatGPT for writing this for me
         temp_lst = [s.segment_name for s in self.segments]
         switch_count = 0
         interval_list = []
-        lst = []
+        segment_names = []
+
+        pattern_counts = self._get_segment_type_counts(temp_lst)
+
 
         # Check for intervals:
         for i, name in enumerate(temp_lst):
             if name == SWITCH:
                 switch_count += 1
-            if name in intervals:
+            if name in self.intervals:
                 if i == 0 or i == len(temp_lst) - 1: # If it's the firs
-                    interval_list.append(intervals[name] * end_extra_debuff)
+                    interval_list.append(self.intervals[name] * self.end_extra_debuff)
                     # Don't add it to the list to check
                 else:
-                    interval_list.append(intervals[name])
-                    lst.append("Interval") # Rename all Intervals to the same name
+                    interval_list.append(self.intervals[name])
+                    segment_names.append("Interval") # Rename all Intervals to the same name
             else:
-                lst.append(name)
+                segment_names.append(name)
 
-        
-        print(f"Checking entropy of: {lst}")
-        n = len(lst)
-        unique_vals = set(lst)
-        freq = [lst.count(x) / n for x in unique_vals]
+        if pls_print:
+            print(f"Checking entropy of: {segment_names}")
+        n = len(segment_names)
+        unique_vals = set(segment_names)
+        freq = [segment_names.count(x) / n for x in unique_vals]
         entropy = -sum(p * math.log2(p) for p in freq)
 
         if len(interval_list) != 0:
             # average interval debuffs and multiply that by the entropy
             average_debuff = sum(interval_list)/len(interval_list)
             entropy *= average_debuff
-            print(f">>> Debuffing (due to Intervals) by {average_debuff} <<<")
+            if pls_print:
+                print(f">>> Debuffing (due to Intervals) by {average_debuff} <<<")
 
-        if entropy > 1 and switch_count > 0:
-            # switch_debuff = switch_count/len(lst)
-            switch_debuff = 0.75
-            print(f">>> Debuffing (Die to Switches) by {switch_debuff:.2f} <<<")
-            entropy *= switch_debuff
+        entropy = self._calc_switch_debuff(pattern_counts, entropy)
 
         if entropy == 0: # Temp?
             return 1
@@ -200,20 +250,24 @@ class Pattern(ABC):
     def _calc_pattern_length_multiplier(self) -> float:
         return 1
 
-    def calc_pattern_difficulty(self) -> float:
-
-        print(f"{self.group_name:.>25} {'Difficulty':.<25}")
+    def calc_pattern_difficulty(self, pls_print=False) -> float:
+        variation_weight = 0.5
+        group_weight = 0.5
+        if pls_print:
+            print(f"{self.group_name:.>25} {'Difficulty':.<25}")
         variation_multiplier = self._calc_variation_score()
         group_multiplier = self._calc_pattern_multiplier()
         length_multiplier = self._calc_pattern_length_multiplier()
 
-        print(f"{'Variation Multiplier:':>25} {variation_multiplier}")
-        print(f"{'Group Multiplier:':>25} {group_multiplier}")
-        print(f"{'Length Multiplier:':>25} {length_multiplier}")
+        final = (variation_weight * variation_multiplier) + (group_weight * group_multiplier)
 
-        print(f"Segments: {self.segments}")
+        if pls_print:
+            print(f"{'Variation Multiplier:':>25} {variation_multiplier}")
+            print(f"{'Group Multiplier:':>25} {group_multiplier}")
+            print(f"{'Length Multiplier:':>25} {length_multiplier}")
+            print(f"{'After Weighting:':>25} {final}")
 
-        return variation_multiplier * group_multiplier * length_multiplier
+        return final
 
 class OtherPattern(Pattern):
 
@@ -227,6 +281,13 @@ class OtherPattern(Pattern):
 
     def is_appendable(self) -> bool:
         return super().is_appendable()
+    
+    def _calc_pattern_multiplier(self) -> float:
+
+        for segment in self.segments:
+            pass
+        
+        return 1
 
 
 class SlowStretchPattern(Pattern):
@@ -253,7 +314,7 @@ class SlowStretchPattern(Pattern):
         return False
 
 
-    def _calc_variation_score(self) -> float:
+    def _calc_variation_score(self, pls_print=False) -> float:
         # Variation score for Slow Stretches is based on column variation rather than segment variation
 
         lst = []
@@ -304,6 +365,14 @@ class VaryingStacksPattern(Pattern):
             if n_stack_count >= 2:
                 return True
         return False
+    
+    def _calc_variation_score(self, pls_print=False) -> float:
+        return max(1, super()._calc_variation_score(pls_print))
+    
+    def _calc_pattern_multiplier(self) -> float:
+        nps = self.segments[0].notes_per_second
+        multiplier = varying_stacks_multiplier(nps)
+        return multiplier
 
 class EvenCirclesGroup(Pattern):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
@@ -357,9 +426,9 @@ class EvenCirclesGroup(Pattern):
                 return True
         return False
     
-    def _calc_variation_score(self) -> float:
-        # TODO:Variation should be between the variation of N-stacks
-        return super()._calc_variation_score()
+    def _calc_variation_score(self, pls_print=False) -> float:
+        return max(1, super()._calc_variation_score(pls_print))
+
     
     def _calc_pattern_multiplier(self) -> float:
         nps = self.segments[0].notes_per_second # Even Circle should have consistent NPS
@@ -443,7 +512,7 @@ class NothingButTheoryGroup(Pattern):
             return True
 
         # Check for invalid combinations of previous segment and current segment
-        if current_segment.segment_name != TWO_STACK and current_segment.segment_name != ZIG_ZAG:
+        if not self.is_n_stack(current_segment) and current_segment.segment_name != ZIG_ZAG:
             return False
         
         if current_segment.segment_name == ZIG_ZAG and len(current_segment.notes) not in  [4, 6]:
@@ -456,10 +525,10 @@ class NothingButTheoryGroup(Pattern):
                 self.segments.append(current_segment)
                 return True
             
-            if previous_segment.segment_name == ZIG_ZAG and current_segment.segment_name != TWO_STACK:
+            if previous_segment.segment_name == ZIG_ZAG and not self.is_n_stack(current_segment):
                 return False
             
-            if previous_segment.segment_name == TWO_STACK and current_segment.segment_name != ZIG_ZAG:
+            if self.is_n_stack(previous_segment) and current_segment.segment_name != ZIG_ZAG:
                 return False
 
             if abs(current_segment.time_difference - previous_segment.time_difference) > self.tolerance:
@@ -479,18 +548,57 @@ class NothingButTheoryGroup(Pattern):
         if len(self.segments) >= 3:
             # Sanity check that everything in it is only N-stacks or ZIG ZAGS
             n_stack_count = 0
-            for p in self.segments:
-                if self.is_n_stack(p):
+            for seg in self.segments:
+                if self.is_n_stack(seg):
                     n_stack_count += 1
-                if p.segment_name != TWO_STACK and p.segment_name != ZIG_ZAG and not self.segment_is_interval(p):
-                    raise ValueError(f"Nothing but theory has a: {p.segment_name}!!")   
+                if not self.is_n_stack(seg) and seg.segment_name != ZIG_ZAG and not self.segment_is_interval(seg):
+                    raise ValueError(f"Nothing but theory has a: {seg.segment_name}!!")   
             if n_stack_count >= 2:
                 return True
         return False
 
-    def _calc_variation_score(self) -> float:
-        # TODO: Variation is in the form of variation between ZigZag 4 and ZigZag 6
-        return super()._calc_variation_score()
+    def _calc_variation_score(self, pls_print=False) -> float:
+        # TODO: Make the calculation method into several helper methods.
+        if pls_print:
+            print("Note: Nothing but theory overrode _calc_variation_score")
+        temp_lst = [f"{s.segment_name} {len(s.notes)}" for s in self.segments] # Zig Zags of different note lengths are considered different
+        switch_count = 0
+        interval_list = []
+        lst = []
+
+        segment_counts = self._get_segment_type_counts([s.segment_name for s in self.segments])
+
+        # Check for intervals:
+        for i, name in enumerate(temp_lst):
+            if name == SWITCH:
+                switch_count += 1
+            elif name in self.intervals:
+                if i == 0 or i == len(temp_lst) - 1: # If it's the firs
+                    interval_list.append(self.intervals[name] * self.end_extra_debuff)
+                    # Don't add it to the list to check
+                else:
+                    interval_list.append(self.intervals[name])
+                    lst.append("Interval") # Rename all Intervals to the same name
+            else:
+                lst.append(name)
+
+        if pls_print:
+            print(f"Checking entropy of: {lst}")
+        n = len(lst)
+        unique_vals = set(lst)
+        freq = [lst.count(x) / n for x in unique_vals]
+        entropy = -sum(p * math.log2(p) for p in freq)
+
+        if len(interval_list) != 0:
+            # average interval debuffs and multiply that by the entropy
+            average_debuff = sum(interval_list)/len(interval_list)
+            entropy *= average_debuff
+            if pls_print:
+                print(f">>> Debuffing (due to Intervals) by {average_debuff} <<<")
+
+        entropy = self._calc_switch_debuff(segment_counts, entropy)
+
+        return max(1, entropy)
 
     def _calc_pattern_multiplier(self) -> float:
         nps = self.segments[0].notes_per_second
