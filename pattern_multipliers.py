@@ -112,6 +112,14 @@ def variable_stream(num_notes, lower_bound=1.1, upper_bound=1.2, lower_clamp=6.5
     t = np.clip(t, 0, 1)
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
+def zig_zag_length_multiplier(num_notes, lower_bound=1.0, upper_bound=1.2, lower_clamp=10, upper_clamp=30):
+    def smoothstep(x):
+        return x * x * (3 - (2 * x))
+
+    t = (num_notes - lower_clamp) / (upper_clamp - lower_clamp)
+    t = np.clip(t, 0, 1)
+    return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
+
 if __name__ == "__main__":
 
     print(nothing_but_theory_multiplier(12))
@@ -131,6 +139,8 @@ if __name__ == "__main__":
     stream_values = [stream_multiplier(nps) for nps in nps_values]
     variable_stream_values = [variable_stream(nps) for nps in nps_values]
 
+    zig_zag_length_values = [zig_zag_length_multiplier(nps) for nps in nps_values]
+
 
     plt.plot(nps_values, even_circle, label='Even Circle')
     plt.plot(nps_values, skewed_values, label='Skewed Circle')
@@ -138,6 +148,7 @@ if __name__ == "__main__":
     plt.plot(nps_values, nbt_values, label='Nothing but Theory')
     plt.plot(nps_values, stream_values, label='Single Streams')
     plt.plot(nps_values, variable_stream_values, label='Variable Stream (Multiplier for Num notes)')
+    plt.plot(nps_values, zig_zag_length_values, label='Zig Zag (Multiplier for Num notes)')
 
     plt.xlabel('Note Speed (NPS)')
     plt.ylabel('Multiplier')

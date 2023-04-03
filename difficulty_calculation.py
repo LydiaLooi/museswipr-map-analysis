@@ -73,7 +73,7 @@ def get_pattern_weighting(notes):
     total_difficulty_score = 0
 
     for g in groups:
-        score = g.variation_score()
+        score = g.calc_variation_score()
         total_difficulty_score += score
     
     average_difficulty_score = total_difficulty_score/len(groups)

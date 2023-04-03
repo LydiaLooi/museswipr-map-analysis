@@ -12,7 +12,6 @@ class PatternGroup(ABC):
         self.start_sample = start_sample # (UNUSED)
         self.end_sample = end_sample # (UNUSED)
         self.is_active = True
-        self.is_interval = False # This is to identify the "Simple Only" equivalent classes (UNUSED)
         self.weighting = 1
 
         self.entropy_weighting = 0.5
@@ -43,38 +42,13 @@ class PatternGroup(ABC):
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
         pass
 
-    def reset_group(self, previous_pattern: Pattern, current_pattern: Pattern):
-        
-        # print(f"==== RESETTING {self.group_name} ===")
-        self.is_active = True
-        self.patterns = []
-
-        # If previous or current_pattern is an Interval, then only add that one (prioritise the latest one).
-        if self.pattern_is_interval(current_pattern):
-            self.check_pattern(current_pattern)
-
-        elif self.pattern_is_interval(previous_pattern):
-            self.check_pattern(previous_pattern)
-            self.check_pattern(current_pattern)
-            
-        # If not, then attempt to add the previous one first, then the current one too
-        # If it fails at any point, set the group to inactive
-        else:
-            if previous_pattern:
-                added = self.check_pattern(previous_pattern)
-                if added:
-                    added = self.check_pattern(current_pattern)
-                
-                if added is False:
-                    self.is_active = False
-
-        # print(f"-----DONE... {self.patterns}")
 
     @abstractmethod
     def is_appendable(self) -> bool:
         pass
 
-    def is_n_stack(self, pattern: Pattern):
+    @staticmethod
+    def is_n_stack(pattern: Pattern):
         return pattern.pattern_name in ("2-Stack", "3-Stack", "4-Stack")
 
     def pattern_is_interval(self, pattern: Pattern):
@@ -106,6 +80,29 @@ class PatternGroup(ABC):
             return True
         return False
     
+    def reset_group(self, previous_pattern: Pattern, current_pattern: Pattern):
+        self.is_active = True
+        self.patterns = []
+
+        # If previous or current_pattern is an Interval, then only add that one (prioritise the latest one).
+        if self.pattern_is_interval(current_pattern):
+            self.check_pattern(current_pattern)
+
+        elif self.pattern_is_interval(previous_pattern):
+            self.check_pattern(previous_pattern)
+            self.check_pattern(current_pattern)
+            
+        # If not, then attempt to add the previous one first, then the current one too
+        # If it fails at any point, set the group to inactive
+        else:
+            if previous_pattern:
+                added = self.check_pattern(previous_pattern)
+                if added:
+                    added = self.check_pattern(current_pattern)
+                
+                if added is False:
+                    self.is_active = False
+
     def add_interval_is_at_start(self, interval_pattern: Pattern) -> bool:
         """
         Adds the interval pattern to the patterns list
@@ -119,8 +116,7 @@ class PatternGroup(ABC):
             self.patterns.append(interval_pattern)
             return False
         
-
-    def variation_score(self):
+    def calc_variation_score(self) -> float:
         """Calculates the variation score of the pattern group based on the patterns within.
 
         The entropy score measures the amount of uncertainty or randomness in the distribution 
@@ -131,7 +127,7 @@ class PatternGroup(ABC):
         evenly distributed.
 
         Returns:
-            _type_: _description_
+            entropy: The calculated amount of uncertainty or randomness in the patterns
         """
         # Thanks to ChatGPT for writing this for me
         lst = [p.pattern_name for p in self.patterns]
@@ -140,9 +136,7 @@ class PatternGroup(ABC):
         n = len(lst)
         unique_vals = set(lst)
         freq = [lst.count(x) / n for x in unique_vals]
-
         entropy = -sum(p * math.log2(p) for p in freq)
-
         return entropy
 class OtherGroup(PatternGroup):
 
@@ -163,7 +157,6 @@ class OtherGroup(PatternGroup):
 class SlowStretch(PatternGroup):
     def __init__(self, group_name: str, patterns: List[Pattern], start_sample: int = None, end_sample: int = None):
         super().__init__(group_name, patterns, start_sample, end_sample)
-        self.is_interval = True
 
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
         if not self.is_active:
@@ -171,7 +164,6 @@ class SlowStretch(PatternGroup):
         previous_pattern: Optional[Pattern] = self.patterns[-1] if len(self.patterns) > 0 else None
 
         if "Interval" in current_pattern.pattern_name and (previous_pattern is None or "Interval" in previous_pattern.pattern_name):
-            # print(f"added {current_pattern.pattern_name} to SlowStretch")
             self.patterns.append(current_pattern)
             return True
         return False
@@ -186,7 +178,7 @@ class SlowStretch(PatternGroup):
         return False
 
 
-    def variation_score(self) -> float:
+    def calc_variation_score(self) -> float:
         # Variation score for Slow Stretches is based on column variation rather than pattern variation
         lst = []
         unique_sample_times = set()
@@ -376,7 +368,6 @@ class NothingButTheoryGroup(PatternGroup):
             # If the previous pattern is an interval, then we can add it.
             if self.pattern_is_interval(previous_pattern):
                 self.patterns.append(current_pattern)
-                # print(f"added {current_pattern.pattern_name} to SkewedCirclesGroup")
                 return True
             
             if previous_pattern.pattern_name == ZIG_ZAG and current_pattern.pattern_name != TWO_STACK:
@@ -546,7 +537,6 @@ class MapPatternGroups:
                         added = True
                         group_copy = group.__class__(group.group_name, group.patterns, group.start_sample, group.end_sample)
                         self.pattern_groups.append(group_copy)
-                        # print(f"{type(group_copy).__name__} | Appended {group_copy.group_name} with groups: {group_copy.patterns}")
                         # Reset all groups with current pattern.
                         for group in self.groups:
                             group.reset_group(previous_pattern, current_pattern)
