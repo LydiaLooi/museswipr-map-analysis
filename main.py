@@ -70,7 +70,7 @@ def run_analysis():
                 #     print(g)
                 # print("=" * 25)
                 # print_patterns(p)
-                calculate_difficulty(m_map.notes, "", "")
+                calculate_difficulty(m_map.notes)
                 m_map.output_notes(f"{name}.txt")
         except Exception as e:
             print(f"error parsing file: {filename}: {e}")

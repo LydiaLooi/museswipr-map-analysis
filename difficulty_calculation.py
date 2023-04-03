@@ -3,6 +3,7 @@ import statistics
 from constants import TIME_CONVERSION
 from constants import *
 from entities import Note, MuseSwiprMap, Pattern
+from pattern_multipliers import skewed_circle_multiplier, even_circle_multiplier, stream_multiplier, zig_zag_multiplier, nothing_but_theory_multiplier
 
 from pattern_analysis import MapPatternGroups
 
@@ -69,27 +70,19 @@ def get_pattern_weighting(notes):
     patterns = analyze_patterns(notes)
     groups = mpg.identify_pattern_groups(patterns)
 
-    for g in groups:
-        print(g)
-
-    print()
-
     total_difficulty_score = 0
 
     for g in groups:
-        score = g.get_difficulty_score()
+        score = g.variation_score()
         total_difficulty_score += score
     
     average_difficulty_score = total_difficulty_score/len(groups)
     return average_difficulty_score
 
-def calculate_difficulty(notes, filename=None, outfile=None, use_moving_average=True):
+def calculate_difficulty(notes, outfile=None, use_moving_average=True):
 
 
     sections = create_sections(notes, 1)
-
-    # TODO: Look into stretches of high density
-    # TODO: Look into pattern variety (look at the column diffs)
 
     difficulty = None
 
@@ -110,11 +103,11 @@ def calculate_difficulty(notes, filename=None, outfile=None, use_moving_average=
     
     weighting = get_pattern_weighting(notes)
 
-    print(f'{"="*20} DIFFICULTY {"="*20}')
-    print(f"Weight: {weighting}")
-    print(f"Difficulty: {difficulty}")
-    print(f"Weighted: {weighting * difficulty}")
-    print("="*20)
+    print(f"{'Difficulty':_^50}")
+    print(f"{'Weight:':>25} {weighting}")
+    print(f"{'Base Difficulty:':>25} {difficulty}")
+    print(f"{'Weighted Difficulty:':>25} {weighting * difficulty}")
+    print(f"{'':_^50}")
     
     return difficulty
 
@@ -212,7 +205,46 @@ if __name__ == "__main__":
     from pattern_analysis import OtherGroup
     def _Note(lane, seconds):
         return Note(lane, seconds * TIME_CONVERSION)
-    
+    super_easier = [
+        _Note(0, 0),
+        _Note(0, 0.3),
+        _Note(1, 0.6),
+        _Note(0, 0.9),
+        _Note(0, 1.2),
+        _Note(0, 1.5),
+        _Note(0, 1.9),
+        _Note(0, 2.5),
+        _Note(1, 3.5),
+        _Note(0, 4),
+        _Note(0, 4.3),
+        _Note(0, 4.7),
+        _Note(0, 5),
+        _Note(0, 10),
+        _Note(0, 10.3),
+        _Note(1, 15),
+    ]
+
+
+    much_easier = [
+        _Note(0, 0),
+        _Note(1, 0.3),
+        _Note(0, 0.6),
+        _Note(1, 0.9),
+        _Note(0, 1.2),
+        _Note(1, 1.5),
+        _Note(1, 1.9),
+        _Note(0, 2.5),
+        _Note(0, 3.5),
+        _Note(1, 4),
+        _Note(0, 4.3),
+        _Note(0, 4.7),
+        _Note(0, 5),
+        _Note(1, 10),
+        _Note(0, 10.3),
+        _Note(0, 15),
+    ]
+
+
     easier = [
         _Note(0, 0),
         _Note(1, 10),
@@ -232,36 +264,164 @@ if __name__ == "__main__":
         _Note(0, 42),
     ]
 
-    harder = [
-        _Note(0, 0),
+    even_circles_easy = [
         _Note(1, 0.1),
-        _Note(1, 0.25),
+        _Note(1, 0.2),
         _Note(0, 0.3),
-        _Note(1, 0.4),
-        _Note(1, 0.55),
+        _Note(0, 0.4),
+        _Note(1, 0.5),
+        _Note(1, 0.6),
         _Note(0, 0.7),
-        _Note(1, 0.8),
-        _Note(0, 0.95),
-        _Note(1, 1.1),
-        _Note(0, 1.25),
-        _Note(1, 1.35),
+        _Note(0, 0.8),
+        _Note(1, 0.9),
+        _Note(1, 1.0),
+        _Note(0, 1.1),
+        _Note(0, 1.2),
+        _Note(1, 1.3),
+        _Note(1, 1.4),
         _Note(0, 1.5),
-        _Note(1, 5),
-        _Note(0, 5.1),
-        _Note(1, 5.15),
+        _Note(0, 1.6),
+    ]
+
+    even_circles_hard = [
+        _Note(1, 0.1),
+        _Note(1, 0.2),
+        _Note(1, 0.3),
+        _Note(0, 0.4),
+        _Note(0, 0.5),
+        _Note(1, 0.6),
+        _Note(1, 0.7),
+        _Note(1, 0.8),
+        _Note(1, 0.9),
+        _Note(0, 1.0),
+        _Note(0, 1.1),
+        _Note(0, 1.2),
+        _Note(1, 1.3),
+        _Note(1, 1.4),
+        _Note(0, 1.5),
+        _Note(0, 1.6),
     ]
 
 
+    samples = {
+        # 'super_easier': super_easier, 
+        # 'much_easier': much_easier, 
+        # 'easier': easier, 
+        'even circles easy': even_circles_easy,
+        'even circles hard': even_circles_hard
+        }
+    
+    # for name, s in samples.items():
+    #     print(f"{name.capitalize():=^50}")
+    #     diff = calculate_difficulty(s)
 
-    diff = calculate_difficulty(easier)
-    # # print()
-    # diff = calculate_difficulty(harder)
+    #     patterns = analyze_patterns(s)
 
-    # patterns = analyze_patterns(harder)
-    # print_patterns(patterns)
-    # mpg = MapPatternGroups()
-    # groups = mpg.identify_pattern_groups(patterns)
-    # for g in groups:
-        # print(g)
+    #     # print_patterns(patterns)
+    #     print_patterns(patterns)
+    #     mpg = MapPatternGroups()
+    #     groups = mpg.identify_pattern_groups(patterns)
+    #     for g in groups:
+    #         print(f"{g.group_name}: {g.variation_score()}")
 
-    diff = calculate_difficulty(harder)
+    #     print(f'{"=":=^50}\n')
+
+    import math
+    class Sample():
+        def __init__(self, name, patterns):
+            self.group_name = name
+            self.patterns = patterns
+
+        def variation_score(self) -> float:
+            # Thanks to ChatGPT for writing this for me
+            lst = [p.pattern_name for p in self.patterns]
+
+            print(f"Pattern names: {lst}")
+            n = len(lst)
+            unique_vals = set(lst)
+            freq = [lst.count(x) / n for x in unique_vals]
+
+            entropy = -sum(p * math.log2(p) for p in freq)
+
+            return entropy
+
+    mpg = MapPatternGroups()
+
+    even_patterns = [
+        Pattern("A", []),
+        Pattern("B", []),
+        Pattern("A", []),
+        Pattern("B", []),
+        Pattern("A", []),
+        Pattern("B", []),
+        Pattern("A", []),
+        Pattern("B", []),
+    ]
+
+    odd_patterns = [
+        Pattern("A", []),
+        Pattern("B", []),
+        Pattern("C", []),
+        Pattern("B", []),
+        Pattern("D", []),
+        Pattern("B", []),
+        Pattern("A", []),
+        Pattern("B", []),
+    ]
+
+    other_patterns = [
+        Pattern("A", []),
+        Pattern("A", []),
+        Pattern("B", []),
+        Pattern("A", []),
+        Pattern("A", []),
+        Pattern("B", []),
+        Pattern("A", []),
+        Pattern("A", []),
+        Pattern("B", []),
+    ]
+    
+
+    same_patterns = [
+        Pattern("A", []),
+        Pattern("A", []),
+        Pattern("A", []),
+        Pattern("A", []),
+        Pattern("A", []),
+        Pattern("A", []),
+        Pattern("A", []),
+        Pattern("A", []),
+    ]
+
+
+    almost_same_patterns = [
+        Pattern("A", []),
+        Pattern("B", []),
+        Pattern("C", []),
+        Pattern("B", []),
+        Pattern("D", []),
+        Pattern("A", []),
+        Pattern("L", []),
+        Pattern("C", []),
+    ]
+
+    groups = [
+        Sample("Group A", even_patterns),
+        Sample("Group B", odd_patterns),
+        Sample("Group C", other_patterns),
+        Sample("Group D", same_patterns),
+        Sample("Group E", almost_same_patterns),
+    ]
+
+    for g in groups:
+        print(f"{g.group_name}: {g.variation_score()}\n")
+
+"""
+1,1,1,0,0,1,1,1,1,0,0,0,1,1,0,0,
+
+1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,
+
+
+
+
+"""
