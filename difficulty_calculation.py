@@ -7,27 +7,27 @@ from pattern_multipliers import skewed_circle_multiplier, even_circle_multiplier
 
 from pattern_analysis import MapPatternGroups
 
-def create_sections(notes, section_threshold_seconds):
+def create_sections(notes, section_threshold_seconds=1):
     section_threshold = section_threshold_seconds * TIME_CONVERSION
+    song_start_samples = min(note.sample_time for note in notes)
     song_duration_samples = max(note.sample_time for note in notes)
 
     # First, sort the notes by sample_time
     notes.sort(key=lambda x: x.sample_time)
 
     # Calculate the number of sections based on song_duration_samples and section_threshold
-    num_sections = int((song_duration_samples + section_threshold - 1) // section_threshold)
+    num_sections = int((song_duration_samples - song_start_samples + section_threshold) // section_threshold)
 
     # Initialize empty sections
     sections = [[] for _ in range(num_sections)]
 
     # Fill sections with notes
     for note in notes:
-        section_index = int(note.sample_time // section_threshold)
+        section_index = int((note.sample_time - song_start_samples) // section_threshold)
         if 0 <= section_index < len(sections):
             sections[section_index].append(note)
 
     return sections
-
 
 def moving_average_note_density(sections, window_size):
     num_sections = len(sections)

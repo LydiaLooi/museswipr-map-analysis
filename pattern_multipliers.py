@@ -104,7 +104,7 @@ def stream_multiplier(nps, lower_bound=1, upper_bound=1.3, lower_clamp=6.5, uppe
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
 
-def variable_stream(num_notes, lower_bound=1.1, upper_bound=1.2, lower_clamp=6.5, upper_clamp=12):
+def variable_stream_length_multiplier(num_notes, lower_bound=1.1, upper_bound=1.2, lower_clamp=6.5, upper_clamp=12):
     def smoothstep(x):
         return x * x * (3 - (2 * x))
 
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
     nbt_values = [nothing_but_theory_multiplier(nps) for nps in nps_values]
     stream_values = [stream_multiplier(nps) for nps in nps_values]
-    variable_stream_values = [variable_stream(nps) for nps in nps_values]
+    variable_stream_values = [variable_stream_length_multiplier(nps) for nps in nps_values]
 
     zig_zag_length_values = [zig_zag_length_multiplier(nps) for nps in nps_values]
 

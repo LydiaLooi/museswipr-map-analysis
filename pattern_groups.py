@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from constants import *
 from entities import Note, Pattern
-
+from pattern_multipliers import stream_multiplier, zig_zag_multiplier, even_circle_multiplier, skewed_circle_multiplier, zig_zag_length_multiplier, nothing_but_theory_multiplier
 
 class PatternGroup(ABC):
     def __init__(self, group_name: str, patterns: List[Pattern], start_sample: int=None, end_sample: int=None):
@@ -178,6 +178,8 @@ class PatternGroup(ABC):
             print(f">>> Debuffing (Die to Switches) by {switch_debuff:.2f} <<<")
             entropy *= switch_debuff
 
+        if entropy == 0: # Temp?
+            return 1
 
         return entropy
     
@@ -208,7 +210,7 @@ class PatternGroup(ABC):
 
         print(f"Patterns: {self.patterns}")
 
-        return variation_multiplier * group_multiplier
+        return variation_multiplier * group_multiplier * length_multiplier
 
 class OtherGroup(PatternGroup):
 
@@ -359,6 +361,11 @@ class EvenCirclesGroup(PatternGroup):
     def _calc_variation_score(self) -> float:
         # TODO:Variation should be between the variation of N-stacks
         return super()._calc_variation_score()
+    
+    def _calc_pattern_group_multiplier(self) -> float:
+        nps = self.patterns[0].notes_per_second # Even Circle should have consistent NPS
+        multiplier = even_circle_multiplier(nps)
+        return multiplier
 
 class SkewedCirclesGroup(PatternGroup):
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
@@ -418,6 +425,11 @@ class SkewedCirclesGroup(PatternGroup):
                 return True
         return False
 
+    def _calc_pattern_group_multiplier(self) -> float:
+        nps = self.patterns[0].notes_per_second
+
+        multiplier = skewed_circle_multiplier(nps)
+        return multiplier
 
 class NothingButTheoryGroup(PatternGroup):
     def check_pattern(self, current_pattern: Pattern) -> Optional[bool]:
@@ -484,3 +496,9 @@ class NothingButTheoryGroup(PatternGroup):
     def _calc_variation_score(self) -> float:
         # TODO: Variation is in the form of variation between ZigZag 4 and ZigZag 6
         return super()._calc_variation_score()
+
+    def _calc_pattern_group_multiplier(self) -> float:
+        nps = self.patterns[0].notes_per_second
+
+        multiplier = nothing_but_theory_multiplier(nps)
+        return multiplier
