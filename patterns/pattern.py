@@ -1,6 +1,5 @@
 from typing import List, Optional, Dict
 from constants import DEFAULT_SAMPLE_RATE, SHORT_INTERVAL, MED_INTERVAL, LONG_INTERVAL,SWITCH, ZIG_ZAG, TWO_STACK, THREE_STACK, FOUR_STACK, SINGLE_STREAMS
-
 from entities import Segment
 class Pattern:
     def __init__(self, pattern_name: str, segments: List[Segment], start_sample: int=None, end_sample: int=None, sample_rate: int=DEFAULT_SAMPLE_RATE):
