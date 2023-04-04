@@ -93,8 +93,8 @@ if __name__ == "__main__":
     # mini_test()
     # run_analysis()
 
-    m = "lachesismic armageddon"
-    pls_print = True
+    m = ""
+    pls_print = False
 
     with open("difficulties_data.txt", "w", encoding="utf-8") as f:
         for filename in all_files:
@@ -102,7 +102,7 @@ if __name__ == "__main__":
                 try:
                     char = "\\"
                     m_map = MuseSwiprMap(f"{DATA_DIR}/{filename}")
-                    patterns = analyse_segments(m_map.notes, m_map.sample_rate)
+                    # segments = analyse_segments(m_map.notes, m_map.sample_rate)
                     name = filename.split("\\")[-1].split(".asset")[0]
                     # print(name)
                     # print_patterns(patterns, m_map.sample_rate)
@@ -123,4 +123,4 @@ if __name__ == "__main__":
                     m_map.output_notes(f"{name}.txt", m_map.sample_rate)
                 except Exception as e:
                     print(f"ERROR parsing a file: {e}")
-                    # raise e
+                    continue

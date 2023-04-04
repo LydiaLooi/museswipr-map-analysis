@@ -1,9 +1,29 @@
 from typing import List, Optional, Dict
-from constants import DEFAULT_SAMPLE_RATE, SHORT_INTERVAL, MED_INTERVAL, LONG_INTERVAL,SWITCH, ZIG_ZAG, TWO_STACK, THREE_STACK, FOUR_STACK, SINGLE_STREAMS
+from constants import (
+    DEFAULT_SAMPLE_RATE,
+    SHORT_INTERVAL,
+    MED_INTERVAL,
+    LONG_INTERVAL,
+    SWITCH,
+    ZIG_ZAG,
+    TWO_STACK,
+    THREE_STACK,
+    FOUR_STACK,
+    SINGLE_STREAMS,
+)
 from entities import Segment
+
+
 class Pattern:
-    def __init__(self, pattern_name: str, segments: List[Segment], start_sample: int=None, end_sample: int=None, sample_rate: int=DEFAULT_SAMPLE_RATE):
-        self.group_name = pattern_name
+    def __init__(
+        self,
+        pattern_name: str,
+        segments: List[Segment],
+        start_sample: int = None,
+        end_sample: int = None,
+        sample_rate: int = DEFAULT_SAMPLE_RATE,
+    ):
+        self.pattern_name = pattern_name
         self.segments = segments
         self.start_sample = start_sample
         self.end_sample = end_sample
@@ -16,11 +36,7 @@ class Pattern:
         self.variation_weighting = 0.5
         self.pattern_weighting = 0.5
 
-        self.intervals = {
-            SHORT_INTERVAL: 0.7,
-            MED_INTERVAL: 0.6,
-            LONG_INTERVAL: 0.4
-        }
+        self.intervals = {SHORT_INTERVAL: 0.7, MED_INTERVAL: 0.6, LONG_INTERVAL: 0.4}
 
         self.end_extra_debuff = 0.9  # For if the interval is at the start or end
 
@@ -31,6 +47,29 @@ class Pattern:
         self.calc_pattern_multiplier_strategy = None
         self.calc_pattern_length_multiplier_strategy = None
 
+        self._total_notes = None
+
+    @property
+    def total_notes(self):
+        if self._total_notes:
+            return self._total_notes
+        count = 0
+        unique_timestamps = set()
+        for segment in self.segments:
+            for note in segment.notes:
+                if note.sample_time not in unique_timestamps:
+                    count += 1
+                    unique_timestamps.add(note.sample_time)
+
+        self._total_notes = count
+        return self._total_notes
+
+    @property
+    def has_interval_segment(self):
+        for seg in self.segments:
+            if "Interval" in seg.segment_name:
+                return True
+        return False
 
     # General helper methods
     def is_n_stack(self, segment: Segment):
@@ -41,23 +80,34 @@ class Pattern:
             return "Interval" in segment.segment_name
         return False
 
-    def time_difference_is_tolerable(self, previous_segment: Segment, current_segment: Segment):
+    def time_difference_is_tolerable(
+        self, previous_segment: Segment, current_segment: Segment
+    ):
         assert previous_segment.time_difference is not None
         assert current_segment.time_difference is not None
 
         # If the previous or current segment is an Interval, return True
-        if self.segment_is_interval(previous_segment) or self.segment_is_interval(current_segment):
+        if self.segment_is_interval(previous_segment) or self.segment_is_interval(
+            current_segment
+        ):
             return True
-        
-        result = abs(current_segment.time_difference - previous_segment.time_difference) <= self.tolerance
+
+        result = (
+            abs(current_segment.time_difference - previous_segment.time_difference)
+            <= self.tolerance
+        )
 
         return result
 
-    def interval_between_segments_is_tolerable(self, previous_segment: Segment, current_segment: Segment) -> bool:
+    def interval_between_segments_is_tolerable(
+        self, previous_segment: Segment, current_segment: Segment
+    ) -> bool:
         assert len(previous_segment.notes) > 1
         assert len(current_segment.notes) > 1
         # If the previous or current segment is an Interval, return True
-        if self.segment_is_interval(previous_segment) or self.segment_is_interval(current_segment):
+        if self.segment_is_interval(previous_segment) or self.segment_is_interval(
+            current_segment
+        ):
             return True
         end_of_first = previous_segment.notes[-1].sample_time
         start_of_second = current_segment.notes[0].sample_time
@@ -78,7 +128,7 @@ class Pattern:
         elif self.segment_is_interval(previous_segment):
             self.check_segment(previous_segment)
             self.check_segment(current_segment)
-            
+
         # If not, then attempt to add the previous one first, then the current one too
         # If it fails at any point, set the group to inactive
         else:
@@ -86,7 +136,7 @@ class Pattern:
                 added = self.check_segment(previous_segment)
                 if added:
                     added = self.check_segment(current_segment)
-                
+
                 if added is False:
                     self.is_active = False
 
@@ -94,7 +144,7 @@ class Pattern:
         """
         Adds the interval segment to the segments list
         Returns True if it is the first element
-        Returns False if is not 
+        Returns False if is not
         """
         if len(self.segments) == 0:
             self.segments.append(interval_segment)
@@ -113,21 +163,23 @@ class Pattern:
             SINGLE_STREAMS: 0,
             SHORT_INTERVAL: 0,
             MED_INTERVAL: 0,
-            LONG_INTERVAL: 0
+            LONG_INTERVAL: 0,
         }
         for name in segment_names:
             segment_counts[name] += 1
         return segment_counts
 
-    def _calc_switch_debuff(self, segment_counts: Dict[str, int], entropy: float, pls_print=False) -> float:
+    def _calc_switch_debuff(
+        self, segment_counts: Dict[str, int], entropy: float, pls_print=False
+    ) -> float:
         """Looks at the number of switches with relation to how many segments there are.
-        
+
         A low segment count (<4) such as [zig zag, switch, zig zag] will be debuffed
         more heavily than a long arrangement of segments with more switches. A higher
         switch proportion results in less debuff.
 
         Args:
-            segment_counts (Dict[str: int]): The dictionary of segment type counts 
+            segment_counts (Dict[str: int]): The dictionary of segment type counts
             entropy (float): The current entropy value
 
         Returns:
@@ -140,24 +192,28 @@ class Pattern:
             if total_patterns < 4:
                 switch_debuff = 0.7
             else:
-                switch_proportion = switch_count/total_patterns
+                switch_proportion = switch_count / total_patterns
                 if switch_proportion < 0.5:
                     switch_debuff = 0.8
                 else:
-                    switch_debuff = 0.9 # if there are more switches, then don't make the buff as hard
+                    switch_debuff = 0.9  # if there are more switches, then don't make the buff as hard
             if pls_print:
-                print(f">>> Switch (proportion {switch_proportion}) debuff by {switch_debuff:.2f} <<<")
+                print(
+                    f">>> Switch (proportion {switch_proportion}) debuff by {switch_debuff:.2f} <<<"
+                )
             entropy *= switch_debuff
         return entropy
 
     def calc_pattern_difficulty(self, pls_print=False) -> float:
         if pls_print:
-            print(f"{self.group_name:.>25} {'Difficulty':.<25}")
+            print(f"{self.pattern_name:.>25} {'Difficulty':.<25}")
         variation_multiplier = self.calc_variation_score()
         pattern_multiplier = self.calc_pattern_multiplier()
         length_multiplier = self.calc_pattern_length_multiplier()
 
-        final = (self.variation_weighting * variation_multiplier) + (self.pattern_weighting * pattern_multiplier)
+        final = (self.variation_weighting * variation_multiplier) + (
+            self.pattern_weighting * pattern_multiplier
+        )
 
         if pls_print:
             print(f"{'Variation Multiplier:':>25} {variation_multiplier}")
@@ -197,16 +253,20 @@ class Pattern:
         return self.calc_pattern_multiplier_strategy.calc_pattern_multiplier()
 
     def calc_pattern_length_multiplier(self) -> float:
-        return self.calc_pattern_length_multiplier_strategy.calc_pattern_length_multiplier()
+        return (
+            self.calc_pattern_length_multiplier_strategy.calc_pattern_length_multiplier()
+        )
 
     def __repr__(self) -> str:
         if len(self.segments) >= 5:
             p = self.segments[:5]
-            extra = f" | Last Five: {self.segments[-5:]}... ({len(self.segments)} total)"
+            extra = (
+                f" | Last Five: {self.segments[-5:]}... ({len(self.segments)} total)"
+            )
         else:
             p = self.segments
             extra = ""
         if len(self.segments) > 0:
-            return f"{self.segments[0].notes[0].sample_time/DEFAULT_SAMPLE_RATE:.2f} | {self.group_name}, {p}{extra}"
+            return f"{self.segments[0].notes[0].sample_time/DEFAULT_SAMPLE_RATE:.2f} | {self.pattern_name}, {p}{extra}"
         else:
-            return f"{self.group_name}, {p}"
+            return f"{self.pattern_name}, {p}"

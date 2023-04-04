@@ -63,7 +63,7 @@ def stream_multiplier(
 
 
 def pattern_stream_length_multiplier(
-    num_notes, lower_bound=1.1, upper_bound=1.2, lower_clamp=6.5, upper_clamp=12
+    num_notes, lower_bound=1.025, upper_bound=1.1, lower_clamp=6.5, upper_clamp=20
 ):
     def smoothstep(x):
         return x * x * (3 - (2 * x))

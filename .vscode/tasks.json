@@ -1,0 +1,40 @@
+{
+    "version": "2.0.0",
+    // Running the shell with the venv virtual environment
+    // https://stackoverflow.com/a/68581738
+    "windows": {
+        "options": {
+            "shell": {
+                "executable": "cmd.exe",
+                "args": [
+                    "/C",
+                    "venv\\Scripts\\activate.bat",
+                    "&"
+                ]
+            }
+        }
+    },
+    "tasks": [
+        {
+            "label": "Run main.py",
+            "type": "shell",
+            "command": "python main.py",
+            "group": "none",
+            "problemMatcher": []
+        },
+        {
+            "label": "Freeze Requirements",
+            "type": "shell",
+            "command": "pip freeze > requirements.txt",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Install Requirements",
+            "type": "shell",
+            "command": "pip install -r requirements.txt",
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}

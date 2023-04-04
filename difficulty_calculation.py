@@ -5,6 +5,13 @@ from constants import *
 from entities import Note, MuseSwiprMap, Segment
 from utils import weighted_average_of_values
 from map_pattern_analysis import MapPatterns
+from collections import namedtuple
+from patterns.pattern import Pattern
+from pattern_multipliers import pattern_stream_length_multiplier
+
+PatternScore = namedtuple(
+    "PatternScore", ["pattern_name", "score", "has_interval", "total_notes"]
+)
 
 
 def create_sections(
@@ -52,6 +59,48 @@ def moving_average_note_density(sections, window_size):
     return moving_averages
 
 
+def calculate_scores_from_patterns(
+    patterns: List[Pattern], pls_print=False
+) -> List[float]:
+    pattern_scores: List[PatternScore] = []
+
+    for p in patterns:
+        if (
+            len(p.segments) > 0
+        ):  # For the race case that an empty pattern somehow snuck through
+            score = p.calc_pattern_difficulty(pls_print=pls_print)
+            pattern_scores.append(
+                PatternScore(
+                    p.pattern_name, score, p.has_interval_segment, p.total_notes
+                )
+            )
+
+    scores = []
+    chunk = []
+    # print("Starting new chunk...")
+    for ps in pattern_scores:
+        if ps.has_interval and len(chunk) > 0:
+            multiplier = 1
+            if len(chunk) > 2:
+                multiplier = pattern_stream_length_multiplier(ps.total_notes)
+            chunk = [c * multiplier for c in chunk]
+            # print(f"----1 Chunk {chunk} has been multiplied by {multiplier:.3f}")
+            scores += chunk
+            chunk = []
+            # print("Starting new chunk...")
+        else:
+            chunk.append(ps.score)
+            # print(f"---- Adding to chunk: {ps.pattern_name} ({ps.score})")
+    if len(chunk) > 0:
+        multiplier = pattern_stream_length_multiplier(ps.total_notes)
+        chunk = [c * multiplier for c in chunk]
+        # print(f"----2 Chunk {chunk} has been multiplied by {multiplier:.3f}")
+        scores += chunk
+    if len(scores) == 0:
+        raise ValueError("bruh ???")
+    return scores
+
+
 def get_pattern_weighting(
     notes: List[Note], sample_rate: int = DEFAULT_SAMPLE_RATE, pls_print=False
 ) -> float:
@@ -71,22 +120,15 @@ def get_pattern_weighting(
         float: The pattern weighting
     """
     mpg = MapPatterns()
-    patterns = analyse_segments(notes, sample_rate)
-    groups = mpg.identify_patterns(patterns)
+    segments = analyse_segments(notes, sample_rate)
+    patterns = mpg.identify_patterns(segments)
 
-    total_difficulty_score = 0
-    scores = []
+    scores = calculate_scores_from_patterns(patterns, pls_print)
 
-    for g in groups:
-        score = g.calc_pattern_difficulty(pls_print=pls_print)
-        total_difficulty_score += score
-        scores.append(score)
     # Gets the average difficulty score across all the Patterns
     difficulty = weighted_average_of_values(
         scores, top_percentage=0.4, top_weight=0.9, bottom_weight=0.1
     )
-    average_difficulty_score = total_difficulty_score / len(groups)
-    print(f"{'Average Difficulty Score:':>25} {average_difficulty_score}")
     print(f"{'WEIGHTED Average Difficulty Score:':>25} {difficulty}")
 
     return difficulty

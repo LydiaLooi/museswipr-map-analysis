@@ -1,9 +1,15 @@
 def weighted_average_of_values(
     values, top_percentage=0.3, top_weight=0.7, bottom_weight=0.3
 ):
+    if not values:
+        raise ValueError("The input list 'values' cannot be empty.")
+
     # Find the threshold that separates the top 30% highest densities from the rest
-    threshold_index = int(len(values) * (1 - top_percentage))
     moving_averages_sorted = sorted(values, reverse=True)
+
+    threshold_index = int(len(values) * (1 - top_percentage))
+    if threshold_index >= len(moving_averages_sorted):
+        threshold_index = len(moving_averages_sorted) - 1
     threshold = moving_averages_sorted[threshold_index]
 
     # Calculate the weighted average
