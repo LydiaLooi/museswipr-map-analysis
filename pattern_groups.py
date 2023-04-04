@@ -30,15 +30,6 @@ class Pattern(ABC):
         self.end_extra_debuff = 0.9 # For if the interval is at the start or end
 
 
-    @property
-    def approx_total_notes(self): # because i cbf make it accurate ((:
-        note_count = 0
-        for p in self.segments:
-            note_count += len(p.notes)
-            if len(p.notes) >= 3:
-                note_count -= 2 # -2 for the overlap of segments approx
-        return note_count
-
     def __repr__(self) -> str:
         if len(self.segments) >= 5:
             p = self.segments[:5]
