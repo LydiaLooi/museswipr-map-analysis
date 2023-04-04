@@ -1,8 +1,15 @@
 import numpy as np
+from config import get_config
+
+conf = get_config()
 
 
 def nothing_but_theory_multiplier(
-    nps, lower_bound=1, upper_bound=2, lower_clamp=2.5, upper_clamp=21.5
+    nps,
+    lower_bound=conf["nothing_but_theory_low_bound"],
+    upper_bound=conf["nothing_but_theory_up_bound"],
+    lower_clamp=conf["nothing_but_theory_low_clamp"],
+    upper_clamp=conf["nothing_but_theory_up_clamp"],
 ):
     # 1.3 ~ 6.7 | 1.5 ~ 12
     def smoothstep(x):
@@ -14,7 +21,11 @@ def nothing_but_theory_multiplier(
 
 
 def varying_streams(
-    nps, lower_bound=1, upper_bound=2, lower_clamp=2.5, upper_clamp=20.5
+    nps,
+    lower_bound=conf["varying_streams_low_bound"],
+    upper_bound=conf["varying_streams_up_bound"],
+    lower_clamp=conf["varying_streams_low_clamp"],
+    upper_clamp=conf["varying_streams_up_clamp"],
 ):
     def smoothstep(x):
         return x * x * (3 - (2 * x))
@@ -25,7 +36,11 @@ def varying_streams(
 
 
 def zig_zag_multiplier(
-    nps, lower_bound=1, upper_bound=2, lower_clamp=6, upper_clamp=18
+    nps,
+    lower_bound=conf["zig_zag_low_bound"],
+    upper_bound=conf["zig_zag_up_bound"],
+    lower_clamp=conf["zig_zag_low_clamp"],
+    upper_clamp=conf["zig_zag_up_clamp"],
 ):
     def ease_in_cubic(x):
         return x**4
@@ -35,7 +50,11 @@ def zig_zag_multiplier(
     return lower_bound + (upper_bound - lower_bound) * ease_in_cubic(t)
 
 
-def even_circle_multiplier(nps, lower_bound=1, upper_bound=1.55):
+def even_circle_multiplier(
+    nps,
+    lower_bound=conf["even_circle_low_bound"],
+    upper_bound=conf["even_circle_up_bound"],
+):
     def ease_in_out(x):
         return 3 * x**2 - 2 * x**3
 
@@ -43,7 +62,11 @@ def even_circle_multiplier(nps, lower_bound=1, upper_bound=1.55):
     return lower_bound + (upper_bound - lower_bound) * ease_in_out(t)
 
 
-def skewed_circle_multiplier(nps, lower_bound=1, upper_bound=1.75):
+def skewed_circle_multiplier(
+    nps,
+    lower_bound=conf["skewed_circle_low_bound"],
+    upper_bound=conf["skewed_circle_up_bound"],
+):
     def ease_in_out(x):
         return 3 * x**2 - 2 * x**3
 
@@ -52,7 +75,11 @@ def skewed_circle_multiplier(nps, lower_bound=1, upper_bound=1.75):
 
 
 def stream_multiplier(
-    nps, lower_bound=1, upper_bound=1.3, lower_clamp=6.5, upper_clamp=12
+    nps,
+    lower_bound=conf["stream_low_bound"],
+    upper_bound=conf["stream_up_bound"],
+    lower_clamp=conf["stream_low_clamp"],
+    upper_clamp=conf["stream_up_clamp"],
 ):
     def smoothstep(x):
         return x * x * (3 - (2 * x))
@@ -63,7 +90,11 @@ def stream_multiplier(
 
 
 def pattern_stream_length_multiplier(
-    num_notes, lower_bound=1.025, upper_bound=1.1, lower_clamp=6.5, upper_clamp=20
+    num_notes,
+    lower_bound=conf["pattern_stream_length_low_bound"],
+    upper_bound=conf["pattern_stream_length_up_bound"],
+    lower_clamp=conf["pattern_stream_length_low_clamp"],
+    upper_clamp=conf["pattern_stream_length_up_clamp"],
 ):
     def smoothstep(x):
         return x * x * (3 - (2 * x))
@@ -74,7 +105,11 @@ def pattern_stream_length_multiplier(
 
 
 def zig_zag_length_multiplier(
-    num_notes, lower_bound=1.0, upper_bound=1.2, lower_clamp=10, upper_clamp=30
+    num_notes,
+    lower_bound=conf["zig_zag_length_low_bound"],
+    upper_bound=conf["zig_zag_length_up_bound"],
+    lower_clamp=conf["zig_zag_length_low_clamp"],
+    upper_clamp=conf["zig_zag_length_up_clamp"],
 ):
     def smoothstep(x):
         return x * x * (3 - (2 * x))
@@ -85,7 +120,11 @@ def zig_zag_length_multiplier(
 
 
 def four_stack_multiplier(
-    nps, lower_bound=1.0, upper_bound=1.4, lower_clamp=6, upper_clamp=12
+    nps,
+    lower_bound=conf["four_stack_low_bound"],
+    upper_bound=conf["four_stack_up_bound"],
+    lower_clamp=conf["four_stack_low_clamp"],
+    upper_clamp=conf["four_stack_up_clamp"],
 ):
     def smoothstep(x):
         return x * x * (3 - (2 * x))
@@ -96,7 +135,11 @@ def four_stack_multiplier(
 
 
 def three_stack_multiplier(
-    nps, lower_bound=1.0, upper_bound=1.25, lower_clamp=6, upper_clamp=12
+    nps,
+    lower_bound=conf["three_stack_low_bound"],
+    upper_bound=conf["three_stack_up_bound"],
+    lower_clamp=conf["three_stack_low_clamp"],
+    upper_clamp=conf["three_stack_up_clamp"],
 ):
     def smoothstep(x):
         return x * x * (3 - (2 * x))
@@ -107,7 +150,11 @@ def three_stack_multiplier(
 
 
 def two_stack_multiplier(
-    nps, lower_bound=1.0, upper_bound=1.20, lower_clamp=6, upper_clamp=12
+    nps,
+    lower_bound=conf["two_stack_low_bound"],
+    upper_bound=conf["two_stack_up_bound"],
+    lower_clamp=conf["two_stack_low_clamp"],
+    upper_clamp=conf["two_stack_up_clamp"],
 ):
     def smoothstep(x):
         return x * x * (3 - (2 * x))
@@ -118,7 +165,11 @@ def two_stack_multiplier(
 
 
 def varying_stacks_multiplier(
-    nps, lower_bound=1.0, upper_bound=1.35, lower_clamp=4, upper_clamp=14
+    nps,
+    lower_bound=conf["varying_stacks_low_bound"],
+    upper_bound=conf["varying_stacks_up_bound"],
+    lower_clamp=conf["varying_stacks_low_clamp"],
+    upper_clamp=conf["varying_stacks_up_clamp"],
 ):
     def smoothstep(x):
         return x * x * (3 - (2 * x))
@@ -129,8 +180,6 @@ def varying_stacks_multiplier(
 
 
 if __name__ == "__main__":
-    print(nothing_but_theory_multiplier(12))
-
     import matplotlib.pyplot as plt
 
     nps_values = np.linspace(

@@ -12,6 +12,9 @@ from constants import (
     SINGLE_STREAMS,
 )
 from entities import Segment
+from config import get_config
+
+conf = get_config()
 
 
 class Pattern:
@@ -28,17 +31,20 @@ class Pattern:
         self.start_sample = start_sample
         self.end_sample = end_sample
         self.is_active = True
-        self.weighting = 1
 
         self.sample_rate = sample_rate
-        self.tolerance = 20 * sample_rate // 1000
+        self.tolerance = conf["pattern_tolerance_ms"] * sample_rate // 1000
 
-        self.variation_weighting = 0.5
-        self.pattern_weighting = 0.5
+        self.variation_weighting = conf["default_variation_weighting"]
+        self.pattern_weighting = conf["default_pattern_weighting"]
 
-        self.intervals = {SHORT_INTERVAL: 0.7, MED_INTERVAL: 0.6, LONG_INTERVAL: 0.4}
+        self.intervals = {
+            SHORT_INTERVAL: conf["short_int_debuff"],
+            MED_INTERVAL: conf["med_int_debuff"],
+            LONG_INTERVAL: conf["long_int_debuff"],
+        }
 
-        self.end_extra_debuff = 0.9  # For if the interval is at the start or end
+        self.end_extra_debuff = conf["extra_int_end_debuff"]
 
         # Use composition to add functionality
         self.check_segment_strategy = None

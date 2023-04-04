@@ -17,6 +17,10 @@ from strategies.pattern_strategies import (
     IsAppendableStrategy,
 )
 
+from config import get_config
+
+conf = get_config()
+
 from constants import (
     ZIG_ZAG,
     TWO_STACK,
@@ -61,7 +65,7 @@ class OtherCalcPatternMultiplier(CalcPatternMultiplierStrategy):
 
         for segment in self.pattern.segments:
             if segment.segment_name == SWITCH:
-                multipliers.append(1)
+                multipliers.append(conf["other_switch_multiplier"])
 
             elif segment.segment_name == ZIG_ZAG:
                 multipliers.append(zig_zag_multiplier(segment.notes_per_second))
@@ -74,11 +78,11 @@ class OtherCalcPatternMultiplier(CalcPatternMultiplierStrategy):
             elif segment.segment_name == SINGLE_STREAMS:
                 multipliers.append(stream_multiplier(segment.notes_per_second))
             elif segment.segment_name == SHORT_INTERVAL:
-                multipliers.append(0.8)
+                multipliers.append(conf["other_short_int_multiplier"])
             elif segment.segment_name == MED_INTERVAL:
-                multipliers.append(0.7)
+                multipliers.append(conf["other_med_int_multiplier"])
             elif segment.segment_name == LONG_INTERVAL:
-                multipliers.append(0.5)
+                multipliers.append(conf["other_long_int_multiplier"])
             else:
                 print(f"WARNING: Did not recognise pattern: {segment.segment_name}")
                 multipliers.append(1)

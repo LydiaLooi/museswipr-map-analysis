@@ -8,6 +8,9 @@ from map_pattern_analysis import MapPatterns
 from collections import namedtuple
 from patterns.pattern import Pattern
 from pattern_multipliers import pattern_stream_length_multiplier
+from config import get_config
+
+conf = get_config()
 
 PatternScore = namedtuple(
     "PatternScore", ["pattern_name", "score", "has_interval", "total_notes"]
@@ -59,57 +62,47 @@ def moving_average_note_density(sections, window_size):
     return moving_averages
 
 
+def apply_multiplier_to_pattern_chunk(chunk, pattern_score: PatternScore):
+    multiplier = 1
+    if len(chunk) > 2:
+        multiplier = pattern_stream_length_multiplier(pattern_score.total_notes)
+    multiplied = [
+        c_ps.score * multiplier if c_ps.pattern_name != ZIG_ZAG else c_ps.score
+        for c_ps in chunk
+    ]
+    return multiplied
+
+
 def calculate_scores_from_patterns(
     patterns: List[Pattern], pls_print=False
 ) -> List[float]:
-    pattern_scores: List[PatternScore] = []
-
-    for p in patterns:
-        if (
-            len(p.segments) > 0
-        ):  # For the race case that an empty pattern somehow snuck through
-            score = p.calc_pattern_difficulty(pls_print=pls_print)
+    pattern_scores = []
+    for pattern in patterns:
+        if pattern.segments:  # check if pattern has segments
+            score = pattern.calc_pattern_difficulty(pls_print=pls_print)
             pattern_scores.append(
                 PatternScore(
-                    p.pattern_name, score, p.has_interval_segment, p.total_notes
+                    pattern.pattern_name,
+                    score,
+                    pattern.has_interval_segment,
+                    pattern.total_notes,
                 )
             )
 
     scores = []
-    chunk: List[PatternScore] = []
-    # print("Starting new chunk...")
-    for ps in pattern_scores:
-        if ps.has_interval and len(chunk) > 0:
-            multiplier = 1
-            if len(chunk) > 2:  # Buff only if the chunk has at least 3 patterns
-                multiplier = pattern_stream_length_multiplier(ps.total_notes)
-            multiplied = []
-            for c_ps in chunk:
-                if c_ps.pattern_name != ZIG_ZAG:
-                    multiplied.append(c_ps.score * multiplier)
-                else:
-                    multiplied.append(c_ps.score)
-            # print(f"----1 Chunk {chunk} has been multiplied by {multiplier:.3f}")
+    chunk = []
+    for pattern_score in pattern_scores:
+        if pattern_score.has_interval and chunk:
+            multiplied = apply_multiplier_to_pattern_chunk(chunk, pattern_score)
             scores += multiplied
             chunk = []
-            # print("Starting new chunk...")
         else:
-            chunk.append(ps)
-            # print(f"---- Adding to chunk: {ps.pattern_name} ({ps.score})")
-    if len(chunk) > 0:
-        multiplier = 1
-        if len(chunk) > 2:
-            multiplier = pattern_stream_length_multiplier(ps.total_notes)
-        multiplied = []
-        for c_ps in chunk:
-            if c_ps.pattern_name != ZIG_ZAG:
-                multiplied.append(c_ps.score * multiplier)
-            else:
-                multiplied.append(c_ps.score)
-        # print(f"----2 Chunk {chunk} has been multiplied by {multiplier:.3f}")
+            chunk.append(pattern_score)
+
+    if chunk:
+        multiplied = apply_multiplier_to_pattern_chunk(chunk, pattern_score)
         scores += multiplied
-    if len(scores) == 0:
-        raise ValueError("bruh ???")
+
     return scores
 
 
@@ -121,7 +114,7 @@ def get_pattern_weighting(
     Gets the Pattern's difficulty which::
     - accounts for Pattern multipliers
     - accounts for Pattern variation multiplier
-    - accounts for Pattern length multiplier
+    - accounts for Pattern length multiplier (If there is one, otherwise it's just 1)
 
     Then gets the average of them.
 
@@ -139,7 +132,10 @@ def get_pattern_weighting(
 
     # Gets the average difficulty score across all the Patterns
     difficulty = weighted_average_of_values(
-        scores, top_percentage=0.4, top_weight=0.9, bottom_weight=0.1
+        scores,
+        top_percentage=conf["get_pattern_weighting_top_percentage"],
+        top_weight=conf["get_pattern_weighting_top_weight"],
+        bottom_weight=conf["get_pattern_weighting_bottom_weight"],
     )
     print(f"{'WEIGHTED Average Difficulty Score:':>25} {difficulty}")
 
@@ -149,30 +145,18 @@ def get_pattern_weighting(
 def calculate_difficulty(
     notes,
     outfile=None,
-    use_moving_average=True,
     sample_rate: int = DEFAULT_SAMPLE_RATE,
     pls_print=False,
 ):
     print(f"{'Difficulty':_^50}")
 
-    sections = create_sections(notes, 1, sample_rate)
+    sections = create_sections(notes, conf["sample_window_secs"], sample_rate)
 
-    difficulty = None
-
-    if use_moving_average is True:
-        moving_avg = moving_average_note_density(sections, 5)
-        if outfile:
-            for s in moving_avg:
-                outfile.write(f"{s}\n")
-        difficulty = weighted_average_of_values(moving_avg)
-
-    else:
-        nums = []
-        for s in sections:
-            if outfile:
-                outfile.write(f"{len(s)}\n")
-            nums.append(len(s))
-        difficulty = statistics.mean(nums)
+    moving_avg = moving_average_note_density(sections, conf["moving_avg_window"])
+    if outfile:
+        for s in moving_avg:
+            outfile.write(f"{s}\n")
+    difficulty = weighted_average_of_values(moving_avg)
 
     weighting = get_pattern_weighting(notes, pls_print=pls_print)
     print(f"{'':.^50}")
@@ -193,16 +177,16 @@ def get_next_segment_and_required_notes(
 ) -> Tuple[str, int]:
     notes_per_second = sample_rate / time_difference
 
-    if notes_per_second >= 5:
+    if notes_per_second >= conf["short_interval_nps"]:
         if note.lane != prev_note.lane:
             return ZIG_ZAG, 2
         else:
             return SINGLE_STREAMS, 2
-    elif notes_per_second < 0.5:
+    elif notes_per_second < conf["long_interval_nps"]:
         return LONG_INTERVAL, 0
-    elif notes_per_second < 1:
+    elif notes_per_second < conf["med_interval_nps"]:
         return MED_INTERVAL, 0
-    elif notes_per_second < 5:
+    elif notes_per_second < conf["short_interval_nps"]:
         return SHORT_INTERVAL, 0
     else:
         return OTHER, 0
@@ -241,7 +225,7 @@ def analyse_segments(notes: List[Note], sample_rate: int = DEFAULT_SAMPLE_RATE):
     """
     segments = []
     current_segment = None
-    tolerance = 10 * sample_rate / 1000  # 10ms in sample time
+    tolerance = conf["segment_tolerance_ms"] * sample_rate / 1000  # 10ms in sample time
 
     for i in range(1, len(notes)):  # Starts at second note
         prev_note = notes[i - 1]
