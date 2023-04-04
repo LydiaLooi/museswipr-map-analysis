@@ -93,7 +93,7 @@ if __name__ == "__main__":
     # mini_test()
     # run_analysis()
 
-    m = "endymion"
+    m = ""
     pls_print = False
 
     with open("difficulties_data.txt", "w", encoding="utf-8") as f:
