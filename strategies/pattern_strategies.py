@@ -1,9 +1,11 @@
-
+from abc import ABC, abstractmethod
 from typing import Optional
+
 from entities import Segment
 from patterns.pattern import Pattern
-from abc import ABC, abstractmethod
+
 ERROR_MSG = "You should replace this with a concrete strategy"
+
 
 class CheckSegmentStrategy(ABC):
     def __init__(self, pattern: Pattern):
@@ -13,6 +15,7 @@ class CheckSegmentStrategy(ABC):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         raise NotImplementedError(ERROR_MSG)
 
+
 class IsAppendableStrategy(ABC):
     def __init__(self, pattern: Pattern):
         self.pattern = pattern
@@ -20,7 +23,8 @@ class IsAppendableStrategy(ABC):
     @abstractmethod
     def is_appendable(self) -> bool:
         raise NotImplementedError(ERROR_MSG)
-    
+
+
 class CalcVariationScoreStrategy(ABC):
     def __init__(self, pattern: Pattern):
         self.pattern = pattern
@@ -28,7 +32,8 @@ class CalcVariationScoreStrategy(ABC):
     @abstractmethod
     def calc_variation_score(self, pls_print=False) -> float:
         raise NotImplementedError(ERROR_MSG)
-    
+
+
 class CalcPatternMultiplierStrategy(ABC):
     def __init__(self, pattern: Pattern):
         self.pattern = pattern
@@ -36,7 +41,8 @@ class CalcPatternMultiplierStrategy(ABC):
     @abstractmethod
     def calc_pattern_multiplier(self) -> float:
         raise NotImplementedError(ERROR_MSG)
-    
+
+
 class CalcPatternLengthMultiplierStrategy(ABC):
     def __init__(self, pattern: Pattern):
         self.pattern = pattern

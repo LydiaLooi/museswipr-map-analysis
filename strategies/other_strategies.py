@@ -1,13 +1,4 @@
-from typing import Optional
-
-from entities import Segment
-from pattern_multipliers import (
-    four_stack_multiplier,
-    stream_multiplier,
-    three_stack_multiplier,
-    two_stack_multiplier,
-    zig_zag_multiplier,
-)
+from config import get_config
 from strategies.default_strategies import DefaultCalcVariationScore
 from strategies.pattern_strategies import (
     CalcPatternLengthMultiplierStrategy,
@@ -17,22 +8,28 @@ from strategies.pattern_strategies import (
     IsAppendableStrategy,
 )
 
-from config import get_config
-
 conf = get_config()
+from typing import Optional
 
 from constants import (
-    ZIG_ZAG,
-    TWO_STACK,
-    THREE_STACK,
     FOUR_STACK,
-    SWITCH,
-    SINGLE_STREAMS,
-    SHORT_INTERVAL,
-    MED_INTERVAL,
     LONG_INTERVAL,
+    MED_INTERVAL,
+    SHORT_INTERVAL,
+    SINGLE_STREAMS,
+    SWITCH,
+    THREE_STACK,
+    TWO_STACK,
+    ZIG_ZAG,
 )
-
+from entities import Segment
+from pattern_multipliers import (
+    four_stack_multiplier,
+    stream_multiplier,
+    three_stack_multiplier,
+    two_stack_multiplier,
+    zig_zag_multiplier,
+)
 from utils import weighted_average_of_values
 
 

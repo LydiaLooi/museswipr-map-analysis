@@ -46,9 +46,7 @@ class DefaultCalcVariationScore(CalcVariationScoreStrategy):
                     # Don't add it to the list to check
                 else:
                     interval_list.append(self.pattern.intervals[name])
-                    segment_names.append(
-                        "Interval"
-                    )  # Rename all Intervals to the same name
+                    segment_names.append("Interval")  # Rename all Intervals to the same name
             else:
                 segment_names.append(name)
 

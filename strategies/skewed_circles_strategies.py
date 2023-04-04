@@ -30,10 +30,7 @@ class SkewedCirclesCheckSegment(CheckSegmentStrategy):
             return True
 
         # Check for invalid combinations of previous segment and current segment
-        if (
-            not self.pattern.is_n_stack(current_segment)
-            and current_segment.segment_name != ZIG_ZAG
-        ):
+        if not self.pattern.is_n_stack(current_segment) and current_segment.segment_name != ZIG_ZAG:
             return False
 
         if previous_segment:
@@ -42,9 +39,8 @@ class SkewedCirclesCheckSegment(CheckSegmentStrategy):
                 self.pattern.segments.append(current_segment)
                 return True
 
-            if (
-                previous_segment.segment_name == ZIG_ZAG
-                and not self.pattern.is_n_stack(current_segment)
+            if previous_segment.segment_name == ZIG_ZAG and not self.pattern.is_n_stack(
+                current_segment
             ):
                 return False
 

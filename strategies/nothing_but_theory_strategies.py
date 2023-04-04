@@ -30,15 +30,10 @@ class NothingButTheoryCheckSegment(CheckSegmentStrategy):
             return True
 
         # Check for invalid combinations of previous segment and current segment
-        if (
-            not self.pattern.is_n_stack(current_segment)
-            and current_segment.segment_name != ZIG_ZAG
-        ):
+        if not self.pattern.is_n_stack(current_segment) and current_segment.segment_name != ZIG_ZAG:
             return False
 
-        if current_segment.segment_name == ZIG_ZAG and len(
-            current_segment.notes
-        ) not in [4, 6]:
+        if current_segment.segment_name == ZIG_ZAG and len(current_segment.notes) not in [4, 6]:
             return False
 
         if previous_segment:
@@ -47,9 +42,8 @@ class NothingButTheoryCheckSegment(CheckSegmentStrategy):
                 self.pattern.segments.append(current_segment)
                 return True
 
-            if (
-                previous_segment.segment_name == ZIG_ZAG
-                and not self.pattern.is_n_stack(current_segment)
+            if previous_segment.segment_name == ZIG_ZAG and not self.pattern.is_n_stack(
+                current_segment
             ):
                 return False
 
@@ -120,9 +114,7 @@ class NothingButTheoryCalcVariationScore(CalcVariationScoreStrategy):
                     # Don't add it to the list to check
                 else:
                     interval_list.append(self.pattern.intervals[name])
-                    segment_names.append(
-                        "Interval"
-                    )  # Rename all Intervals to the same name
+                    segment_names.append("Interval")  # Rename all Intervals to the same name
             else:
                 segment_names.append(name)
 

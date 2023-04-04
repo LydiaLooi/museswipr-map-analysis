@@ -4,24 +4,30 @@ from typing import Optional
 from entities import Segment
 from patterns.pattern import Pattern
 from strategies.default_strategies import DefaultCalcPatternMultiplier
-from strategies.pattern_strategies import (CalcPatternLengthMultiplierStrategy,
-                                           CalcPatternMultiplierStrategy,
-                                           CalcVariationScoreStrategy,
-                                           CheckSegmentStrategy,
-                                           IsAppendableStrategy)
+from strategies.pattern_strategies import (
+    CalcPatternLengthMultiplierStrategy,
+    CalcPatternMultiplierStrategy,
+    CalcVariationScoreStrategy,
+    CheckSegmentStrategy,
+    IsAppendableStrategy,
+)
 
 
 class SlowStretchCheckSegment(CheckSegmentStrategy):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         if not self.pattern.is_active:
             return False
-        previous_segment: Optional[Segment] = self.pattern.segments[-1] if len(self.pattern.segments) > 0 else None
+        previous_segment: Optional[Segment] = (
+            self.pattern.segments[-1] if len(self.pattern.segments) > 0 else None
+        )
 
-        if "Interval" in current_segment.segment_name and (previous_segment is None or "Interval" in previous_segment.segment_name):
+        if "Interval" in current_segment.segment_name and (
+            previous_segment is None or "Interval" in previous_segment.segment_name
+        ):
             self.pattern.segments.append(current_segment)
             return True
         return False
-    
+
 
 class SlowStretchIsAppendable(IsAppendableStrategy):
     def is_appendable(self) -> bool:
@@ -31,7 +37,8 @@ class SlowStretchIsAppendable(IsAppendableStrategy):
                     raise ValueError(f"Slow Stretch has a: {p.segment_name}!!")
             return True
         return False
-    
+
+
 class SlowStretchCalcVariation(CalcVariationScoreStrategy):
     def calc_variation_score(self, pls_print=False) -> float:
         # Variation score for Slow Stretches is based on column variation rather than segment variation
@@ -48,10 +55,11 @@ class SlowStretchCalcVariation(CalcVariationScoreStrategy):
         freq = [lst.count(x) / n for x in unique_vals]
 
         entropy = -sum(p * math.log2(p) for p in freq)
-        if int(entropy) == 0 :
+        if int(entropy) == 0:
             return 1
         return entropy
-    
+
+
 class SlowStretchPatternMultiplier(DefaultCalcPatternMultiplier):
     def calc_pattern_multiplier(self) -> float:
         return super().calc_pattern_multiplier()

@@ -4,11 +4,13 @@ from entities import Segment
 from pattern_multipliers import varying_stacks_multiplier
 from patterns.pattern import Pattern
 from strategies.default_strategies import DefaultCalcVariationScore
-from strategies.pattern_strategies import (CalcPatternLengthMultiplierStrategy,
-                                           CalcPatternMultiplierStrategy,
-                                           CalcVariationScoreStrategy,
-                                           CheckSegmentStrategy,
-                                           IsAppendableStrategy)
+from strategies.pattern_strategies import (
+    CalcPatternLengthMultiplierStrategy,
+    CalcPatternMultiplierStrategy,
+    CalcVariationScoreStrategy,
+    CheckSegmentStrategy,
+    IsAppendableStrategy,
+)
 
 
 class VaryingStacksCheckSegment(CheckSegmentStrategy):
@@ -21,7 +23,7 @@ class VaryingStacksCheckSegment(CheckSegmentStrategy):
             if not at_start:
                 return False
             return True
-        
+
         # Check if current segment is straight up invalid
         if not self.pattern.is_n_stack(current_segment):
             return False
@@ -29,7 +31,8 @@ class VaryingStacksCheckSegment(CheckSegmentStrategy):
         # Current segment should be valid from here
         self.pattern.segments.append(current_segment)
         return True
-    
+
+
 class VaryingStacksIsAppendable(IsAppendableStrategy):
     def is_appendable(self) -> bool:
         if len(self.pattern.segments) >= 2:
@@ -39,11 +42,11 @@ class VaryingStacksIsAppendable(IsAppendableStrategy):
                 if self.pattern.is_n_stack(p):
                     n_stack_count += 1
                 if not self.pattern.is_n_stack(p) and not self.pattern.segment_is_interval(p):
-                    raise ValueError(f"Varying Stack has a: {p.segment_name}!!")   
+                    raise ValueError(f"Varying Stack has a: {p.segment_name}!!")
             if n_stack_count >= 2:
                 return True
         return False
-    
+
 
 class VaryingStacksCalcVariationScore(DefaultCalcVariationScore):
     def calc_variation_score(self, pls_print=False) -> float:
@@ -53,6 +56,7 @@ class VaryingStacksCalcVariationScore(DefaultCalcVariationScore):
         modified_variation_score = max(1, variation_score)
 
         return modified_variation_score
+
 
 class VaryingStacksCalcPatternMultiplier(CalcPatternMultiplierStrategy):
     def calc_pattern_multiplier(self) -> float:
