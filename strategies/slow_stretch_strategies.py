@@ -4,10 +4,14 @@ from typing import Optional
 from entities import Segment
 from patterns.pattern import Pattern
 from strategies.default_strategies import DefaultCalcPatternMultiplier
-from strategies.pattern_strategy import PatternStrategy
+from strategies.pattern_strategies import (CalcPatternLengthMultiplierStrategy,
+                                           CalcPatternMultiplierStrategy,
+                                           CalcVariationScoreStrategy,
+                                           CheckSegmentStrategy,
+                                           IsAppendableStrategy)
 
 
-class SlowStretchCheckSegment(PatternStrategy):
+class SlowStretchCheckSegment(CheckSegmentStrategy):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         if not self.pattern.is_active:
             return False
@@ -19,7 +23,7 @@ class SlowStretchCheckSegment(PatternStrategy):
         return False
     
 
-class SlowStretchIsAppendable(PatternStrategy):
+class SlowStretchIsAppendable(IsAppendableStrategy):
     def is_appendable(self) -> bool:
         if len(self.pattern.segments) >= 2:
             for p in self.pattern.segments:
@@ -28,7 +32,7 @@ class SlowStretchIsAppendable(PatternStrategy):
             return True
         return False
     
-class SlowStretchCalcVariation(PatternStrategy):
+class SlowStretchCalcVariation(CalcVariationScoreStrategy):
     def calc_variation_score(self, pls_print=False) -> float:
         # Variation score for Slow Stretches is based on column variation rather than segment variation
 

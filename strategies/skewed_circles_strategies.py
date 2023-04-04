@@ -5,10 +5,14 @@ from entities import Segment
 from pattern_multipliers import skewed_circle_multiplier
 from patterns.pattern import Pattern
 from strategies.default_strategies import DefaultCalcVariationScore
-from strategies.pattern_strategy import PatternStrategy
+from strategies.pattern_strategies import (CalcPatternLengthMultiplierStrategy,
+                                           CalcPatternMultiplierStrategy,
+                                           CalcVariationScoreStrategy,
+                                           CheckSegmentStrategy,
+                                           IsAppendableStrategy)
 
 
-class SkewedCirclesCheckSegment(PatternStrategy):
+class SkewedCirclesCheckSegment(CheckSegmentStrategy):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         if not self.pattern.is_active:
             return False
@@ -51,7 +55,7 @@ class SkewedCirclesCheckSegment(PatternStrategy):
 
         return True
     
-class SkewedCirclesIsAppendable(PatternStrategy):
+class SkewedCirclesIsAppendable(IsAppendableStrategy):
     def is_appendable(self) -> bool:
         if len(self.pattern.segments) >= 3:
             # Sanity check that everything in it is only N-stacks or ZIG ZAGS
@@ -74,7 +78,7 @@ class SkewedCirclesCalcVariationScore(DefaultCalcVariationScore):
 
         return modified_variation_score
 
-class SkewedCirclesCalcPatternMultiplier(PatternStrategy):
+class SkewedCirclesCalcPatternMultiplier(CalcPatternMultiplierStrategy):
     def calc_pattern_multiplier(self) -> float:
         nps = self.pattern.segments[0].notes_per_second
 

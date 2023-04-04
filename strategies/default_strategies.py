@@ -1,12 +1,16 @@
+import collections
 import math
 from typing import Optional
 
-import collections
-from strategies.pattern_strategy import PatternStrategy
 from entities import Segment
+from strategies.pattern_strategies import (CalcPatternLengthMultiplierStrategy,
+                                           CalcPatternMultiplierStrategy,
+                                           CalcVariationScoreStrategy,
+                                           CheckSegmentStrategy,
+                                           IsAppendableStrategy)
 
 
-class DefaultCalcVariationScore(PatternStrategy):
+class DefaultCalcVariationScore(CalcVariationScoreStrategy):
     def calc_variation_score(self, pls_print=False) -> float:
         """Calculates the variation score of the Pattern based on the segments within.
 
@@ -62,7 +66,7 @@ class DefaultCalcVariationScore(PatternStrategy):
 
         return entropy
     
-class DefaultCalcPatternMultiplier(PatternStrategy):
+class DefaultCalcPatternMultiplier(CalcPatternMultiplierStrategy):
     def calc_pattern_multiplier(self) -> float:
         """Calculates the PatternGroup's multiplier based on notes per secondo
         This method should be overridded to be PatternGroup specific.
@@ -73,14 +77,14 @@ class DefaultCalcPatternMultiplier(PatternStrategy):
         """
         return 1
     
-class DefaultCalcPatternLengthMultiplier(PatternStrategy):
+class DefaultCalcPatternLengthMultiplier(CalcPatternLengthMultiplierStrategy):
     def calc_pattern_length_multiplier(self) -> float:
         return 1
     
-class DefaultCheckSegment(PatternStrategy):
+class DefaultCheckSegment(CheckSegmentStrategy):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         raise NotImplementedError("You should use an actual strategy!")
     
-class DefaultIsAppendable(PatternStrategy):
+class DefaultIsAppendable(IsAppendableStrategy):
     def is_appendable(self) -> bool:
         raise NotImplementedError("You should use an actual strategy!")

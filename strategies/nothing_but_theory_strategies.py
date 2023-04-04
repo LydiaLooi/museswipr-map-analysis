@@ -5,10 +5,14 @@ from constants import SWITCH, ZIG_ZAG
 from entities import Segment
 from pattern_multipliers import nothing_but_theory_multiplier
 from patterns.pattern import Pattern
-from strategies.pattern_strategy import PatternStrategy
+from strategies.pattern_strategies import (CalcPatternLengthMultiplierStrategy,
+                                           CalcPatternMultiplierStrategy,
+                                           CalcVariationScoreStrategy,
+                                           CheckSegmentStrategy,
+                                           IsAppendableStrategy)
 
 
-class NothingButTheoryCheckSegment(PatternStrategy):
+class NothingButTheoryCheckSegment(CheckSegmentStrategy):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         if not self.pattern.is_active:
             return False
@@ -52,7 +56,7 @@ class NothingButTheoryCheckSegment(PatternStrategy):
 
         return True
     
-class NothingButTheoryIsAppendable(PatternStrategy):
+class NothingButTheoryIsAppendable(IsAppendableStrategy):
     def is_appendable(self) -> bool:
         if len(self.pattern.segments) >= 3:
             # Sanity check that everything in it is only N-stacks or ZIG ZAGS
@@ -66,7 +70,7 @@ class NothingButTheoryIsAppendable(PatternStrategy):
                 return True
         return False
     
-class NothingButTheoryCalcVariationScore(PatternStrategy):
+class NothingButTheoryCalcVariationScore(CalcVariationScoreStrategy):
     def calc_variation_score(self, pls_print=False) -> float:
         # TODO: Make the calculation method into several helper methods.
         if pls_print:
@@ -110,7 +114,7 @@ class NothingButTheoryCalcVariationScore(PatternStrategy):
 
         return max(1, entropy)
 
-class NothingButTheoryCalcPatternMultiplier(PatternStrategy):
+class NothingButTheoryCalcPatternMultiplier(CalcPatternMultiplierStrategy):
     def calc_pattern_multiplier(self) -> float:
         nps = self.pattern.segments[0].notes_per_second
 

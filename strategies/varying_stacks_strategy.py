@@ -1,13 +1,17 @@
 from typing import Optional
 
 from entities import Segment
-from patterns.pattern import Pattern
-
 from pattern_multipliers import varying_stacks_multiplier
+from patterns.pattern import Pattern
 from strategies.default_strategies import DefaultCalcVariationScore
-from strategies.pattern_strategy import PatternStrategy
+from strategies.pattern_strategies import (CalcPatternLengthMultiplierStrategy,
+                                           CalcPatternMultiplierStrategy,
+                                           CalcVariationScoreStrategy,
+                                           CheckSegmentStrategy,
+                                           IsAppendableStrategy)
 
-class VaryingStacksCheckSegment(PatternStrategy):
+
+class VaryingStacksCheckSegment(CheckSegmentStrategy):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         if not self.pattern.is_active:
             return False
@@ -26,7 +30,7 @@ class VaryingStacksCheckSegment(PatternStrategy):
         self.pattern.segments.append(current_segment)
         return True
     
-class VaryingStacksIsAppendable(PatternStrategy):
+class VaryingStacksIsAppendable(IsAppendableStrategy):
     def is_appendable(self) -> bool:
         if len(self.pattern.segments) >= 2:
             # Needs at least 2 n-stacks to be valid
@@ -50,7 +54,7 @@ class VaryingStacksCalcVariationScore(DefaultCalcVariationScore):
 
         return modified_variation_score
 
-class VaryingStacksCalcPatternMultiplier(PatternStrategy):
+class VaryingStacksCalcPatternMultiplier(CalcPatternMultiplierStrategy):
     def calc_pattern_multiplier(self) -> float:
         nps = self.pattern.segments[0].notes_per_second
         multiplier = varying_stacks_multiplier(nps)

@@ -1,14 +1,17 @@
 from typing import Optional
 
+from constants import SWITCH
 from entities import Segment
-from strategies.pattern_strategy import PatternStrategy
-
 from pattern_multipliers import even_circle_multiplier
 from strategies.default_strategies import DefaultCalcVariationScore
+from strategies.pattern_strategies import (CalcPatternLengthMultiplierStrategy,
+                                           CalcPatternMultiplierStrategy,
+                                           CalcVariationScoreStrategy,
+                                           CheckSegmentStrategy,
+                                           IsAppendableStrategy)
 
-from constants import SWITCH
 
-class EvenCirclesCheckSegment(PatternStrategy):
+class EvenCirclesCheckSegment(CheckSegmentStrategy):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         if not self.pattern.is_active:
             return False
@@ -46,7 +49,7 @@ class EvenCirclesCheckSegment(PatternStrategy):
         self.pattern.segments.append(current_segment)
         return True
     
-class EvenCirclesIsAppendable(PatternStrategy):
+class EvenCirclesIsAppendable(IsAppendableStrategy):
     def is_appendable(self) -> bool:
         if len(self.pattern.segments) >= 3:
             # Sanity check that everything in it is only N-stacks or Switches
@@ -70,7 +73,7 @@ class EvenCirclesCalcVariationScore(DefaultCalcVariationScore):
 
         return modified_variation_score
     
-class EvenCirclesCalcPatternMultiplier(PatternStrategy):
+class EvenCirclesCalcPatternMultiplier(CalcPatternMultiplierStrategy):
     def calc_pattern_multiplier(self) -> float:
         nps = self.pattern.segments[0].notes_per_second # Even Circle should have consistent NPS
         multiplier = even_circle_multiplier(nps)

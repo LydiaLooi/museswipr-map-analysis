@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # mini_test()
     # run_analysis()
 
-    m = ""
+    m = "the earth"
     pls_print = False
     
     with open("difficulties_data.txt", "w", encoding="utf-8") as f:
