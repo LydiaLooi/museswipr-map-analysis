@@ -5,7 +5,7 @@ from constants import *
 from entities import Note, MuseSwiprMap, Segment
 from pattern_multipliers import skewed_circle_multiplier, even_circle_multiplier, stream_multiplier, zig_zag_multiplier, nothing_but_theory_multiplier
 
-from pattern_analysis import MapPatterns
+from map_pattern_analysis import MapPatterns
 
 def create_sections(notes, section_threshold_seconds=1, sample_rate:int=DEFAULT_SAMPLE_RATE):
     section_threshold = section_threshold_seconds * sample_rate

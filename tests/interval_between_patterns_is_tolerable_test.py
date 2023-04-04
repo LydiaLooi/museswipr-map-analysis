@@ -1,4 +1,4 @@
-from pattern_analysis import Segment, OtherPattern
+from map_pattern_analysis import Segment, OtherPattern
 from entities import Note
 from constants import DEFAULT_SAMPLE_RATE
 

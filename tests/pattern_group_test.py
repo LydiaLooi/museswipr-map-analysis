@@ -1,5 +1,5 @@
 from entities import Segment, Note
-from pattern_analysis import MapPatterns
+from map_pattern_analysis import MapPatterns
 from constants import *
 
 dummy_note = Note(0, 0)

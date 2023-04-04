@@ -1,4 +1,4 @@
-from pattern_analysis import NothingButTheoryGroup, Note, Segment
+from map_pattern_analysis import NothingButTheoryGroup, Note, Segment
 from constants import NOTHING_BUT_THEORY, TWO_STACK, THREE_STACK, FOUR_STACK, SWITCH, ZIG_ZAG, DEFAULT_SAMPLE_RATE, SINGLE_STREAMS
 
 

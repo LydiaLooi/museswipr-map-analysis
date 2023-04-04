@@ -3,7 +3,14 @@ from typing import List, Optional
 from constants import *
 from entities import Note, Segment
 
-from pattern_groups import Pattern, EvenCirclesGroup, SkewedCirclesGroup, VaryingStacksPattern, NothingButTheoryGroup, SlowStretchPattern, OtherPattern
+from patterns.pattern import Pattern
+from patterns.even_circles import EvenCirclesGroup
+from patterns.skewed_circles import SkewedCirclesGroup
+from patterns.nothing_but_theory import NothingButTheoryGroup
+from patterns.slow_stretch import SlowStretchPattern
+from patterns.varying_stacks import VaryingStacksPattern
+from patterns.other import OtherPattern
+
 
 
 class MapPatterns:

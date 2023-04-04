@@ -1,4 +1,4 @@
-from pattern_analysis import EvenCirclesGroup, Segment, Note
+from map_pattern_analysis import EvenCirclesGroup, Segment, Note
 from constants import EVEN_CIRCLES, TWO_STACK, THREE_STACK, FOUR_STACK, SWITCH, ZIG_ZAG, DEFAULT_SAMPLE_RATE, SHORT_INTERVAL
 
 
@@ -11,7 +11,7 @@ valid_note5 = Note(0, 0.4 * DEFAULT_SAMPLE_RATE)
 
 def test_valid_current_four_stack_when_first():
     current_pattern = Segment(FOUR_STACK, [], 0, 0)
-    group = EvenCirclesGroup(EVEN_CIRCLES, [])
+    group = EvenCirclesGroup(pattern_name=EVEN_CIRCLES, segments=[])
     added = group.check_segment(current_pattern)
     assert added
 

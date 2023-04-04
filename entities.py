@@ -25,6 +25,8 @@ class Segment:
 
     @property
     def notes_per_second(self):
+        if self.time_difference == 0:
+            return 0
         return self.sample_rate / self.time_difference
 
     def __repr__(self) -> str:

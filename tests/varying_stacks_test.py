@@ -1,4 +1,4 @@
-from pattern_analysis import VaryingStacksPattern, Note, Segment
+from map_pattern_analysis import VaryingStacksPattern, Note, Segment
 from constants import VARYING_STACKS, TWO_STACK, THREE_STACK, FOUR_STACK, SWITCH, ZIG_ZAG, DEFAULT_SAMPLE_RATE, SINGLE_STREAMS, SHORT_INTERVAL, MED_INTERVAL, LONG_INTERVAL
 
 

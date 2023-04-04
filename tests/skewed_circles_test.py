@@ -1,4 +1,4 @@
-from pattern_analysis import SkewedCirclesGroup, Note, Segment
+from map_pattern_analysis import SkewedCirclesGroup, Note, Segment
 from constants import SKEWED_CIRCLES, TWO_STACK, THREE_STACK, FOUR_STACK, SWITCH, ZIG_ZAG, DEFAULT_SAMPLE_RATE, SINGLE_STREAMS
 
 

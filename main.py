@@ -1,6 +1,6 @@
 from entities import Note, MuseSwiprMap, Segment
 
-from pattern_analysis import MapPatterns
+from map_pattern_analysis import MapPatterns
 import os
 from constants import *
 from difficulty_calculation import analyse_segments, print_segments, calculate_difficulty
