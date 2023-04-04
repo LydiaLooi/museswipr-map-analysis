@@ -70,10 +70,10 @@ class NothingButTheoryCalcVariationScore(PatternStrategy):
     def calc_variation_score(self, pls_print=False) -> float:
         # TODO: Make the calculation method into several helper methods.
         if pls_print:
-            print("Note: Nothing but theory overrode _calc_variation_score")
+            print("Note: Nothing but theory overrode calc_variation_score")
         temp_lst = [f"{s.segment_name} {len(s.notes)}" for s in self.pattern.segments] # Zig Zags of different note lengths are considered different
         interval_list = []
-        lst = []
+        segment_names = []
 
         segment_counts = self.pattern._get_segment_type_counts([s.segment_name for s in self.pattern.segments])
 
@@ -85,16 +85,19 @@ class NothingButTheoryCalcVariationScore(PatternStrategy):
                     # Don't add it to the list to check
                 else:
                     interval_list.append(self.pattern.intervals[name])
-                    lst.append("Interval") # Rename all Intervals to the same name
+                    segment_names.append("Interval") # Rename all Intervals to the same name
             else:
-                lst.append(name)
+                segment_names.append(name)
 
         if pls_print:
-            print(f"Checking entropy of: {lst}")
-        n = len(lst)
-        unique_vals = set(lst)
-        freq = [lst.count(x) / n for x in unique_vals]
-        entropy = -sum(p * math.log2(p) for p in freq)
+            print(f"Checking entropy of: {segment_names}")
+
+        n = len(segment_names)
+        freq_dict = {}
+        for name in segment_names:
+            freq_dict[name] = freq_dict.get(name, 0) + 1
+        freq = [freq_dict[x] / n for x in freq_dict]
+        entropy = -sum(p * math.log2(max(p, 1e-10)) for p in freq)
 
         if len(interval_list) != 0:
             # average interval debuffs and multiply that by the entropy

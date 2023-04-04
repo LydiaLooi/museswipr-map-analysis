@@ -20,3 +20,6 @@ class PatternStrategy(Pattern):
     
     def calc_pattern_multiplier(self) -> float:
         raise NotImplementedError(ERROR_MSG)
+    
+    def calc_pattern_length_multiplier(self) -> float:
+        raise NotImplementedError(ERROR_MSG)

@@ -3,7 +3,6 @@ import statistics
 from constants import DEFAULT_SAMPLE_RATE
 from constants import *
 from entities import Note, MuseSwiprMap, Segment
-from pattern_multipliers import skewed_circle_multiplier, even_circle_multiplier, stream_multiplier, zig_zag_multiplier, nothing_but_theory_multiplier
 
 from map_pattern_analysis import MapPatterns
 

@@ -154,9 +154,9 @@ class Pattern:
     def calc_pattern_difficulty(self, pls_print=False) -> float:
         if pls_print:
             print(f"{self.group_name:.>25} {'Difficulty':.<25}")
-        variation_multiplier = self._calc_variation_score()
-        pattern_multiplier = self._calc_pattern_multiplier()
-        length_multiplier = self._calc_pattern_length_multiplier()
+        variation_multiplier = self.calc_variation_score()
+        pattern_multiplier = self.calc_pattern_multiplier()
+        length_multiplier = self.calc_pattern_length_multiplier()
 
         final = (self.variation_weighting * variation_multiplier) + (self.pattern_weighting * pattern_multiplier)
 

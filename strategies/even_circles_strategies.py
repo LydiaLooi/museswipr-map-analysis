@@ -1,7 +1,6 @@
 from typing import Optional
 
 from entities import Segment
-from patterns.pattern import Pattern
 from strategies.pattern_strategy import PatternStrategy
 
 from pattern_multipliers import even_circle_multiplier

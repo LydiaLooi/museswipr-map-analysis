@@ -5,6 +5,11 @@ import os
 from constants import *
 from difficulty_calculation import analyse_segments, print_segments, calculate_difficulty
 
+import sys
+
+# set the default encoding to UTF-8
+sys.stdout.reconfigure(encoding='utf-8')
+
 LANE_1_ID = 0
 LANE_2_ID = 1
 
@@ -83,8 +88,8 @@ if __name__ == "__main__":
     # mini_test()
     # run_analysis()
 
-    m = "nothing but theory"
-    pls_print = True
+    m = ""
+    pls_print = False
     
     with open("difficulties_data.txt", "w", encoding="utf-8") as f:
 
@@ -95,7 +100,7 @@ if __name__ == "__main__":
                     m_map = MuseSwiprMap(f"{DATA_DIR}/{filename}")
                     patterns = analyse_segments(m_map.notes, m_map.sample_rate)
                     name = filename.split("\\")[-1].split(".asset")[0]
-                    print(name)
+                    # print(name)
                     # print_patterns(patterns, m_map.sample_rate)
 
                     print(filename) #  Printing filename might cause issues due to encoding stuff
@@ -105,5 +110,5 @@ if __name__ == "__main__":
                     m_map.output_notes(f"{name}.txt", m_map.sample_rate)
                 except Exception as e:
                     print(f"ERROR parsing a file: {e}")
-                    continue
+                    # raise e
                 

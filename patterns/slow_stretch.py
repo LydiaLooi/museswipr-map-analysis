@@ -5,7 +5,7 @@ from strategies.slow_stretch_strategies import (
     SlowStretchCalcVariation,
     SlowStretchPatternMultiplier
 )
-
+from strategies.default_strategies import DefaultCalcPatternLengthMultiplier
 class SlowStretchPattern(Pattern):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -13,3 +13,4 @@ class SlowStretchPattern(Pattern):
         self.set_is_appendable_strategy(SlowStretchIsAppendable(self))
         self.set_calc_variation_score_strategy(SlowStretchCalcVariation(self))
         self.set_calc_pattern_multiplier_strategy(SlowStretchPatternMultiplier(self))
+        self.set_calc_pattern_length_multiplier_strategy(DefaultCalcPatternLengthMultiplier(self))

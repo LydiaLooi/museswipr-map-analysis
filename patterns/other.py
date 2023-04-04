@@ -2,6 +2,7 @@ from patterns.pattern import Pattern
 from strategies.other_strategies import (OtherCalcPatternMultiplier,
                                          OtherCalcVariationScore,
                                          OtherCheckSegment, OtherIsAppendable)
+from strategies.default_strategies import DefaultCalcPatternLengthMultiplier
 
 
 class OtherPattern(Pattern):
@@ -11,3 +12,4 @@ class OtherPattern(Pattern):
         self.set_is_appendable_strategy(OtherIsAppendable(self))
         self.set_calc_variation_score_strategy(OtherCalcVariationScore(self))
         self.set_calc_pattern_multiplier_strategy(OtherCalcPatternMultiplier(self))
+        self.set_calc_pattern_length_multiplier_strategy(DefaultCalcPatternLengthMultiplier(self))

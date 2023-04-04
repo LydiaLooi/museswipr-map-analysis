@@ -1,8 +1,7 @@
 import math
 from typing import Optional
 
-from constants import SWITCH
-from patterns.pattern import Pattern
+import collections
 from strategies.pattern_strategy import PatternStrategy
 from entities import Segment
 
@@ -24,7 +23,6 @@ class DefaultCalcVariationScore(PatternStrategy):
 
         # Thanks to ChatGPT for writing this for me
         temp_lst = [s.segment_name for s in self.pattern.segments]
-        switch_count = 0
         interval_list = []
         segment_names = []
 
@@ -33,8 +31,6 @@ class DefaultCalcVariationScore(PatternStrategy):
 
         # Check for intervals:
         for i, name in enumerate(temp_lst):
-            if name == SWITCH:
-                switch_count += 1
             if name in self.pattern.intervals:
                 if i == 0 or i == len(temp_lst) - 1: # If it's the firs
                     interval_list.append(self.pattern.intervals[name] * self.pattern.end_extra_debuff)
@@ -47,9 +43,9 @@ class DefaultCalcVariationScore(PatternStrategy):
 
         if pls_print:
             print(f"Checking entropy of: {segment_names}")
+
         n = len(segment_names)
-        unique_vals = set(segment_names)
-        freq = [segment_names.count(x) / n for x in unique_vals]
+        freq = [count / n for count in collections.Counter(segment_names).values()]
         entropy = -sum(p * math.log2(p) for p in freq)
 
         if len(interval_list) != 0:
@@ -67,7 +63,7 @@ class DefaultCalcVariationScore(PatternStrategy):
         return entropy
     
 class DefaultCalcPatternMultiplier(PatternStrategy):
-    def _calc_pattern_multiplier(self) -> float:
+    def calc_pattern_multiplier(self) -> float:
         """Calculates the PatternGroup's multiplier based on notes per secondo
         This method should be overridded to be PatternGroup specific.
         Default returns 1.
@@ -78,7 +74,7 @@ class DefaultCalcPatternMultiplier(PatternStrategy):
         return 1
     
 class DefaultCalcPatternLengthMultiplier(PatternStrategy):
-    def _calc_pattern_length_multiplier(self) -> float:
+    def calc_pattern_length_multiplier(self) -> float:
         return 1
     
 class DefaultCheckSegment(PatternStrategy):

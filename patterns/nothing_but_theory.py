@@ -6,6 +6,7 @@ from patterns.pattern import Pattern
 from strategies.nothing_but_theory_strategies import (
     NothingButTheoryCalcPatternMultiplier, NothingButTheoryCalcVariationScore,
     NothingButTheoryCheckSegment, NothingButTheoryIsAppendable)
+from strategies.default_strategies import DefaultCalcPatternLengthMultiplier
 
 
 class NothingButTheoryGroup(Pattern):
@@ -15,3 +16,4 @@ class NothingButTheoryGroup(Pattern):
         self.set_is_appendable_strategy(NothingButTheoryIsAppendable(self))
         self.set_calc_variation_score_strategy(NothingButTheoryCalcVariationScore(self))
         self.set_calc_pattern_multiplier_strategy(NothingButTheoryCalcPatternMultiplier(self))
+        self.set_calc_pattern_length_multiplier_strategy(DefaultCalcPatternLengthMultiplier(self))
