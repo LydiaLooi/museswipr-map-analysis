@@ -93,8 +93,8 @@ if __name__ == "__main__":
     # mini_test()
     # run_analysis()
 
-    m = "joyryde"
-    pls_print = False
+    m = "lachesismic armageddon"
+    pls_print = True
 
     with open("difficulties_data.txt", "w", encoding="utf-8") as f:
         for filename in all_files:
