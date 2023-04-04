@@ -3,37 +3,38 @@ from typing import Optional
 
 from entities import Segment
 from patterns.pattern import Pattern
-
 from strategies.default_strategies import DefaultCalcPatternMultiplier
+from strategies.pattern_strategy import PatternStrategy
 
-class SlowStretchCheckSegment(Pattern):
+
+class SlowStretchCheckSegment(PatternStrategy):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
-        if not self.is_active:
+        if not self.pattern.is_active:
             return False
-        previous_segment: Optional[Segment] = self.segments[-1] if len(self.segments) > 0 else None
+        previous_segment: Optional[Segment] = self.pattern.segments[-1] if len(self.pattern.segments) > 0 else None
 
         if "Interval" in current_segment.segment_name and (previous_segment is None or "Interval" in previous_segment.segment_name):
-            self.segments.append(current_segment)
+            self.pattern.segments.append(current_segment)
             return True
         return False
     
 
-class SlowStretchIsAppendable(Pattern):
+class SlowStretchIsAppendable(PatternStrategy):
     def is_appendable(self) -> bool:
-        if len(self.segments) >= 2:
-            for p in self.segments:
+        if len(self.pattern.segments) >= 2:
+            for p in self.pattern.segments:
                 if "Interval" not in p.segment_name:
                     raise ValueError(f"Slow Stretch has a: {p.segment_name}!!")
             return True
         return False
     
-class SlowStretchCalcVariation(Pattern):
+class SlowStretchCalcVariation(PatternStrategy):
     def calc_variation_score(self, pls_print=False) -> float:
         # Variation score for Slow Stretches is based on column variation rather than segment variation
 
         lst = []
         unique_sample_times = set()
-        for p in self.segments:
+        for p in self.pattern.segments:
             for n in p.notes:
                 if n.sample_time not in unique_sample_times:
                     lst.append(n.lane)

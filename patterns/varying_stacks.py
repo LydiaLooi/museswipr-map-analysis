@@ -12,7 +12,7 @@ class VaryingStacksPattern(Pattern):
         self.pattern_weighting = 0.8
         self.variation_weighting = 0.2
 
-        self.set_check_segment_strategy(VaryingStacksCheckSegment(*args, **kwargs))
-        self.set_is_appendable_strategy(VaryingStacksIsAppendable(*args, **kwargs))
-        self.set_calc_variation_score_strategy(VaryingStacksCalcVariationScore(*args, **kwargs))
-        self.set_calc_pattern_multiplier_strategy(VaryingStacksCalcPatternMultiplier(*args, **kwargs))
+        self.set_check_segment_strategy(VaryingStacksCheckSegment(self))
+        self.set_is_appendable_strategy(VaryingStacksIsAppendable(self))
+        self.set_calc_variation_score_strategy(VaryingStacksCalcVariationScore(self))
+        self.set_calc_pattern_multiplier_strategy(VaryingStacksCalcPatternMultiplier(self))

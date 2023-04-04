@@ -3,10 +3,11 @@ from typing import Optional
 
 from constants import SWITCH
 from patterns.pattern import Pattern
+from strategies.pattern_strategy import PatternStrategy
 from entities import Segment
 
 
-class DefaultCalcVariationScore(Pattern):
+class DefaultCalcVariationScore(PatternStrategy):
     def calc_variation_score(self, pls_print=False) -> float:
         """Calculates the variation score of the Pattern based on the segments within.
 
@@ -22,24 +23,24 @@ class DefaultCalcVariationScore(Pattern):
         """
 
         # Thanks to ChatGPT for writing this for me
-        temp_lst = [s.segment_name for s in self.segments]
+        temp_lst = [s.segment_name for s in self.pattern.segments]
         switch_count = 0
         interval_list = []
         segment_names = []
 
-        pattern_counts = self._get_segment_type_counts(temp_lst)
+        pattern_counts = self.pattern._get_segment_type_counts(temp_lst)
 
 
         # Check for intervals:
         for i, name in enumerate(temp_lst):
             if name == SWITCH:
                 switch_count += 1
-            if name in self.intervals:
+            if name in self.pattern.intervals:
                 if i == 0 or i == len(temp_lst) - 1: # If it's the firs
-                    interval_list.append(self.intervals[name] * self.end_extra_debuff)
+                    interval_list.append(self.pattern.intervals[name] * self.pattern.end_extra_debuff)
                     # Don't add it to the list to check
                 else:
-                    interval_list.append(self.intervals[name])
+                    interval_list.append(self.pattern.intervals[name])
                     segment_names.append("Interval") # Rename all Intervals to the same name
             else:
                 segment_names.append(name)
@@ -58,14 +59,14 @@ class DefaultCalcVariationScore(Pattern):
             if pls_print:
                 print(f">>> Debuffing (due to Intervals) by {average_debuff} <<<")
 
-        entropy = self._calc_switch_debuff(pattern_counts, entropy)
+        entropy = self.pattern._calc_switch_debuff(pattern_counts, entropy)
 
         if entropy == 0: # Temp?
             return 1
 
         return entropy
     
-class DefaultCalcPatternMultiplier(Pattern):
+class DefaultCalcPatternMultiplier(PatternStrategy):
     def _calc_pattern_multiplier(self) -> float:
         """Calculates the PatternGroup's multiplier based on notes per secondo
         This method should be overridded to be PatternGroup specific.
@@ -76,14 +77,14 @@ class DefaultCalcPatternMultiplier(Pattern):
         """
         return 1
     
-class DefaultCalcPatternLengthMultiplier(Pattern):
+class DefaultCalcPatternLengthMultiplier(PatternStrategy):
     def _calc_pattern_length_multiplier(self) -> float:
         return 1
     
-class DefaultCheckSegment(Pattern):
+class DefaultCheckSegment(PatternStrategy):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
         raise NotImplementedError("You should use an actual strategy!")
     
-class DefaultIsAppendable(Pattern):
+class DefaultIsAppendable(PatternStrategy):
     def is_appendable(self) -> bool:
         raise NotImplementedError("You should use an actual strategy!")
