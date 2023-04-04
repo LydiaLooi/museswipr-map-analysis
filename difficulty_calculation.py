@@ -76,26 +76,38 @@ def calculate_scores_from_patterns(
             )
 
     scores = []
-    chunk = []
+    chunk: List[PatternScore] = []
     # print("Starting new chunk...")
     for ps in pattern_scores:
         if ps.has_interval and len(chunk) > 0:
             multiplier = 1
-            if len(chunk) > 2:
+            if len(chunk) > 2:  # Buff only if the chunk has at least 3 patterns
                 multiplier = pattern_stream_length_multiplier(ps.total_notes)
-            chunk = [c * multiplier for c in chunk]
+            multiplied = []
+            for c_ps in chunk:
+                if c_ps.pattern_name != ZIG_ZAG:
+                    multiplied.append(c_ps.score * multiplier)
+                else:
+                    multiplied.append(c_ps.score)
             # print(f"----1 Chunk {chunk} has been multiplied by {multiplier:.3f}")
-            scores += chunk
+            scores += multiplied
             chunk = []
             # print("Starting new chunk...")
         else:
-            chunk.append(ps.score)
+            chunk.append(ps)
             # print(f"---- Adding to chunk: {ps.pattern_name} ({ps.score})")
     if len(chunk) > 0:
-        multiplier = pattern_stream_length_multiplier(ps.total_notes)
-        chunk = [c * multiplier for c in chunk]
+        multiplier = 1
+        if len(chunk) > 2:
+            multiplier = pattern_stream_length_multiplier(ps.total_notes)
+        multiplied = []
+        for c_ps in chunk:
+            if c_ps.pattern_name != ZIG_ZAG:
+                multiplied.append(c_ps.score * multiplier)
+            else:
+                multiplied.append(c_ps.score)
         # print(f"----2 Chunk {chunk} has been multiplied by {multiplier:.3f}")
-        scores += chunk
+        scores += multiplied
     if len(scores) == 0:
         raise ValueError("bruh ???")
     return scores
