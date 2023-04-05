@@ -1,12 +1,15 @@
 from typing import List
 
-from constants import DEFAULT_SAMPLE_RATE
-from entities import Segment
+from musemapalyzr.constants import DEFAULT_SAMPLE_RATE
+from musemapalyzr.entities import Segment
 from patterns.pattern import Pattern
-from strategies.nothing_but_theory_strategies import (
-    NothingButTheoryCalcPatternMultiplier, NothingButTheoryCalcVariationScore,
-    NothingButTheoryCheckSegment, NothingButTheoryIsAppendable)
 from strategies.default_strategies import DefaultCalcPatternLengthMultiplier
+from strategies.nothing_but_theory_strategies import (
+    NothingButTheoryCalcPatternMultiplier,
+    NothingButTheoryCalcVariationScore,
+    NothingButTheoryCheckSegment,
+    NothingButTheoryIsAppendable,
+)
 
 
 class NothingButTheoryGroup(Pattern):

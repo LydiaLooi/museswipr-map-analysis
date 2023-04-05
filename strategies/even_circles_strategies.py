@@ -1,8 +1,8 @@
 from typing import Optional
 
-from constants import SWITCH
-from entities import Segment
-from pattern_multipliers import even_circle_multiplier
+from musemapalyzr.constants import SWITCH
+from musemapalyzr.entities import Segment
+from musemapalyzr.pattern_multipliers import even_circle_multiplier
 from strategies.default_strategies import DefaultCalcVariationScore
 from strategies.pattern_strategies import (
     CalcPatternLengthMultiplierStrategy,

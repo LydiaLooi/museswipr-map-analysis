@@ -3,7 +3,7 @@ import math
 from typing import Optional
 
 import config.logging_config as logging_config
-from entities import Segment
+from musemapalyzr.entities import Segment
 from strategies.pattern_strategies import (
     CalcPatternLengthMultiplierStrategy,
     CalcPatternMultiplierStrategy,

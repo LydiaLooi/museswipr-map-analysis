@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from constants import (
+from musemapalyzr.constants import (
     EVEN_CIRCLES,
     FOUR_STACK,
     NOTHING_BUT_THEORY,
@@ -11,7 +11,7 @@ from constants import (
     TWO_STACK,
     VARYING_STACKS,
 )
-from entities import Segment
+from musemapalyzr.entities import Segment
 from patterns.even_circles import EvenCirclesGroup
 from patterns.nothing_but_theory import NothingButTheoryGroup
 from patterns.other import OtherPattern

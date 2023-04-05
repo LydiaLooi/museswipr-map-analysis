@@ -1,7 +1,7 @@
 from typing import Optional
 
-from entities import Segment
-from pattern_multipliers import varying_stacks_multiplier
+from musemapalyzr.entities import Segment
+from musemapalyzr.pattern_multipliers import varying_stacks_multiplier
 from patterns.pattern import Pattern
 from strategies.default_strategies import DefaultCalcVariationScore
 from strategies.pattern_strategies import (

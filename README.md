@@ -1,4 +1,5 @@
-# MuseSwipr Map Analysis
+# MuseMapalyzr
+*A MuseSwipr map analysis tool*
 
 A Python project with the aim of automatically calculating the difficulties of **MuseSwipr** maps. **MuseSwipr** is a free-to-play rhythm game where you swipe your mouse to the beat of the rhythm
 

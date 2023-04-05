@@ -2,7 +2,7 @@ from collections import namedtuple
 from typing import List, Optional, Tuple
 
 from config.config import get_config
-from constants import (
+from musemapalyzr.constants import (
     DEFAULT_SAMPLE_RATE,
     LONG_INTERVAL,
     MED_INTERVAL,
@@ -12,7 +12,7 @@ from constants import (
     SWITCH,
     ZIG_ZAG,
 )
-from entities import Note, Segment
+from musemapalyzr.entities import Note, Segment
 
 conf = get_config()
 PatternScore = namedtuple("PatternScore", ["pattern_name", "score", "has_interval", "total_notes"])

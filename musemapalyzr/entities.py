@@ -2,7 +2,7 @@ import json
 from typing import List, Union
 
 import config.logging_config as logging_config
-from constants import DEFAULT_SAMPLE_RATE
+from musemapalyzr.constants import DEFAULT_SAMPLE_RATE
 
 logger = logging_config.logger
 

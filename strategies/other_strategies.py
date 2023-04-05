@@ -12,7 +12,7 @@ conf = get_config()
 from typing import Optional
 
 import config.logging_config as logging_config
-from constants import (
+from musemapalyzr.constants import (
     FOUR_STACK,
     LONG_INTERVAL,
     MED_INTERVAL,
@@ -23,15 +23,15 @@ from constants import (
     TWO_STACK,
     ZIG_ZAG,
 )
-from entities import Segment
-from pattern_multipliers import (
+from musemapalyzr.entities import Segment
+from musemapalyzr.pattern_multipliers import (
     four_stack_multiplier,
     stream_multiplier,
     three_stack_multiplier,
     two_stack_multiplier,
     zig_zag_multiplier,
 )
-from utils import weighted_average_of_values
+from musemapalyzr.utils import weighted_average_of_values
 
 logger = logging_config.logger
 

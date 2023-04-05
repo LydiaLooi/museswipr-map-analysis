@@ -3,8 +3,8 @@ import config.logging_config as logging_config
 logger = logging_config.logger
 import os
 
-from difficulty_calculation import calculate_difficulty
-from entities import MuseSwiprMap
+from musemapalyzr.difficulty_calculation import calculate_difficulty
+from musemapalyzr.entities import MuseSwiprMap
 
 DATA_DIR = "data"
 

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from entities import Segment
+from musemapalyzr.entities import Segment
 from patterns.pattern import Pattern
 
 ERROR_MSG = "You should replace this with a concrete strategy"

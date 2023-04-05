@@ -1,7 +1,7 @@
 import math
 from typing import Optional
 
-from entities import Segment
+from musemapalyzr.entities import Segment
 from patterns.pattern import Pattern
 from strategies.default_strategies import DefaultCalcPatternMultiplier
 from strategies.pattern_strategies import (

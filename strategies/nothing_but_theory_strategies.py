@@ -2,9 +2,9 @@ import math
 from typing import Optional
 
 import config.logging_config as logging_config
-from constants import SWITCH, ZIG_ZAG
-from entities import Segment
-from pattern_multipliers import nothing_but_theory_multiplier
+from musemapalyzr.constants import SWITCH, ZIG_ZAG
+from musemapalyzr.entities import Segment
+from musemapalyzr.pattern_multipliers import nothing_but_theory_multiplier
 from patterns.pattern import Pattern
 from strategies.pattern_strategies import (
     CalcPatternLengthMultiplierStrategy,

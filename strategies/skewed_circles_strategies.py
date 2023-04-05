@@ -1,8 +1,8 @@
 from typing import Optional
 
-from constants import ZIG_ZAG
-from entities import Segment
-from pattern_multipliers import skewed_circle_multiplier
+from musemapalyzr.constants import ZIG_ZAG
+from musemapalyzr.entities import Segment
+from musemapalyzr.pattern_multipliers import skewed_circle_multiplier
 from patterns.pattern import Pattern
 from strategies.default_strategies import DefaultCalcVariationScore
 from strategies.pattern_strategies import (

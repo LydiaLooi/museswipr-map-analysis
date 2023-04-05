@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 
 import config.logging_config as logging_config
 from config.config import get_config
-from constants import (
+from musemapalyzr.constants import (
     DEFAULT_SAMPLE_RATE,
     FOUR_STACK,
     LONG_INTERVAL,
@@ -14,7 +14,7 @@ from constants import (
     TWO_STACK,
     ZIG_ZAG,
 )
-from entities import Segment
+from musemapalyzr.entities import Segment
 
 logger = logging_config.logger
 conf = get_config()

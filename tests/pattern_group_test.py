@@ -1,6 +1,23 @@
-from entities import Segment, Note
-from map_pattern_analysis import MapPatterns
-from constants import *
+from musemapalyzr.constants import (
+    DEFAULT_SAMPLE_RATE,
+    EVEN_CIRCLES,
+    FOUR_STACK,
+    LONG_INTERVAL,
+    MED_INTERVAL,
+    NOTHING_BUT_THEORY,
+    OTHER,
+    SHORT_INTERVAL,
+    SINGLE_STREAMS,
+    SKEWED_CIRCLES,
+    SLOW_STRETCH,
+    SWITCH,
+    THREE_STACK,
+    TWO_STACK,
+    VARYING_STACKS,
+    ZIG_ZAG,
+)
+from musemapalyzr.entities import Note, Segment
+from musemapalyzr.map_pattern_analysis import MapPatterns
 
 dummy_note = Note(0, 0)
 
@@ -63,9 +80,7 @@ def test_varying_stacks_with_intervals():
     assert groups[1].pattern_name == VARYING_STACKS
     assert groups[2].pattern_name == SLOW_STRETCH
     assert len(groups[0].segments) == 2
-    assert (
-        len(groups[1].segments) == 4
-    )  # Includes med_interval and short_interval on either side
+    assert len(groups[1].segments) == 4  # Includes med_interval and short_interval on either side
     assert len(groups[2].segments) == 2
 
 
@@ -392,9 +407,7 @@ def test_even_circles_into_nothing_but_theory():
         Segment(TWO_STACK, [_Note(0, 0.7), _Note(0, 0.8)], 0),
         Segment(ZIG_ZAG, [_Note(0, 0.8), _Note(0, 0.9), _Note(0, 1), _Note(0, 1.1)], 0),
         Segment(TWO_STACK, [_Note(0, 1.1), _Note(0, 1.2)], 0),
-        Segment(
-            ZIG_ZAG, [_Note(0, 1.2), _Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5)], 0
-        ),
+        Segment(ZIG_ZAG, [_Note(0, 1.2), _Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5)], 0),
         Segment(LONG_INTERVAL, [_Note(0, 1.5), _Note(0, 10)], 0),
     ]
     groups = MapPatterns().identify_patterns(patterns)
@@ -444,9 +457,7 @@ def test_nothing_but_theory_valid():
         Segment(TWO_STACK, [_Note(0, 0.7), _Note(0, 0.8)], 0),
         Segment(ZIG_ZAG, [_Note(0, 0.8), _Note(0, 0.9), _Note(0, 1), _Note(0, 1.1)], 0),
         Segment(TWO_STACK, [_Note(0, 1.1), _Note(0, 1.2)], 0),
-        Segment(
-            ZIG_ZAG, [_Note(0, 1.2), _Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5)], 0
-        ),
+        Segment(ZIG_ZAG, [_Note(0, 1.2), _Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5)], 0),
     ]
     groups = MapPatterns().identify_patterns(patterns)
     assert len(groups) == 1
@@ -459,9 +470,7 @@ def test_nothing_but_theory_valid_other_stacks():
         Segment(TWO_STACK, [_Note(0, 0.7), _Note(0, 0.8)], 0),
         Segment(ZIG_ZAG, [_Note(0, 0.8), _Note(0, 0.9), _Note(0, 1), _Note(0, 1.1)], 0),
         Segment(THREE_STACK, [_Note(0, 1.1), _Note(0, 1.2), _Note(0, 1.3)], 0),
-        Segment(
-            ZIG_ZAG, [_Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5), _Note(0, 1.6)], 0
-        ),
+        Segment(ZIG_ZAG, [_Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5), _Note(0, 1.6)], 0),
     ]
     groups = MapPatterns().identify_patterns(patterns)
     assert len(groups) == 1
@@ -475,9 +484,7 @@ def test_nothing_but_theory_with_start_end_interval_valid():
         Segment(TWO_STACK, [_Note(0, 0.7), _Note(0, 0.8)], 0),
         Segment(ZIG_ZAG, [_Note(0, 0.8), _Note(0, 0.9), _Note(0, 1), _Note(0, 1.1)], 0),
         Segment(TWO_STACK, [_Note(0, 1.1), _Note(0, 1.2)], 0),
-        Segment(
-            ZIG_ZAG, [_Note(0, 1.2), _Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5)], 0
-        ),
+        Segment(ZIG_ZAG, [_Note(0, 1.2), _Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5)], 0),
         Segment(LONG_INTERVAL, [_Note(0, 1.5), _Note(0, 20)], 0),
     ]
     groups = MapPatterns().identify_patterns(patterns)
@@ -490,13 +497,9 @@ def test_slow_stretch_with_varying_intervals():
     # Taken from Eyes half closed 128.11s
     patterns = [
         Segment(SHORT_INTERVAL, [Note(0, 5669300), Note(0, 5679100)], 0),
-        Segment(
-            SHORT_INTERVAL, [Note(0, 5688900), Note(0, 5695433), Note(0, 5701966)], 0
-        ),
+        Segment(SHORT_INTERVAL, [Note(0, 5688900), Note(0, 5695433), Note(0, 5701966)], 0),
         Segment(SHORT_INTERVAL, [Note(0, 5708500), Note(0, 5715033)], 0),
-        Segment(
-            SHORT_INTERVAL, [Note(0, 5721566), Note(0, 5728100), Note(0, 5747700)], 0
-        ),
+        Segment(SHORT_INTERVAL, [Note(0, 5721566), Note(0, 5728100), Note(0, 5747700)], 0),
         Segment(SHORT_INTERVAL, [Note(0, 5757500), Note(0, 5767300)], 0),
     ]
 
