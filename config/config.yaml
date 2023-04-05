@@ -1,11 +1,11 @@
 # Tolerances
-pattern_tolerance_ms: 20 # Default: 20 ... Used when seeing if segments are to be part of the same pattern.
-segment_tolerance_ms: 10 # Default: 10 ... Used when seeing if notes are to be put in the same segment
+pattern_tolerance_ms: 20
+segment_tolerance_ms: 10
 
 # Overall weighting of pattern difficutlties in get_pattern_weighting
-get_pattern_weighting_top_percentage: 0.4 # Default: 0.4
-get_pattern_weighting_top_weight: 0.9 # Default: 0.9
-get_pattern_weighting_bottom_weight: 0.1 # Default: 0.1
+get_pattern_weighting_top_percentage: 0.4
+get_pattern_weighting_top_weight: 0.9
+get_pattern_weighting_bottom_weight: 0.1
 
 # Density Average
 sample_window_secs: 1 # Default 1

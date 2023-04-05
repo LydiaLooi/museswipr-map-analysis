@@ -1,7 +1,7 @@
 import math
 from typing import Optional
 
-import logging_config
+import config.logging_config as logging_config
 from constants import SWITCH, ZIG_ZAG
 from entities import Segment
 from pattern_multipliers import nothing_but_theory_multiplier

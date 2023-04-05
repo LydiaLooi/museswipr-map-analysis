@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 
-import logging_config
-from config import get_config
+import config.logging_config as logging_config
+from config.config import get_config
 from constants import (
     DEFAULT_SAMPLE_RATE,
     FOUR_STACK,

@@ -1,4 +1,4 @@
-import logging_config
+import config.logging_config as logging_config
 
 logger = logging_config.logger
 import os

@@ -1,15 +1,24 @@
 from typing import List, Optional
 
-from constants import *
-from entities import Note, Segment
-
-from patterns.pattern import Pattern
+from constants import (
+    EVEN_CIRCLES,
+    FOUR_STACK,
+    NOTHING_BUT_THEORY,
+    OTHER,
+    SKEWED_CIRCLES,
+    SLOW_STRETCH,
+    THREE_STACK,
+    TWO_STACK,
+    VARYING_STACKS,
+)
+from entities import Segment
 from patterns.even_circles import EvenCirclesGroup
-from patterns.skewed_circles import SkewedCirclesGroup
 from patterns.nothing_but_theory import NothingButTheoryGroup
+from patterns.other import OtherPattern
+from patterns.pattern import Pattern
+from patterns.skewed_circles import SkewedCirclesGroup
 from patterns.slow_stretch import SlowStretchPattern
 from patterns.varying_stacks import VaryingStacksPattern
-from patterns.other import OtherPattern
 
 
 class MapPatterns:
@@ -54,22 +63,16 @@ class MapPatterns:
         is_first = True
         for pg in self.patterns:
             if pg.pattern_name != OTHER:
-                current_other = self._handle_non_other_group(
-                    new_groups, current_other, pg
-                )
+                current_other = self._handle_non_other_group(new_groups, current_other, pg)
                 is_first = True
             else:
-                current_other, is_first = self._handle_other_group(
-                    current_other, pg, is_first
-                )
+                current_other, is_first = self._handle_other_group(current_other, pg, is_first)
 
         if current_other is not None and len(current_other.segments) > 0:
             new_groups.append(current_other)
         return new_groups
 
-    def _handle_non_other_group(
-        self, new_patterns_list, current_other: Optional[Pattern], pg
-    ):
+    def _handle_non_other_group(self, new_patterns_list, current_other: Optional[Pattern], pg):
         """
         Handles non-OTHER groups while merging Patterns.
         """
@@ -140,7 +143,9 @@ class MapPatterns:
                     added = True
                 else:
                     if len(group.segments) > 0:
-                        group.is_active = False  # Only set it to inactive if it's already begun adding stuff
+                        group.is_active = (
+                            False  # Only set it to inactive if it's already begun adding stuff
+                        )
 
                     # Check if the group is appendable
                     if group.is_appendable():
@@ -217,7 +222,3 @@ class MapPatterns:
                 self.patterns.append(last_pattern_copy)
 
         return self._return_final_patterns(merge_other)
-
-
-if __name__ == "__main__":
-    pass

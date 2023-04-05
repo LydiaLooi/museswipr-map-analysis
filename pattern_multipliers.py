@@ -1,5 +1,6 @@
 import numpy as np
-from config import get_config
+
+from config.config import get_config
 
 conf = get_config()
 
@@ -194,9 +195,7 @@ if __name__ == "__main__":
 
     nbt_values = [nothing_but_theory_multiplier(nps) for nps in nps_values]
     stream_values = [stream_multiplier(nps) for nps in nps_values]
-    pattern_stream_values = [
-        pattern_stream_length_multiplier(nps) for nps in nps_values
-    ]
+    pattern_stream_values = [pattern_stream_length_multiplier(nps) for nps in nps_values]
 
     zig_zag_length_values = [zig_zag_length_multiplier(nps) for nps in nps_values]
 
@@ -221,9 +220,7 @@ if __name__ == "__main__":
         pattern_stream_values,
         label="Pattern Stream (Multiplier for Num notes)",
     )
-    plt.plot(
-        nps_values, zig_zag_length_values, label="Zig Zag (Multiplier for Num notes)"
-    )
+    plt.plot(nps_values, zig_zag_length_values, label="Zig Zag (Multiplier for Num notes)")
 
     plt.xlabel("Note Speed (NPS)")
     plt.ylabel("Multiplier")

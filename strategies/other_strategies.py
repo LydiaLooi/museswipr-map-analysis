@@ -1,4 +1,4 @@
-from config import get_config
+from config.config import get_config
 from strategies.default_strategies import DefaultCalcVariationScore
 from strategies.pattern_strategies import (
     CalcPatternLengthMultiplierStrategy,
@@ -11,7 +11,7 @@ from strategies.pattern_strategies import (
 conf = get_config()
 from typing import Optional
 
-import logging_config
+import config.logging_config as logging_config
 from constants import (
     FOUR_STACK,
     LONG_INTERVAL,

@@ -1,4 +1,4 @@
-from config import get_config
+from config.config import get_config
 
 conf = get_config()
 

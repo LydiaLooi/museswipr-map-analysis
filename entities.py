@@ -1,8 +1,8 @@
 import json
 from typing import List, Union
 
-import logging_config
-from constants import *
+import config.logging_config as logging_config
+from constants import DEFAULT_SAMPLE_RATE
 
 logger = logging_config.logger
 
