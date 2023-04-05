@@ -1,25 +1,23 @@
-from typing import List, Tuple, Optional
-import statistics
-from constants import DEFAULT_SAMPLE_RATE
-from constants import *
-from entities import Note, MuseSwiprMap, Segment
-from utils import weighted_average_of_values
-from map_pattern_analysis import MapPatterns
 from collections import namedtuple
-from patterns.pattern import Pattern
-from pattern_multipliers import pattern_stream_length_multiplier
-from config import get_config
+from typing import List, Optional, Tuple
 
+import logging_config
+from config import get_config
+from constants import *
+from constants import DEFAULT_SAMPLE_RATE
+from entities import MuseSwiprMap, Note, Segment
+from map_pattern_analysis import MapPatterns
+from pattern_multipliers import pattern_stream_length_multiplier
+from patterns.pattern import Pattern
+from utils import weighted_average_of_values
+
+logger = logging_config.logger
 conf = get_config()
 
-PatternScore = namedtuple(
-    "PatternScore", ["pattern_name", "score", "has_interval", "total_notes"]
-)
+PatternScore = namedtuple("PatternScore", ["pattern_name", "score", "has_interval", "total_notes"])
 
 
-def create_sections(
-    notes, section_threshold_seconds=1, sample_rate: int = DEFAULT_SAMPLE_RATE
-):
+def create_sections(notes, section_threshold_seconds=1, sample_rate: int = DEFAULT_SAMPLE_RATE):
     section_threshold = section_threshold_seconds * sample_rate
     song_start_samples = min(note.sample_time for note in notes)
     song_duration_samples = max(note.sample_time for note in notes)
@@ -29,8 +27,7 @@ def create_sections(
 
     # Calculate the number of sections based on song_duration_samples and section_threshold
     num_sections = int(
-        (song_duration_samples - song_start_samples + section_threshold)
-        // section_threshold
+        (song_duration_samples - song_start_samples + section_threshold) // section_threshold
     )
 
     # Initialize empty sections
@@ -38,9 +35,7 @@ def create_sections(
 
     # Fill sections with notes
     for note in notes:
-        section_index = int(
-            (note.sample_time - song_start_samples) // section_threshold
-        )
+        section_index = int((note.sample_time - song_start_samples) // section_threshold)
         if 0 <= section_index < len(sections):
             sections[section_index].append(note)
 
@@ -67,19 +62,16 @@ def apply_multiplier_to_pattern_chunk(chunk, pattern_score: PatternScore):
     if len(chunk) > 2:
         multiplier = pattern_stream_length_multiplier(pattern_score.total_notes)
     multiplied = [
-        c_ps.score * multiplier if c_ps.pattern_name != ZIG_ZAG else c_ps.score
-        for c_ps in chunk
+        c_ps.score * multiplier if c_ps.pattern_name != ZIG_ZAG else c_ps.score for c_ps in chunk
     ]
     return multiplied
 
 
-def calculate_scores_from_patterns(
-    patterns: List[Pattern], pls_print=False
-) -> List[float]:
+def calculate_scores_from_patterns(patterns: List[Pattern]) -> List[float]:
     pattern_scores = []
     for pattern in patterns:
         if pattern.segments:  # check if pattern has segments
-            score = pattern.calc_pattern_difficulty(pls_print=pls_print)
+            score = pattern.calc_pattern_difficulty()
             pattern_scores.append(
                 PatternScore(
                     pattern.pattern_name,
@@ -106,9 +98,7 @@ def calculate_scores_from_patterns(
     return scores
 
 
-def get_pattern_weighting(
-    notes: List[Note], sample_rate: int = DEFAULT_SAMPLE_RATE, pls_print=False
-) -> float:
+def get_pattern_weighting(notes: List[Note], sample_rate: int = DEFAULT_SAMPLE_RATE) -> float:
     """Calculates the overall weighting of pattern difficulty
 
     Gets the Pattern's difficulty which::
@@ -128,7 +118,7 @@ def get_pattern_weighting(
     segments = analyse_segments(notes, sample_rate)
     patterns = mpg.identify_patterns(segments)
 
-    scores = calculate_scores_from_patterns(patterns, pls_print)
+    scores = calculate_scores_from_patterns(patterns)
 
     # Gets the average difficulty score across all the Patterns
     difficulty = weighted_average_of_values(
@@ -137,18 +127,12 @@ def get_pattern_weighting(
         top_weight=conf["get_pattern_weighting_top_weight"],
         bottom_weight=conf["get_pattern_weighting_bottom_weight"],
     )
-    print(f"{'WEIGHTED Average Difficulty Score:':>25} {difficulty}")
+    logger.debug(f"{'WEIGHTED Average Difficulty Score:':>25} {difficulty}")
 
     return difficulty
 
 
-def calculate_difficulty(
-    notes,
-    outfile=None,
-    sample_rate: int = DEFAULT_SAMPLE_RATE,
-    pls_print=False,
-):
-    print(f"{'Difficulty':_^50}")
+def calculate_difficulty(notes, outfile=None, sample_rate: int = DEFAULT_SAMPLE_RATE):
 
     sections = create_sections(notes, conf["sample_window_secs"], sample_rate)
 
@@ -158,14 +142,11 @@ def calculate_difficulty(
             outfile.write(f"{s}\n")
     difficulty = weighted_average_of_values(moving_avg)
 
-    weighting = get_pattern_weighting(notes, pls_print=pls_print)
-    print(f"{'':.^50}")
+    weighting = get_pattern_weighting(notes)
     weighted_difficulty = weighting * difficulty
-    print(f"{'Final Weighting:':>25} {weighting}")
-    print(f"{'Base Difficulty:':>25} {difficulty}")
-    print(f"{'Weighted Difficulty:':>25} {weighted_difficulty}")
-    print(f"{'':_^50}")
-
+    logger.info(
+        f"Final Weighting: {weighting:<10.5f}| Base Difficulty: {difficulty:<10.5f}| Weighted Difficulty: {weighted_difficulty:<10.5f}"
+    )
     return (weighting, difficulty, weighted_difficulty)
 
 
@@ -199,15 +180,9 @@ def handle_current_segment(
         if current_segment.segment_name == OTHER:
             segments.append(current_segment)
         elif len(current_segment.notes) >= current_segment.required_notes:
-            if (
-                current_segment.segment_name == ZIG_ZAG
-                and len(current_segment.notes) == 2
-            ):
+            if current_segment.segment_name == ZIG_ZAG and len(current_segment.notes) == 2:
                 current_segment.segment_name = SWITCH
-            elif (
-                current_segment.segment_name == SINGLE_STREAMS
-                and len(current_segment.notes) < 5
-            ):
+            elif current_segment.segment_name == SINGLE_STREAMS and len(current_segment.notes) < 5:
                 current_segment.segment_name = f"{len(current_segment.notes)}-Stack"
             segments.append(current_segment)
     return segments
@@ -241,8 +216,7 @@ def analyse_segments(notes: List[Note], sample_rate: int = DEFAULT_SAMPLE_RATE):
         # If the current pair of notes belongs to the same segment as the previous pair of notes
         if current_segment and current_segment.segment_name == next_segment_name:
             base_time_difference = (
-                current_segment.notes[1].sample_time
-                - current_segment.notes[0].sample_time
+                current_segment.notes[1].sample_time - current_segment.notes[0].sample_time
             )
 
             # If the time difference between the current pair of notes is within the tolerance of the base time difference of the current segmen
@@ -276,7 +250,7 @@ def analyse_segments(notes: List[Note], sample_rate: int = DEFAULT_SAMPLE_RATE):
 def print_segments(segments: List[Segment], sample_rate: int = DEFAULT_SAMPLE_RATE):
     sorted_segments = sorted(segments, key=lambda segment: segment.notes[0].sample_time)
 
-    print(f"Sample rate: {sample_rate}")
+    logger.info(f"Sample rate: {sample_rate}")
 
     for segment in sorted_segments:
         start_time = segment.notes[0].sample_time
@@ -286,7 +260,7 @@ def print_segments(segments: List[Segment], sample_rate: int = DEFAULT_SAMPLE_RA
             segment.notes[1].sample_time - segment.notes[0].sample_time
         )
 
-        print(
+        logger.info(
             f"{time_difference / sample_rate:.2f} | {start_time/ sample_rate:.2f} - {end_time/ sample_rate:.2f}: "
             f"{segment.segment_name} ({notes_per_second:.2f}nps|{(notes_per_second/4)*60:.2f}BPM) | {segment.time_difference/sample_rate:.2f}s"
         )

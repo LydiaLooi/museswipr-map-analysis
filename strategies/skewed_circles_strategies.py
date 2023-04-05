@@ -90,8 +90,8 @@ class SkewedCirclesIsAppendable(IsAppendableStrategy):
 
 
 class SkewedCirclesCalcVariationScore(DefaultCalcVariationScore):
-    def calc_variation_score(self, pls_print=False) -> float:
-        variation_score = super().calc_variation_score(pls_print)
+    def calc_variation_score(self) -> float:
+        variation_score = super().calc_variation_score()
 
         # Make a minor change to the return value
         modified_variation_score = max(1, variation_score)

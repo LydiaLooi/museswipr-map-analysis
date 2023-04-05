@@ -1,27 +1,10 @@
-from entities import (
-    Note,
-    MuseSwiprMap,
-    Segment,
-)
+import logging_config
 
-from map_pattern_analysis import (
-    MapPatterns,
-)
+logger = logging_config.logger
 import os
-from constants import *
-from difficulty_calculation import (
-    analyse_segments,
-    print_segments,
-    calculate_difficulty,
-)
 
-import sys
-
-# set the default encoding to UTF-8
-sys.stdout.reconfigure(encoding="utf-8")
-
-LANE_1_ID = 0
-LANE_2_ID = 1
+from difficulty_calculation import calculate_difficulty
+from entities import MuseSwiprMap
 
 DATA_DIR = "data"
 
@@ -31,7 +14,6 @@ def calculate_and_export_difficulties():
     all_files = os.listdir(DATA_DIR)
 
     m = ""
-    pls_print = False
 
     with open(
         "difficulties_data.txt",
@@ -43,22 +25,15 @@ def calculate_and_export_difficulties():
                 try:
                     char = "\\"
                     m_map = MuseSwiprMap(f"{DATA_DIR}/{filename}")
-                    # segments = analyse_segments(m_map.notes, m_map.sample_rate)
-                    name = filename.split("\\")[-1].split(".asset")[0]
-                    # print(name)
-                    # print_patterns(patterns, m_map.sample_rate)
-
-                    print(filename)
+                    name = filename.split(char)[-1].split(".asset")[0]
+                    logger.info(f"Processing: '{filename}'")
                     with open(
                         f"analysis/{name}",
                         "w",
                         encoding="utf-8",
                     ) as outfile:
                         (weighting, difficulty, final,) = calculate_difficulty(
-                            m_map.notes,
-                            outfile=outfile,
-                            sample_rate=m_map.sample_rate,
-                            pls_print=pls_print,
+                            m_map.notes, outfile=outfile, sample_rate=m_map.sample_rate
                         )
                         f.write(
                             f"{filename.split(char)[-1].split('.asset')[0]}||{final:.2f}||{weighting:.2f}||{difficulty:.2f}\n"
@@ -68,9 +43,10 @@ def calculate_and_export_difficulties():
                         m_map.sample_rate,
                     )
                 except Exception as e:
-                    print(f"ERROR parsing a file: {e}")
+                    logger.error(f"ERROR parsing a file: {e}")
                     continue
 
 
 if __name__ == "__main__":
+    logger.info("Running the main file")
     calculate_and_export_difficulties()

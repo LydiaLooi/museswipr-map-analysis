@@ -11,6 +11,7 @@ from strategies.pattern_strategies import (
 conf = get_config()
 from typing import Optional
 
+import logging_config
 from constants import (
     FOUR_STACK,
     LONG_INTERVAL,
@@ -32,6 +33,8 @@ from pattern_multipliers import (
 )
 from utils import weighted_average_of_values
 
+logger = logging_config.logger
+
 
 class OtherCheckSegment(CheckSegmentStrategy):
     def check_segment(self, current_segment: Segment) -> Optional[bool]:
@@ -45,8 +48,8 @@ class OtherIsAppendable(IsAppendableStrategy):
 
 
 class OtherCalcVariationScore(DefaultCalcVariationScore):
-    def calc_variation_score(self, pls_print=False) -> float:
-        return super().calc_variation_score(pls_print)
+    def calc_variation_score(self) -> float:
+        return super().calc_variation_score()
 
 
 class OtherCalcPatternMultiplier(CalcPatternMultiplierStrategy):
@@ -81,9 +84,9 @@ class OtherCalcPatternMultiplier(CalcPatternMultiplierStrategy):
             elif segment.segment_name == LONG_INTERVAL:
                 multipliers.append(conf["other_long_int_multiplier"])
             else:
-                print(f"WARNING: Did not recognise pattern: {segment.segment_name}")
+                logger.warning(f"WARNING: Did not recognise pattern: {segment.segment_name}")
                 multipliers.append(1)
-        # print(f"Other Pattern Multipliers: {multipliers}")
+        logger.debug(f"Other Pattern Multipliers: {multipliers}")
         weighted_average = weighted_average_of_values(multipliers)
 
         return weighted_average

@@ -2,6 +2,7 @@ import collections
 import math
 from typing import Optional
 
+import logging_config
 from entities import Segment
 from strategies.pattern_strategies import (
     CalcPatternLengthMultiplierStrategy,
@@ -11,9 +12,11 @@ from strategies.pattern_strategies import (
     IsAppendableStrategy,
 )
 
+logger = logging_config.logger
+
 
 class DefaultCalcVariationScore(CalcVariationScoreStrategy):
-    def calc_variation_score(self, pls_print=False) -> float:
+    def calc_variation_score(self) -> float:
         """Calculates the variation score of the Pattern based on the segments within.
 
         The entropy score measures the amount of uncertainty or randomness in the distribution
@@ -50,8 +53,7 @@ class DefaultCalcVariationScore(CalcVariationScoreStrategy):
             else:
                 segment_names.append(name)
 
-        if pls_print:
-            print(f"Checking entropy of: {segment_names}")
+        logger.debug(f"Checking entropy of: {segment_names}")
 
         n = len(segment_names)
         freq = [count / n for count in collections.Counter(segment_names).values()]
@@ -61,8 +63,8 @@ class DefaultCalcVariationScore(CalcVariationScoreStrategy):
             # average interval debuffs and multiply that by the entropy
             average_debuff = sum(interval_list) / len(interval_list)
             entropy *= average_debuff
-            if pls_print:
-                print(f">>> Debuffing (due to Intervals) by {average_debuff} <<<")
+
+            logger.debug(f">>> Debuffing (due to Intervals) by {average_debuff} <<<")
 
         entropy = self.pattern._calc_switch_debuff(pattern_counts, entropy)
 

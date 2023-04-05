@@ -1,6 +1,10 @@
-from constants import *
-from typing import List, Union
 import json
+from typing import List, Union
+
+import logging_config
+from constants import *
+
+logger = logging_config.logger
 
 MAP_OUTPUT = "map_outputs"
 
@@ -30,10 +34,8 @@ class Segment:
         self.sample_rate = sample_rate
 
         if self.time_difference is None and len(self.notes) > 1:
-            print("Auto setting time difference...")
-            self.time_difference = abs(
-                self.notes[1].sample_time - self.notes[0].sample_time
-            )
+            self.time_difference = abs(self.notes[1].sample_time - self.notes[0].sample_time)
+            logger.debug(f"Auto setting time difference to: {self.time_difference}")
 
     @property
     def notes_per_second(self):
@@ -78,8 +80,7 @@ class MuseSwiprMap:
         notes = self.notes
         # Find the smallest time distance between notes
         smallest_time_distance = min(
-            note2.sample_time - note1.sample_time
-            for note1, note2 in zip(notes, notes[1:])
+            note2.sample_time - note1.sample_time for note1, note2 in zip(notes, notes[1:])
         )
 
         # Sort the notes by descending time order
@@ -94,11 +95,7 @@ class MuseSwiprMap:
         with open(f"{MAP_OUTPUT}/{file_path}", "w") as file:
             for time in reversed(time_range):
                 for note in sorted_notes:
-                    if (
-                        note.sample_time
-                        <= time
-                        < note.sample_time + smallest_time_distance
-                    ):
+                    if note.sample_time <= time < note.sample_time + smallest_time_distance:
                         if note.lane == 0:
                             file.write(f"{note.sample_time/sample_rate:.2f}| []\n")
                         elif note.lane == 1:

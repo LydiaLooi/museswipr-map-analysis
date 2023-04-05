@@ -30,7 +30,7 @@ class CalcVariationScoreStrategy(ABC):
         self.pattern = pattern
 
     @abstractmethod
-    def calc_variation_score(self, pls_print=False) -> float:
+    def calc_variation_score(self) -> float:
         raise NotImplementedError(ERROR_MSG)
 
 

@@ -40,7 +40,7 @@ class SlowStretchIsAppendable(IsAppendableStrategy):
 
 
 class SlowStretchCalcVariation(CalcVariationScoreStrategy):
-    def calc_variation_score(self, pls_print=False) -> float:
+    def calc_variation_score(self) -> float:
         # Variation score for Slow Stretches is based on column variation rather than segment variation
 
         lst = []
