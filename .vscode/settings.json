@@ -10,5 +10,8 @@
         "editor.codeActionsOnSave": {
             "source.organizeImports": true
         }
-    }
+    },
+    "coverage-gutters.coverageFileNames": [
+        "htmlcov/coverage.xml"
+    ],
 }

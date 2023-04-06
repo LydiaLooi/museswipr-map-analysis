@@ -35,6 +35,23 @@
             "command": "pip install -r requirements.txt",
             "group": "build",
             "problemMatcher": []
-        }
+        },
+        {
+            "label": "Run All Tests",
+            "type": "shell",
+            "command": "coverage run --source=. -m pytest tests/",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Test Coverage",
+            "type": "shell",
+            "command": "coverage html & coverage xml & coverage report",
+            "group": "test",
+            "problemMatcher": []
+        },
     ]
 }
