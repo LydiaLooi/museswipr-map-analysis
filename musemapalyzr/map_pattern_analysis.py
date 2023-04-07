@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from config.logging_config import logger
 from musemapalyzr.constants import (
     EVEN_CIRCLES,
     FOUR_STACK,
@@ -51,77 +52,133 @@ class MapPatterns:
         ]
         self.other_pattern = OtherPattern(OTHER, [])
 
-    def _return_final_patterns(self, merge_other=True) -> List[Pattern]:
+    def _return_final_patterns(self, merge_patterns=True) -> List[Pattern]:
         """
-        Returns the final list of Patterns after merging, if merge_other is True.
+        Returns the final list of Patterns after merging, if merge_patterns is True.
+        Merges Other patterns
+        Merges Slow Stretch patterns
+        Note that these have different merging strategies
         """
-        if not merge_other:
+        logger.debug(f"_return_final_patterns : {merge_patterns}")
+        logger.debug(
+            f"Patterns ({len(self.patterns)}): {[f'{p.pattern_name} ({len(p.segments)})' for p in self.patterns]}"
+        )
+        if not merge_patterns:
             return self.patterns
 
         new_groups = []
-        current_other = None
+        current_mergable = None
         is_first = True
         for pg in self.patterns:
-            if pg.pattern_name != OTHER:
-                current_other = self._handle_non_other_group(new_groups, current_other, pg)
+            if pg.pattern_name not in [OTHER, SLOW_STRETCH]:
+                current_mergable = self._handle_non_mergable_group(new_groups, current_mergable, pg)
                 is_first = True
             else:
-                current_other, is_first = self._handle_other_group(current_other, pg, is_first)
+                current_mergable, is_first = self._handle_mergable_group(
+                    new_groups, current_mergable, pg, is_first
+                )
 
-        if current_other is not None and len(current_other.segments) > 0:
-            new_groups.append(current_other)
+        if current_mergable is not None and len(current_mergable.segments) > 0:
+            new_groups.append(current_mergable)
+
+        logger.debug(
+            f"Merged patterns ({len(new_groups)}): {[f'{p.pattern_name} ({len(p.segments)})' for p in new_groups]}"
+        )
         return new_groups
 
-    def _handle_non_other_group(self, new_patterns_list, current_other: Optional[Pattern], pg):
+    def _handle_non_mergable_group(
+        self, new_patterns_list, current_mergable: Optional[Pattern], pg
+    ):
         """
         Handles non-OTHER groups while merging Patterns.
         """
-        if current_other is not None:
-            if not self.segment_is_interval(current_other.segments[-1]):
-                current_other.segments = current_other.segments[:-1]
-            new_patterns_list.append(current_other)
-            current_other = None
+        if current_mergable is not None:
+            # If OTHER
+            if current_mergable.pattern_name == OTHER:
+                # Special OTHER case where if it doesn't end in an interval, then don't include the final segment as it is an overlap
+                if not self.segment_is_interval(current_mergable.segments[-1]):
+                    current_mergable.segments = current_mergable.segments[:-1]
+                new_patterns_list.append(current_mergable)
+            # If Slow stretch
+            elif current_mergable.pattern_name == SLOW_STRETCH:
+                new_patterns_list.append(current_mergable)
+            else:
+                raise ValueError(
+                    f"Unsupported mergable pattern of: {current_mergable.pattern_name}"
+                )
+            current_mergable = None
         new_patterns_list.append(pg)
-        return current_other
+        return current_mergable
 
-    def _handle_other_group(self, current_other: Optional[Pattern], pattern, is_first):
+    def _handle_mergable_group(
+        self, new_groups, current_mergable: Optional[Pattern], pattern: Pattern, is_first: bool
+    ):
         """
         Handles OTHER groups while merging Patterns.
         """
-        if current_other is None:
-            current_other = OtherPattern(OTHER, [])
-        if is_first:
-            current_other = self._handle_first_other_group(current_other, pattern)
-        else:
-            current_other = self._handle_not_first_other_group(current_other, pattern)
-        if current_other:
-            is_first = False
-        return current_other, is_first
+        # Need to see whether the current mergable is same type
 
-    def _handle_first_other_group(self, current_other, pattern: Pattern):
+        if current_mergable is None:
+            if pattern.pattern_name == OTHER:
+                current_mergable = OtherPattern(OTHER, [])
+            elif pattern.pattern_name == SLOW_STRETCH:
+                current_mergable = SlowStretchPattern(SLOW_STRETCH, [])
+            else:
+                raise ValueError(f"Unsupported mergable pattern of: {pattern.pattern_name}")
+
+        # if DIFFERENT type, add the current mergable and is_first becomes True
+        if current_mergable.pattern_name != pattern.pattern_name:
+            # Race condition where Other is of length 1... we want to just ignore this and move on...
+            if pattern.pattern_name == OTHER and len(pattern.segments) == 1:
+                return current_mergable, is_first
+            new_groups.append(current_mergable)
+            is_first = True
+            if pattern.pattern_name == OTHER:
+                current_mergable = OtherPattern(OTHER, [])
+            elif pattern.pattern_name == SLOW_STRETCH:
+                current_mergable = SlowStretchPattern(SLOW_STRETCH, [])
+            else:
+                raise ValueError(f"Unsupported mergable pattern of: {pattern.pattern_name}")
+        if is_first:
+            current_mergable = self._handle_first_other_group(current_mergable, pattern)
+        else:
+            current_mergable = self._handle_not_first_mergable_group(current_mergable, pattern)
+        if current_mergable:
+            is_first = False
+        return current_mergable, is_first
+
+    def _handle_first_other_group(self, current_mergable, pattern: Pattern):
         """
-        Handles the first occurrence of an OTHER group while merging Patterns.
+        Handles the first occurrence of a MERGABLE group while merging Patterns.
         """
         if (
             len(self.patterns) > 1
             and len(pattern.segments) == 1
             and self.segment_is_interval(pattern.segments[0])
         ):
-            current_other = None
+            current_mergable = None
         else:
-            current_other.segments += pattern.segments
-        return current_other
+            current_mergable.segments += pattern.segments
+        return current_mergable
 
-    def _handle_not_first_other_group(self, current_other, pattern: Pattern):
+    def _handle_not_first_mergable_group(self, current_mergable: Pattern, pattern: Pattern):
         """
         Handles subsequent occurrences of OTHER groups while merging Patterns.
         """
-        if len(pattern.segments) > 2:
-            if self.segment_is_interval(pattern.segments[0]):
-                current_other.segments += pattern.segments[1:]
-            else:
-                current_other.segments += pattern.segments[2:]
-        return current_other
+
+        # IF OTHER
+        if current_mergable.pattern_name == OTHER:
+            if len(pattern.segments) > 2:
+                if self.segment_is_interval(pattern.segments[0]):
+                    current_mergable.segments += pattern.segments[1:]
+                else:
+                    current_mergable.segments += pattern.segments[2:]
+        # If SLOW STRETCH - add all but the first segments
+        elif current_mergable.pattern_name == SLOW_STRETCH:
+            current_mergable.segments += pattern.segments[1:]
+        else:
+            raise ValueError(f"Unsupported mergable pattern: {current_mergable.pattern_name}")
+        return current_mergable
 
     def identify_patterns(
         self, segments_list: List[Segment], merge_other: bool = True

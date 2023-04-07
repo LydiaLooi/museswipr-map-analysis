@@ -62,5 +62,6 @@ def calculate_and_export_all_difficulties():
 
 if __name__ == "__main__":
     logger.info("Running the main file")
-    string = "we luv lama"
+    string = "the pressure - tension"
     calculate_and_export_filtered_difficulties(string)
+    # calculate_and_export_all_difficulties()
