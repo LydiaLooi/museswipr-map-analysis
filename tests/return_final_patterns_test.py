@@ -1,13 +1,13 @@
 from musemapalyzr.constants import EVEN_CIRCLES, OTHER, SLOW_STRETCH
 from musemapalyzr.entities import Segment
-from musemapalyzr.map_pattern_analysis import MapPatterns
+from musemapalyzr.map_pattern_analysis import Mapalyzr
 from patterns.even_circles import EvenCirclesGroup
 from patterns.other import OtherPattern
 from patterns.slow_stretch import SlowStretchPattern
 
 
 def test_merges_others_together():
-    mp = MapPatterns()
+    mp = Mapalyzr()
 
     # B, C overlapped. C, D overlapped.
     o2 = OtherPattern(OTHER, [Segment("B", []), Segment("C", []), Segment("D", [])])
@@ -21,7 +21,7 @@ def test_merges_others_together():
 
 
 def test_does_not_merge_with_patterns_between():
-    mp = MapPatterns()
+    mp = Mapalyzr()
 
     # B, C overlapped. C, D overlapped.
     o1 = OtherPattern(OTHER, [Segment("A", []), Segment("B", []), Segment("C", [])])
@@ -42,7 +42,7 @@ def test_does_not_merge_with_patterns_between():
 
 
 def test_merges_with_patterns_either_side():
-    mp = MapPatterns()
+    mp = Mapalyzr()
 
     # B, C overlapped. C, D overlapped. E overlapped.
     o1 = EvenCirclesGroup(EVEN_CIRCLES, [Segment("A", []), Segment("B", []), Segment("C", [])])
@@ -64,7 +64,7 @@ def test_merges_with_patterns_either_side():
 
 
 def test_merges_slow_stretches():
-    mp = MapPatterns()
+    mp = Mapalyzr()
 
     o1 = SlowStretchPattern(SLOW_STRETCH, [Segment("A", []), Segment("B", [])])
     o2 = SlowStretchPattern(SLOW_STRETCH, [Segment("B", []), Segment("C", []), Segment("D", [])])
@@ -77,7 +77,7 @@ def test_merges_slow_stretches():
 
 
 def test_merges_slow_stretches_and_others():
-    mp = MapPatterns()
+    mp = Mapalyzr()
 
     o1 = SlowStretchPattern(SLOW_STRETCH, [Segment("A", []), Segment("B", [])])
     o2 = SlowStretchPattern(SLOW_STRETCH, [Segment("B", []), Segment("C", []), Segment("D", [])])
@@ -95,7 +95,7 @@ def test_merges_slow_stretches_and_others():
 
 def test_merges_slow_stretches_and_ignores_others_with_1_segment_only():
     # Weird race condition. See we luv lama for a real example of 1 Other between slow stretches
-    mp = MapPatterns()
+    mp = Mapalyzr()
 
     o1 = SlowStretchPattern(SLOW_STRETCH, [Segment("A", []), Segment("B", [])])
     o2 = OtherPattern(OTHER, [Segment("B", [])])
@@ -111,7 +111,7 @@ def test_merges_slow_stretches_and_ignores_others_with_1_segment_only():
 
 
 def test_merges_slow_stretches_with_many_patterns():
-    mp = MapPatterns()
+    mp = Mapalyzr()
 
     o0 = EvenCirclesGroup(EVEN_CIRCLES, [Segment("A", []), Segment("B", []), Segment("C", [])])
 

@@ -4,10 +4,11 @@ import config.logging_config as logging_config
 from config.config import get_config
 from musemapalyzr.constants import DEFAULT_SAMPLE_RATE, ZIG_ZAG
 from musemapalyzr.entities import Note, Segment
-from musemapalyzr.map_pattern_analysis import MapPatterns
+from musemapalyzr.map_pattern_analysis import Mapalyzr
 from musemapalyzr.pattern_multipliers import pattern_stream_length_multiplier
 from musemapalyzr.utils import (
     PatternScore,
+    Weighting,
     analyse_segments,
     create_sections,
     moving_average_note_density,
@@ -29,9 +30,7 @@ def apply_multiplier_to_pattern_chunk(chunk: List[PatternScore]) -> List[float]:
     Returns:
         List[float]: A list that just contains the multiplied scores
     """
-    logger.debug("Applying multiplier")
     total_notes = sum([ps.total_notes for ps in chunk])
-    logger.debug(f"Chunk ({total_notes} notes): {chunk}")
 
     multiplier = 1
     if len(chunk) > 2:
@@ -39,6 +38,8 @@ def apply_multiplier_to_pattern_chunk(chunk: List[PatternScore]) -> List[float]:
     multiplied = [
         c_ps.score * multiplier if c_ps.pattern_name != ZIG_ZAG else c_ps.score for c_ps in chunk
     ]
+    logger.debug(f"Applying multiplier ({multiplier}x) - Chunk ({total_notes} notes): {chunk}")
+
     return multiplied
 
 
@@ -84,20 +85,20 @@ def calculate_scores_from_patterns(patterns: List[Pattern]) -> List[float]:
 def get_pattern_weighting(notes: List[Note], sample_rate: int = DEFAULT_SAMPLE_RATE) -> float:
     """Calculates the overall weighting of pattern difficulty
 
-    Gets the Pattern's difficulty which::
-    - accounts for Pattern multipliers
-    - accounts for Pattern variation multiplier
-    - accounts for Pattern length multiplier (If there is one, otherwise it's just 1)
+    Gets the Pattern's difficulty which accounts for:
+        - Pattern variation multiplier
+        - Pattern multipliers
 
     Then gets the average of them.
 
     Args:
-        note List[Note]: A list of Notes in order of occurrence
+        note (List[Note]): A list of Notes in order of occurrence
+        sample_rate (int): The sample rate of the map. Defaults to DEFAULT_SAMPLE_RATE.
 
     Returns:
         float: The pattern weighting
     """
-    mpg = MapPatterns()
+    mpg = Mapalyzr()
     segments = analyse_segments(notes, sample_rate)
     patterns = mpg.identify_patterns(segments)
 
@@ -115,9 +116,7 @@ def get_pattern_weighting(notes: List[Note], sample_rate: int = DEFAULT_SAMPLE_R
     return difficulty
 
 
-def calculate_difficulty(
-    notes, outfile=None, sample_rate: int = DEFAULT_SAMPLE_RATE
-) -> Tuple[float, float, float]:
+def calculate_difficulty(notes, outfile=None, sample_rate: int = DEFAULT_SAMPLE_RATE) -> Weighting:
     sections = create_sections(notes, conf["sample_window_secs"], sample_rate)
 
     moving_avg = moving_average_note_density(sections, conf["moving_avg_window"])
@@ -131,11 +130,18 @@ def calculate_difficulty(
     logger.info(
         f"Final Weighting: {weighting:<10.5f}| Base Difficulty: {difficulty:<10.5f}| Weighted Difficulty: {weighted_difficulty:<10.5f}"
     )
-    return (weighting, difficulty, weighted_difficulty)
+    return Weighting(
+        weighting=weighting, difficulty=difficulty, weighted_difficulty=weighted_difficulty
+    )
 
 
-# Generate output
 def print_segments(segments: List[Segment], sample_rate: int = DEFAULT_SAMPLE_RATE) -> None:
+    """Given a list of Segments, log each segment with additional info like NPS and BPM.
+
+    Args:
+        segments (List[Segment]): The list of Segments to be printed
+        sample_rate (int, optional): The sample rate of the map. Defaults to DEFAULT_SAMPLE_RATE.
+    """
     sorted_segments = sorted(segments, key=lambda segment: segment.notes[0].sample_time)
 
     logger.info(f"Sample rate: {sample_rate}")

@@ -44,15 +44,11 @@ def _process_difficulties(files, output_notes=False):
                     "w",
                     encoding="utf-8",
                 ) as outfile:
-                    (
-                        weighting,
-                        difficulty,
-                        final,
-                    ) = calculate_difficulty(
+                    weight_results = calculate_difficulty(
                         m_map.notes, outfile=outfile, sample_rate=m_map.sample_rate
                     )
                     f.write(
-                        f"{filename.split(char)[-1].split('.asset')[0]}||{final:.2f}||{weighting:.2f}||{difficulty:.2f}\n"
+                        f"{filename.split(char)[-1].split('.asset')[0]}||{weight_results.weighted_difficulty:.2f}||{weight_results.weighting:.2f}||{weight_results.difficulty:.2f}\n"
                     )
                 if output_notes:
                     m_map.output_notes(

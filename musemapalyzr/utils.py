@@ -17,6 +17,8 @@ from musemapalyzr.entities import Note, Segment
 conf = get_config()
 PatternScore = namedtuple("PatternScore", ["pattern_name", "score", "has_interval", "total_notes"])
 
+Weighting = namedtuple("Weighting", ["weighting", "difficulty", "weighted_difficulty"])
+
 
 def moving_average_note_density(sections, window_size):
     num_sections = len(sections)

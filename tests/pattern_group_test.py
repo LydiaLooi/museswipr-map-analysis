@@ -17,7 +17,7 @@ from musemapalyzr.constants import (
     ZIG_ZAG,
 )
 from musemapalyzr.entities import Note, Segment
-from musemapalyzr.map_pattern_analysis import MapPatterns
+from musemapalyzr.map_pattern_analysis import Mapalyzr
 
 dummy_note = Note(0, 0)
 
@@ -37,21 +37,21 @@ def _Note(lane, seconds):
 
 
 def test_one_interval_is_other():
-    groups = MapPatterns().identify_patterns([short_interval])
+    groups = Mapalyzr().identify_patterns([short_interval])
     assert len(groups) == 1
     assert groups[0].pattern_name == OTHER
     assert len(groups[0].segments) == 1
 
 
 def test_two_intervals_is_slow_stretch():
-    groups = MapPatterns().identify_patterns([short_interval, med_interval])
+    groups = Mapalyzr().identify_patterns([short_interval, med_interval])
     assert len(groups) == 1
     assert groups[0].pattern_name == SLOW_STRETCH
     assert len(groups[0].segments) == 2
 
 
 def test_with_differing_intervals_only():
-    groups = MapPatterns().identify_patterns(
+    groups = Mapalyzr().identify_patterns(
         [short_interval, short_interval, med_interval, long_interval, short_interval]
     )
     assert len(groups) == 1
@@ -60,7 +60,7 @@ def test_with_differing_intervals_only():
 
 
 def test_varying_stacks_only():
-    groups = MapPatterns().identify_patterns([two, three, two])
+    groups = Mapalyzr().identify_patterns([two, three, two])
     assert len(groups) == 1
     assert groups[0].pattern_name == VARYING_STACKS
     assert len(groups[0].segments) == 3
@@ -75,7 +75,7 @@ def test_varying_stacks_with_intervals():
         short_interval,
         long_interval,
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert groups[0].pattern_name == SLOW_STRETCH
     assert groups[1].pattern_name == VARYING_STACKS
     assert groups[2].pattern_name == SLOW_STRETCH
@@ -85,7 +85,7 @@ def test_varying_stacks_with_intervals():
 
 
 def test_other_only_one_pattern():
-    groups = MapPatterns().identify_patterns([switch])
+    groups = Mapalyzr().identify_patterns([switch])
     assert len(groups) == 1
     assert groups[0].pattern_name == OTHER
     assert len(groups[0].segments) == 1
@@ -105,7 +105,7 @@ def test_simple_varying_stacks_end_with_other():
         zig_zag,
         stream,
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 3
     assert groups[0].pattern_name == SLOW_STRETCH
     assert len(groups[0].segments) == 2
@@ -117,7 +117,7 @@ def test_simple_varying_stacks_end_with_other():
 
 def test_other_with_multiple_intervals_in_between():
     patterns = [short_interval, switch, med_interval, switch, long_interval]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 1
     assert groups[0].pattern_name == OTHER
     assert len(groups[0].segments) == 5
@@ -134,10 +134,11 @@ def test_other_in_between():
         switch,
         short_interval,
         short_interval,
-        short_interval,
         switch,
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
+    for g in groups:
+        print(g)
     assert len(groups) == 5
     assert groups[0].pattern_name == OTHER
     assert len(groups[0].segments) == 4
@@ -146,14 +147,14 @@ def test_other_in_between():
     assert groups[2].pattern_name == OTHER
     assert len(groups[2].segments) == 3
     assert groups[3].pattern_name == SLOW_STRETCH
-    assert len(groups[3].segments) == 3
+    assert len(groups[3].segments) == 2
     assert groups[4].pattern_name == OTHER
     assert len(groups[4].segments) == 2
 
 
 def test_even_circle():
     patterns = [switch, two, switch, two, switch, two]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 1
     assert groups[0].pattern_name == EVEN_CIRCLES
     assert len(groups[0].segments) == 6
@@ -188,7 +189,7 @@ def test_even_circle_with_intervals_start_and_end():
         ),
         Segment(MED_INTERVAL, [Note(1, 10.6), Note(0, 12.6 * DEFAULT_SAMPLE_RATE)]),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 1
     assert groups[0].pattern_name == EVEN_CIRCLES
     assert len(groups[0].segments) == 8
@@ -214,7 +215,7 @@ def test_invalid_even_circles_pattern():
         ),
     ]
 
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 1
     assert groups[0].pattern_name == OTHER
     assert len(groups[0].segments) == 4
@@ -248,7 +249,7 @@ def test_even_circles_pattern():
         ),
     ]
 
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 1
     assert groups[0].pattern_name == EVEN_CIRCLES
     assert len(groups[0].segments) == 3
@@ -268,7 +269,7 @@ def test_even_circles_have_different_time_diffs_not_even_circles():
             0,
         ),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert groups[0].pattern_name == OTHER
     assert len(groups[0].segments) == 3
 
@@ -302,7 +303,7 @@ def test_even_circles_same_time_diff_with_intervals_with_diff_time_diff():
             0,
         ),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert groups[0].pattern_name == EVEN_CIRCLES
     assert len(groups[0].segments) == 6
 
@@ -327,7 +328,7 @@ def test_skewed_circles_with_invalid_zigzag_is_other():
             0,
         ),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert groups[0].pattern_name == OTHER
     assert len(groups[0].segments) == 3
 
@@ -350,7 +351,7 @@ def test_skewed_circles_valid():
             0,
         ),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert groups[0].pattern_name == SKEWED_CIRCLES
     assert len(groups[0].segments) == 3
 
@@ -363,7 +364,7 @@ def test_skewed_circles_with_start_end_intervals_valid():
         Segment(TWO_STACK, [_Note(0, 10.3), _Note(0, 10.4)], 0),
         Segment(SHORT_INTERVAL, [_Note(0, 10.4), _Note(0, 11)], 0),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert groups[0].pattern_name == SKEWED_CIRCLES
     assert len(groups[0].segments) == 5
 
@@ -395,7 +396,7 @@ def test_skewed_circles_valid_multi_zigs():
             0,
         ),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert groups[0].pattern_name == SKEWED_CIRCLES
 
 
@@ -410,7 +411,7 @@ def test_even_circles_into_nothing_but_theory():
         Segment(ZIG_ZAG, [_Note(0, 1.2), _Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5)], 0),
         Segment(LONG_INTERVAL, [_Note(0, 1.5), _Note(0, 10)], 0),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 2
     assert groups[0].pattern_name == EVEN_CIRCLES
     assert len(groups[0].segments) == 4
@@ -426,7 +427,7 @@ def test_skewed_circles_into_even_circles():
         Segment(SWITCH, [_Note(0, 0.9), _Note(0, 1)], 0),
         Segment(TWO_STACK, [_Note(0, 1), _Note(0, 1.1)], 0),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 2
     assert groups[0].pattern_name == SKEWED_CIRCLES
     assert len(groups[0].segments) == 3
@@ -444,7 +445,7 @@ def test_skewed_circles_into_even_circles_with_interval_sandwich():
         Segment(TWO_STACK, [_Note(0, 1), _Note(0, 1.1)], 0),
         Segment(LONG_INTERVAL, [_Note(0, 1.1), _Note(0, 10)], 0),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 2
     assert groups[0].pattern_name == SKEWED_CIRCLES
     assert len(groups[0].segments) == 4
@@ -459,7 +460,7 @@ def test_nothing_but_theory_valid():
         Segment(TWO_STACK, [_Note(0, 1.1), _Note(0, 1.2)], 0),
         Segment(ZIG_ZAG, [_Note(0, 1.2), _Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5)], 0),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 1
     assert groups[0].pattern_name == NOTHING_BUT_THEORY
     assert len(groups[0].segments) == 4
@@ -472,7 +473,7 @@ def test_nothing_but_theory_valid_other_stacks():
         Segment(THREE_STACK, [_Note(0, 1.1), _Note(0, 1.2), _Note(0, 1.3)], 0),
         Segment(ZIG_ZAG, [_Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5), _Note(0, 1.6)], 0),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 1
     assert groups[0].pattern_name == NOTHING_BUT_THEORY
     assert len(groups[0].segments) == 4
@@ -487,7 +488,7 @@ def test_nothing_but_theory_with_start_end_interval_valid():
         Segment(ZIG_ZAG, [_Note(0, 1.2), _Note(0, 1.3), _Note(0, 1.4), _Note(0, 1.5)], 0),
         Segment(LONG_INTERVAL, [_Note(0, 1.5), _Note(0, 20)], 0),
     ]
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 1
     assert groups[0].pattern_name == NOTHING_BUT_THEORY
     assert len(groups[0].segments) == 6
@@ -503,7 +504,7 @@ def test_slow_stretch_with_varying_intervals():
         Segment(SHORT_INTERVAL, [Note(0, 5757500), Note(0, 5767300)], 0),
     ]
 
-    groups = MapPatterns().identify_patterns(patterns)
+    groups = Mapalyzr().identify_patterns(patterns)
     assert len(groups) == 1
     assert groups[0].pattern_name == SLOW_STRETCH
     assert len(groups[0].segments) == 5

@@ -22,7 +22,7 @@ from patterns.slow_stretch import SlowStretchPattern
 from patterns.varying_stacks import VaryingStacksPattern
 
 
-class MapPatterns:
+class Mapalyzr:
     def __init__(self):
         # **THE** list of Patterns
         self.patterns: List[Pattern] = []
@@ -110,6 +110,14 @@ class MapPatterns:
         new_patterns_list.append(pg)
         return current_mergable
 
+    def _get_empty_mergable_pattern(self, pattern: Pattern):
+        if pattern.pattern_name == OTHER:
+            return OtherPattern(OTHER, [])
+        elif pattern.pattern_name == SLOW_STRETCH:
+            return SlowStretchPattern(SLOW_STRETCH, [])
+        else:
+            raise ValueError(f"Unsupported mergable pattern of: {pattern.pattern_name}")
+
     def _handle_mergable_group(
         self, new_groups, current_mergable: Optional[Pattern], pattern: Pattern, is_first: bool
     ):
@@ -119,12 +127,7 @@ class MapPatterns:
         # Need to see whether the current mergable is same type
 
         if current_mergable is None:
-            if pattern.pattern_name == OTHER:
-                current_mergable = OtherPattern(OTHER, [])
-            elif pattern.pattern_name == SLOW_STRETCH:
-                current_mergable = SlowStretchPattern(SLOW_STRETCH, [])
-            else:
-                raise ValueError(f"Unsupported mergable pattern of: {pattern.pattern_name}")
+            current_mergable = self._get_empty_mergable_pattern(pattern)
 
         # if DIFFERENT type, add the current mergable and is_first becomes True
         if current_mergable.pattern_name != pattern.pattern_name:
@@ -133,21 +136,19 @@ class MapPatterns:
                 return current_mergable, is_first
             new_groups.append(current_mergable)
             is_first = True
-            if pattern.pattern_name == OTHER:
-                current_mergable = OtherPattern(OTHER, [])
-            elif pattern.pattern_name == SLOW_STRETCH:
-                current_mergable = SlowStretchPattern(SLOW_STRETCH, [])
+            if pattern.pattern_name in [OTHER, SLOW_STRETCH]:
+                current_mergable = self._get_empty_mergable_pattern(pattern)
             else:
-                raise ValueError(f"Unsupported mergable pattern of: {pattern.pattern_name}")
+                current_mergable = None
         if is_first:
-            current_mergable = self._handle_first_other_group(current_mergable, pattern)
+            current_mergable = self._handle_first_mergable_group(current_mergable, pattern)
         else:
             current_mergable = self._handle_not_first_mergable_group(current_mergable, pattern)
         if current_mergable:
             is_first = False
         return current_mergable, is_first
 
-    def _handle_first_other_group(self, current_mergable, pattern: Pattern):
+    def _handle_first_mergable_group(self, current_mergable, pattern: Pattern):
         """
         Handles the first occurrence of a MERGABLE group while merging Patterns.
         """
@@ -179,6 +180,32 @@ class MapPatterns:
         else:
             raise ValueError(f"Unsupported mergable pattern: {current_mergable.pattern_name}")
         return current_mergable
+
+    def _handle_last_paterns(self, merge_other=True):
+        # Do last check
+        for last_check_pattern in self.groups:
+            if last_check_pattern.is_appendable():
+                last_pattern_copy = last_check_pattern.__class__(
+                    last_check_pattern.pattern_name,
+                    last_check_pattern.segments,
+                    last_check_pattern.start_sample,
+                    last_check_pattern.end_sample,
+                )
+                self.patterns.append(last_pattern_copy)
+                return self._return_final_patterns(merge_other)
+        if len(self.other_pattern.segments) > 0:
+            # If there is a hanging SINGLE Interval at the end of the pattern, don't add it... unless it is the only one in the group list
+            if len(self.patterns) == 0 or not (
+                len(self.other_pattern.segments) == 1
+                and self.segment_is_interval(self.other_pattern.segments[0])
+            ):
+                last_pattern_copy = OtherPattern(
+                    OTHER,
+                    self.other_pattern.segments,
+                    self.other_pattern.start_sample,
+                    self.other_pattern.end_sample,
+                )
+                self.patterns.append(last_pattern_copy)
 
     def identify_patterns(
         self, segments_list: List[Segment], merge_other: bool = True
@@ -253,29 +280,6 @@ class MapPatterns:
                 for group in self.groups:
                     group.reset_group(previous_segment, current_segment)
 
-        # Do last check
-        for last_check_pattern in self.groups:
-            if last_check_pattern.is_appendable():
-                last_pattern_copy = last_check_pattern.__class__(
-                    last_check_pattern.pattern_name,
-                    last_check_pattern.segments,
-                    last_check_pattern.start_sample,
-                    last_check_pattern.end_sample,
-                )
-                self.patterns.append(last_pattern_copy)
-                return self._return_final_patterns(merge_other)
-        if len(self.other_pattern.segments) > 0:
-            # If there is a hanging SINGLE Interval at the end of the pattern, don't add it... unless it is the only one in the group list
-            if len(self.patterns) == 0 or not (
-                len(self.other_pattern.segments) == 1
-                and self.segment_is_interval(self.other_pattern.segments[0])
-            ):
-                last_pattern_copy = OtherPattern(
-                    OTHER,
-                    self.other_pattern.segments,
-                    self.other_pattern.start_sample,
-                    self.other_pattern.end_sample,
-                )
-                self.patterns.append(last_pattern_copy)
+        self._handle_last_paterns(merge_other=merge_other)
 
         return self._return_final_patterns(merge_other)
