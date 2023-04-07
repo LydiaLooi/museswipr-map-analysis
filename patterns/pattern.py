@@ -9,6 +9,7 @@ from musemapalyzr.constants import (
     MED_INTERVAL,
     SHORT_INTERVAL,
     SINGLE_STREAMS,
+    SLOW_STRETCH,
     SWITCH,
     THREE_STACK,
     TWO_STACK,
@@ -218,6 +219,8 @@ class Pattern:
         final = (self.variation_weighting * variation_multiplier) + (
             self.pattern_weighting * pattern_multiplier
         )
+        if self.pattern_name == SLOW_STRETCH:
+            logger.debug(f"{'Segments:':>25} {self.segments}")
 
         logger.debug(f"{'Variation Multiplier:':>25} {variation_multiplier}")
         logger.debug(f"{'Pattern Multiplier:':>25} {pattern_multiplier}")
