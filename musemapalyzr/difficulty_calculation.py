@@ -19,10 +19,23 @@ logger = logging_config.logger
 conf = get_config()
 
 
-def apply_multiplier_to_pattern_chunk(chunk, pattern_score: PatternScore) -> List[float]:
+def apply_multiplier_to_pattern_chunk(chunk: List[PatternScore]) -> List[float]:
+    """Multiplies the PatternScores in the chunk by the multiplier calculated by the total notes in the chunk
+
+    Args:
+        chunk (List[PatternScore]): The list of PatternScores to multiply
+        pattern_score (PatternScore): The PatternScore that will be used to calculate the multiplier
+
+    Returns:
+        List[float]: A list that just contains the multiplied scores
+    """
+    logger.debug("Applying multiplier")
+    total_notes = sum([ps.total_notes for ps in chunk])
+    logger.debug(f"Chunk ({total_notes} notes): {chunk}")
+
     multiplier = 1
     if len(chunk) > 2:
-        multiplier = pattern_stream_length_multiplier(pattern_score.total_notes)
+        multiplier = pattern_stream_length_multiplier(total_notes)
     multiplied = [
         c_ps.score * multiplier if c_ps.pattern_name != ZIG_ZAG else c_ps.score for c_ps in chunk
     ]
@@ -30,6 +43,14 @@ def apply_multiplier_to_pattern_chunk(chunk, pattern_score: PatternScore) -> Lis
 
 
 def calculate_scores_from_patterns(patterns: List[Pattern]) -> List[float]:
+    """Calculates the difficulty scores for a list of patterns and returns a list of scores.
+
+    Args:
+        patterns (List[Pattern]): A list of patterns to calculate scores for.
+
+    Returns:
+        List[float]: A list of difficulty scores for the input patterns.
+    """
     pattern_scores = []
     for pattern in patterns:
         if pattern.segments:  # check if pattern has segments
@@ -47,14 +68,14 @@ def calculate_scores_from_patterns(patterns: List[Pattern]) -> List[float]:
     chunk = []
     for pattern_score in pattern_scores:
         if pattern_score.has_interval and chunk:
-            multiplied = apply_multiplier_to_pattern_chunk(chunk, pattern_score)
+            multiplied = apply_multiplier_to_pattern_chunk(chunk)
             scores += multiplied
             chunk = []
         else:
             chunk.append(pattern_score)
 
     if chunk:
-        multiplied = apply_multiplier_to_pattern_chunk(chunk, pattern_score)
+        multiplied = apply_multiplier_to_pattern_chunk(chunk)
         scores += multiplied
 
     return scores
@@ -97,7 +118,6 @@ def get_pattern_weighting(notes: List[Note], sample_rate: int = DEFAULT_SAMPLE_R
 def calculate_difficulty(
     notes, outfile=None, sample_rate: int = DEFAULT_SAMPLE_RATE
 ) -> Tuple[float, float, float]:
-
     sections = create_sections(notes, conf["sample_window_secs"], sample_rate)
 
     moving_avg = moving_average_note_density(sections, conf["moving_avg_window"])

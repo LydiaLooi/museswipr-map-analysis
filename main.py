@@ -2,6 +2,7 @@ import config.logging_config as logging_config
 
 logger = logging_config.logger
 import cProfile
+import datetime
 import os
 import subprocess
 import time
@@ -10,6 +11,8 @@ from musemapalyzr.difficulty_calculation import calculate_difficulty
 from musemapalyzr.entities import MuseSwiprMap
 
 DATA_DIR = "data"
+
+OUTPUT_DIR = "difficulty_exports"
 
 
 def calculate_and_export_filtered_difficulties(string):
@@ -24,8 +27,9 @@ def calculate_and_export_filtered_difficulties(string):
 
 
 def _process_difficulties(files, output_notes=False):
+    now = datetime.datetime.now()
     with open(
-        "difficulties_data.txt",
+        f"{OUTPUT_DIR}/{now.strftime('%Y-%m-%d_%H-%M-%S')}_difficulties_data.txt",
         "w",
         encoding="utf-8",
     ) as f:
@@ -77,8 +81,8 @@ if __name__ == "__main__":
     logger.info("Running the main file")
     string = "big black"
 
-    calculate_and_export_filtered_difficulties(string)
-    # calculate_and_export_all_difficulties()
+    # calculate_and_export_filtered_difficulties(string)
+    calculate_and_export_all_difficulties()
 
     end_time = time.time()
     elapsed_time = end_time - start_time
