@@ -1,6 +1,17 @@
 {
     "version": 1,
     "disable_existing_loggers": false,
+    "loggers": {
+        "logger": {
+            "handlers": [
+                "console",
+                "debug_file_handler",
+                "info_file_handler",
+                "error_file_handler"
+            ],
+            "level": "DEBUG"
+        }
+    },
     "formatters": {
         "detailed": {
             "format": "%(levelname)-8s - %(asctime)-10s - [ %(filename)-30s:%(lineno)-3s ] %(message)s"
@@ -39,17 +50,6 @@
             "filename": "logs/error.log",
             "mode": "w+",
             "encoding": "utf-8"
-        }
-    },
-    "loggers": {
-        "logger": {
-            "handlers": [
-                "console",
-                "debug_file_handler",
-                "info_file_handler",
-                "error_file_handler"
-            ],
-            "level": "DEBUG"
         }
     }
 }

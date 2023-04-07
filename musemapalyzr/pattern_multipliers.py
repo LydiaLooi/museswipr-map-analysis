@@ -17,7 +17,7 @@ def nothing_but_theory_multiplier(
         return x * x * (3 - (2 * x))
 
     t = (nps - lower_clamp) / (upper_clamp - lower_clamp)
-    t = np.clip(t, 0, 1)
+    t = max(min(t, 1), 0)
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
 
@@ -32,7 +32,7 @@ def varying_streams(
         return x * x * (3 - (2 * x))
 
     t = (nps - lower_clamp) / (upper_clamp - lower_clamp)
-    t = np.clip(t, 0, 1)
+    t = max(min(t, 1), 0)
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
 
@@ -47,7 +47,7 @@ def zig_zag_multiplier(
         return x**4
 
     t = (nps - lower_clamp) / (upper_clamp - lower_clamp)
-    t = np.clip(t, 0, 1)
+    t = max(min(t, 1), 0)
     return lower_bound + (upper_bound - lower_bound) * ease_in_cubic(t)
 
 
@@ -86,7 +86,7 @@ def stream_multiplier(
         return x * x * (3 - (2 * x))
 
     t = (nps - lower_clamp) / (upper_clamp - lower_clamp)
-    t = np.clip(t, 0, 1)
+    t = max(min(t, 1), 0)
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
 
@@ -101,7 +101,7 @@ def pattern_stream_length_multiplier(
         return x * x * (3 - (2 * x))
 
     t = (num_notes - lower_clamp) / (upper_clamp - lower_clamp)
-    t = np.clip(t, 0, 1)
+    t = max(min(t, 1), 0)
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
 
@@ -116,7 +116,7 @@ def zig_zag_length_multiplier(
         return x * x * (3 - (2 * x))
 
     t = (num_notes - lower_clamp) / (upper_clamp - lower_clamp)
-    t = np.clip(t, 0, 1)
+    t = max(min(t, 1), 0)
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
 
@@ -131,7 +131,7 @@ def four_stack_multiplier(
         return x * x * (3 - (2 * x))
 
     t = (nps - lower_clamp) / (upper_clamp - lower_clamp)
-    t = np.clip(t, 0, 1)
+    t = max(min(t, 1), 0)
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
 
@@ -146,7 +146,7 @@ def three_stack_multiplier(
         return x * x * (3 - (2 * x))
 
     t = (nps - lower_clamp) / (upper_clamp - lower_clamp)
-    t = np.clip(t, 0, 1)
+    t = max(min(t, 1), 0)
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
 
@@ -158,10 +158,10 @@ def two_stack_multiplier(
     upper_clamp=conf["two_stack_up_clamp"],
 ):
     def smoothstep(x):
-        return x * x * (3 - (2 * x))
+        return x * x * (3 - 2 * x)
 
     t = (nps - lower_clamp) / (upper_clamp - lower_clamp)
-    t = np.clip(t, 0, 1)
+    t = max(min(t, 1), 0)
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
 
@@ -176,7 +176,7 @@ def varying_stacks_multiplier(
         return x * x * (3 - (2 * x))
 
     t = (nps - lower_clamp) / (upper_clamp - lower_clamp)
-    t = np.clip(t, 0, 1)
+    t = max(min(t, 1), 0)
     return lower_bound + (upper_bound - lower_bound) * smoothstep(t)
 
 
