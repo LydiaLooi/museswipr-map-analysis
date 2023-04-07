@@ -20,7 +20,7 @@ PatternScore = namedtuple("PatternScore", ["pattern_name", "score", "has_interva
 Weighting = namedtuple("Weighting", ["weighting", "difficulty", "weighted_difficulty"])
 
 
-def moving_average_note_density(sections, window_size):
+def moving_average_note_density(sections: List[List[Note]], window_size: int):
     num_sections = len(sections)
     note_densities = [len(section) for section in sections]
     moving_averages = []
@@ -37,7 +37,7 @@ def moving_average_note_density(sections, window_size):
 
 def create_sections(
     notes: List[Note], section_threshold_seconds=1, sample_rate: int = DEFAULT_SAMPLE_RATE
-):
+) -> List[List[Note]]:
     """Creates sections of section_threshold_seconds length to help with calculating
     density over the course of a map.
 

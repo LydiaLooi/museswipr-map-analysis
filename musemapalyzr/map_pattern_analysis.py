@@ -36,6 +36,9 @@ class Mapalyzr:
         self.other_pattern: OtherPattern = OtherPattern(OTHER, [])
         self.reset_groups()
 
+        self.added = False
+        self.reset = False
+
     def is_n_stack(self, segment: Segment):
         return segment.segment_name in (TWO_STACK, THREE_STACK, FOUR_STACK)
 
@@ -52,18 +55,18 @@ class Mapalyzr:
         ]
         self.other_pattern = OtherPattern(OTHER, [])
 
-    def _return_final_patterns(self, merge_patterns=True) -> List[Pattern]:
+    def _return_final_patterns(self, merge_mergable=True) -> List[Pattern]:
         """
         Returns the final list of Patterns after merging, if merge_patterns is True.
         Merges Other patterns
         Merges Slow Stretch patterns
         Note that these have different merging strategies
         """
-        logger.debug(f"_return_final_patterns : {merge_patterns}")
+        logger.debug(f"_return_final_patterns : {merge_mergable}")
         logger.debug(
             f"Patterns ({len(self.patterns)}): {[f'{p.pattern_name} ({len(p.segments)})' for p in self.patterns]}"
         )
-        if not merge_patterns:
+        if not merge_mergable:
             return self.patterns
 
         new_groups = []
@@ -181,7 +184,7 @@ class Mapalyzr:
             raise ValueError(f"Unsupported mergable pattern: {current_mergable.pattern_name}")
         return current_mergable
 
-    def _handle_last_paterns(self, merge_other=True):
+    def _handle_last_paterns(self, merge_mergable=True):
         # Do last check
         for last_check_pattern in self.groups:
             if last_check_pattern.is_appendable():
@@ -192,7 +195,7 @@ class Mapalyzr:
                     last_check_pattern.end_sample,
                 )
                 self.patterns.append(last_pattern_copy)
-                return self._return_final_patterns(merge_other)
+                return self._return_final_patterns(merge_mergable)
         if len(self.other_pattern.segments) > 0:
             # If there is a hanging SINGLE Interval at the end of the pattern, don't add it... unless it is the only one in the group list
             if len(self.patterns) == 0 or not (
@@ -207,62 +210,79 @@ class Mapalyzr:
                 )
                 self.patterns.append(last_pattern_copy)
 
+    def _handle_appendable_group(
+        self, group: Pattern, previous_segment: Segment, current_segment: Segment
+    ):
+        # Need to first check if OtherGroup has stragglers...
+        if len(group.segments) < len(self.other_pattern.segments):
+            # THERE ARE STRAGGLERS.
+            other_group = OtherPattern(
+                OTHER,
+                self.other_pattern.segments[: -len(group.segments)],
+            )
+            self.patterns.append(other_group)
+
+        group_copy = group.__class__(
+            group.pattern_name,
+            group.segments,
+            group.start_sample,
+            group.end_sample,
+        )
+        self.patterns.append(group_copy)
+        # Reset all groups with current pattern.
+        for group in self.groups:
+            group.reset_group(previous_segment, current_segment)
+        self.other_pattern.reset_group(previous_segment, current_segment)  # reset OtherGroup
+
+    def _handle_each_group(self, previous_segment: Segment, current_segment: Segment):
+        self.added = False  # has this pattern been added?
+        self.reset = False  # have we done a reset?
+        for group in self.groups:
+            group: Pattern
+            _added = group.check_segment(current_segment)
+            if _added == True:
+                self.added = True
+            else:
+                # Only set it to inactive if it's already begun adding stuff
+                if len(group.segments) > 0:
+                    group.is_active = False
+
+                # Check if the group is appendable
+                if group.is_appendable():
+                    self.added = True
+                    self._handle_appendable_group(
+                        group=group,
+                        previous_segment=previous_segment,
+                        current_segment=current_segment,
+                    )
+                    self.reset = True
+                    return  # STOP LOOKING !! WE FOUND SOMETHING
+
     def identify_patterns(
-        self, segments_list: List[Segment], merge_other: bool = True
+        self, segments_list: List[Segment], merge_mergable: bool = True
     ) -> List[Pattern]:
+        """Identifies Patterns from a list of Segments.
+
+        Args:
+            segments_list (List[Segment]): The list of segments to identify Patterns from.
+            merge_mergable (bool, optional): If True, merges mergable consecutive patterns together. Defaults to True.
+
+        Returns:
+            List[Pattern]: The list of identified Patterns.
+        """
         for i in range(0, len(segments_list)):
             current_segment = segments_list[i]
 
-            if len(segments_list) > 1 and i != 0:
-                previous_segment: Optional[Segment] = segments_list[i - 1]
-            else:
-                previous_segment: Optional[Segment] = None
+            previous_segment: Optional[Segment] = (
+                segments_list[i - 1] if len(segments_list) > 1 and i != 0 else None
+            )
 
-            added = False  # has this pattern been added?
-            reset = False  # have we done a reset?
-            for group in self.groups:
-                group: Pattern
-                _added = group.check_segment(current_segment)
-                if _added == True:
-                    added = True
-                else:
-                    if len(group.segments) > 0:
-                        group.is_active = (
-                            False  # Only set it to inactive if it's already begun adding stuff
-                        )
-
-                    # Check if the group is appendable
-                    if group.is_appendable():
-                        # Need to first check if OtherGroup has stragglers...
-                        if len(group.segments) < len(self.other_pattern.segments):
-                            # THERE ARE STRAGGLERS.
-                            other_group = OtherPattern(
-                                OTHER,
-                                self.other_pattern.segments[: -len(group.segments)],
-                            )
-                            self.patterns.append(other_group)
-
-                        added = True
-                        group_copy = group.__class__(
-                            group.pattern_name,
-                            group.segments,
-                            group.start_sample,
-                            group.end_sample,
-                        )
-                        self.patterns.append(group_copy)
-                        # Reset all groups with current pattern.
-                        for group in self.groups:
-                            group.reset_group(previous_segment, current_segment)
-                        self.other_pattern.reset_group(
-                            previous_segment, current_segment
-                        )  # reset OtherGroup
-                        reset = True
-                        break  # STOP LOOKING !! WE FOUND SOMETHING
-            if not reset:
+            self._handle_each_group(previous_segment, current_segment)
+            if not self.reset:
                 self.other_pattern.check_segment(current_segment)
 
             # We have gone through all the defined groups...
-            if not added:
+            if not self.added:
                 # Append OtherGroup if no other groups were appendable
                 if len(self.other_pattern.segments) > 0:
                     self.patterns.append(
@@ -280,6 +300,6 @@ class Mapalyzr:
                 for group in self.groups:
                     group.reset_group(previous_segment, current_segment)
 
-        self._handle_last_paterns(merge_other=merge_other)
+        self._handle_last_paterns(merge_mergable=merge_mergable)
 
-        return self._return_final_patterns(merge_other)
+        return self._return_final_patterns(merge_mergable)
