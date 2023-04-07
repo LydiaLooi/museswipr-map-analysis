@@ -35,7 +35,20 @@ def moving_average_note_density(sections, window_size):
     return moving_averages
 
 
-def create_sections(notes, section_threshold_seconds=1, sample_rate: int = DEFAULT_SAMPLE_RATE):
+def create_sections(
+    notes: List[Note], section_threshold_seconds=1, sample_rate: int = DEFAULT_SAMPLE_RATE
+):
+    """Creates sections of section_threshold_seconds length to help with calculating
+    density over the course of a map.
+
+    Args:
+        notes (List[Note]): The list of notes from a map
+        section_threshold_seconds (int, optional): The length of the sections in seconds. Defaults to 1.
+        sample_rate (int, optional): The sample rate of the map. Defaults to DEFAULT_SAMPLE_RATE.
+
+    Returns:
+        _type_: _description_
+    """
     section_threshold = section_threshold_seconds * sample_rate
     song_start_samples = min(note.sample_time for note in notes)
     song_duration_samples = max(note.sample_time for note in notes)
@@ -61,6 +74,20 @@ def create_sections(notes, section_threshold_seconds=1, sample_rate: int = DEFAU
 
 
 def weighted_average_of_values(values, top_percentage=0.3, top_weight=0.7, bottom_weight=0.3):
+    """Calculates the weighted average of a list of values.
+
+    Args:
+        values (list): A list of numerical values.
+        top_percentage (float): The percentage of values that are considered "top" values. Default is 0.3.
+        top_weight (float): The weight given to top values. Default is 0.7.
+        bottom_weight (float): The weight given to non-top values. Default is 0.3.
+
+    Returns:
+        float: The weighted average of the input values.
+
+    Raises:
+        ValueError: If the input list 'values' is empty.
+    """
     if not values:
         raise ValueError("The input list 'values' cannot be empty.")
 

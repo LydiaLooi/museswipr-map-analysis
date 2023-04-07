@@ -36,7 +36,7 @@ def _process_difficulties(files, output_notes=False):
         for filename in files:
             try:
                 char = "\\"
-                m_map = MuseSwiprMap(f"{DATA_DIR}/{filename}")
+                m_map = MuseSwiprMap.from_koreograph_asset(f"{DATA_DIR}/{filename}")
                 name = filename.split(char)[-1].split(".asset")[0]
                 logger.info(f"Processing: '{filename}'")
                 with open(
@@ -51,10 +51,7 @@ def _process_difficulties(files, output_notes=False):
                         f"{filename.split(char)[-1].split('.asset')[0]}||{weight_results.weighted_difficulty:.2f}||{weight_results.weighting:.2f}||{weight_results.difficulty:.2f}\n"
                     )
                 if output_notes:
-                    m_map.output_notes(
-                        f"{name}.txt",
-                        m_map.sample_rate,
-                    )
+                    m_map.output_notes(f"{name}.txt")
             except Exception as e:
                 logger.error(f"ERROR parsing a file: {e}")
                 continue

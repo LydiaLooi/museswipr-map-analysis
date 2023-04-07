@@ -48,19 +48,29 @@ class Segment:
 
 
 class MuseSwiprMap:
-    def __init__(self, koreograph_asset_filename):
+    def __init__(self):
+        self.title = None
+        self.temp_sections = None
+        self.tracks = None
+        self.notes = None
+        self.sample_rate = None
+
+    @classmethod
+    def from_koreograph_asset(cls, koreograph_asset_filename: str):
+        muse_map = cls()
         data = None
         with open(f"{koreograph_asset_filename}", "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        self.title = list(data.keys())[0]
-        self.tempo_sections = data[self.title]["value"]["mTempoSections"]
-        self.tracks = data[self.title]["value"]["mTracks"]
-        self.notes = []
+        muse_map.title = list(data.keys())[0]
+        muse_map.tempo_sections = data[muse_map.title]["value"]["mTempoSections"]
+        muse_map.tracks = data[muse_map.title]["value"]["mTracks"]
+        muse_map.notes = []
 
-        self.sample_rate = int(data[self.title]["value"]["mSampleRate"])
+        muse_map.sample_rate = int(data[muse_map.title]["value"]["mSampleRate"])
 
-        self._parse_notes()
+        muse_map._parse_notes()
+        return muse_map
 
     def _parse_notes(self):
         for t in self.tracks:
@@ -73,9 +83,14 @@ class MuseSwiprMap:
 
         self.notes = sorted(self.notes, key=lambda note: note.sample_time)
 
-    def output_notes(self, file_path, sample_rate: int = DEFAULT_SAMPLE_RATE):
-        """
-        Written by ChatGPT. May have errors but it's neat :)
+    def output_notes(self, file_path: str):
+        """Writes a text file that visualises the map.
+
+        Fun fact, this was written by ChatGPT
+
+        Args:
+            file_path (str): The filename to output to.
+            sample_rate (int, optional): The map's sample rate. Defaults to DEFAULT_SAMPLE_RATE.
         """
         notes = self.notes
         # Find the smallest time distance between notes
@@ -97,9 +112,9 @@ class MuseSwiprMap:
                 for note in sorted_notes:
                     if note.sample_time <= time < note.sample_time + smallest_time_distance:
                         if note.lane == 0:
-                            file.write(f"{note.sample_time/sample_rate:.2f}| []\n")
+                            file.write(f"{note.sample_time/self.sample_rate:.2f}| []\n")
                         elif note.lane == 1:
-                            file.write(f"{note.sample_time/sample_rate:.2f}|      []\n")
+                            file.write(f"{note.sample_time/self.sample_rate:.2f}|      []\n")
                         break
                 else:
-                    file.write(f"{time/sample_rate:.2f}|\n")
+                    file.write(f"{time/self.sample_rate:.2f}|\n")
